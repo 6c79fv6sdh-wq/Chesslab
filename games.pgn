@@ -1,4 +1,47 @@
 [Event "rated blitz game"]
+[Site "https://lichess.org/oOW508JM"]
+[Date "2026.08.02"]
+[Round "-"]
+[White "Blitzscheck"]
+[Black "MellowMoonshine"]
+[Result "1-0"]
+[GameId "oOW508JM"]
+[UTCDate "2026.08.02"]
+[UTCTime "17:17:52"]
+[WhiteElo "2135"]
+[BlackElo "2135"]
+[WhiteRatingDiff "+30"]
+[BlackRatingDiff "-5"]
+[Variant "Standard"]
+[TimeControl "180+0"]
+[Termination "Normal"]
+
+1. e4 e5 2. Nf3 f5 3. Nxe5 fxe4 4. d4 Nf6 5. Bc4 d5 6. Bb3 Nc6 7. O-O Bd6 8. Nxc6 bxc6 9. Nc3 O-O 10. Bg5 Kh8 11. g3 Qe8 12. Bxf6 Rxf6 13. Bxd5 cxd5 14. Nxd5 Rh6 15. f4 exf3 16. Qxf3 Bh3 17. Rfe1 Qg6 18. Nf4 Qxc2 19. Nxh3 Rxh3 20. Re2 Qg6 21. Qxa8+ 1-0
+
+
+[Event "rated blitz game"]
+[Site "https://lichess.org/zKK8HEU1"]
+[Date "2026.08.02"]
+[Round "-"]
+[White "Blitzscheck"]
+[Black "meter"]
+[Result "1-0"]
+[GameId "zKK8HEU1"]
+[UTCDate "2026.08.02"]
+[UTCTime "16:43:10"]
+[WhiteElo "2199"]
+[BlackElo "2123"]
+[WhiteRatingDiff "+47"]
+[BlackRatingDiff "-4"]
+[Variant "Standard"]
+[TimeControl "180+0"]
+[Termination "Normal"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 d5 5. exd5 b5 6. Bf1 Nd4 7. c3 Nxd5 8. Nxf7 Kxf7 9. cxd4 exd4 10. Bxb5 Qe7+ 11. Qe2 Rb8 12. Bc4 Qxe2+ 13. Bxe2 Be6 14. O-O Nf4 15. Bf3 Nd3 16. Be4 Nxc1 17. Rxc1 Bd6 18. d3 Rxb2 19. a4 Rhb8 20. g3 Bh3 21. Bg2 Bf5 22. Be4 Bxe4 23. dxe4 d3 24. Nc3 Bc5 25. Rf1 Bd4 26. Nb5 R2xb5 27. axb5 Bxa1 28. Rxa1 Rxb5 29. f4 Rb2 30. Rd1 d2 31. Kf2 a5 32. Ke3 a4 33. Rxd2 a3 34. Rd7+ Kf6 35. Rxc7 Rxh2 36. e5+ Ke6 37. Rxg7 a2 38. Ra7 Kd5 39. Ra5+ Kc4 40. e6 Kb4 41. Ra7 Kc5 42. e7 Rh1 43. Rxa2 1-0
+
+
+
+[Event "rated blitz game"]
 [Site "https://lichess.org/MSYU402A"]
 [Date "2026.08.01"]
 [Round "-"]
