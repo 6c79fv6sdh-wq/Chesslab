@@ -113,6 +113,28 @@ def main() -> int:
         f"{'moves' if args.all_moves else 'own moves'} analysed.\n"
     )
 
+    # A column that is empty for every row means the export was made without the
+    # matching Lichess flag. Say so up front rather than showing blank sections
+    # and letting them read as "no problems here".
+    missing = []
+    if all(row["time_spent"] is None for row in rows):
+        missing.append(
+            "clock data (`clocks=true`) — no time-usage section, "
+            "`time_spent`/`time_left` are empty"
+        )
+    if all(not row["opening"] for row in rows):
+        missing.append(
+            "opening names (`opening=true`) — the by-opening table cannot split"
+        )
+    if missing:
+        out.append("> **Incomplete export.** This PGN is missing:\n>")
+        for item in missing:
+            out.append(f"> - {item}")
+        out.append(
+            ">\n> Re-export with those options to fill the gaps. "
+            "`fetch.py` sets them by default.\n"
+        )
+
     out.append("## Overall\n")
     out.append(
         table(

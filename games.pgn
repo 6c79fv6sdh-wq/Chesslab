@@ -1,0 +1,84 @@
+[Event "rated blitz game"]
+[Site "https://lichess.org/MSYU402A"]
+[Date "2026.08.01"]
+[Round "-"]
+[White "Shark29"]
+[Black "Blitzscheck"]
+[Result "0-1"]
+[GameId "MSYU402A"]
+[UTCDate "2026.08.01"]
+[UTCTime "22:14:28"]
+[WhiteElo "2211"]
+[BlackElo "2157"]
+[WhiteRatingDiff "-5"]
+[BlackRatingDiff "+114"]
+[Variant "Standard"]
+[TimeControl "180+0"]
+[Termination "Normal"]
+
+1. e4 d5 2. Nc3 dxe4 3. Nxe4 Nf6 4. Nxf6+ gxf6 5. g3 e5 6. Bg2 Nc6 7. Ne2 Bd7 8. O-O h5 9. h3 Qe7 10. d4 O-O-O 11. d5 Nb8 12. c4 Bh6 13. Qa4 Bxa4 0-1
+
+
+[Event "rated blitz game"]
+[Site "https://lichess.org/92NP7FSU"]
+[Date "2026.08.01"]
+[Round "-"]
+[White "Blitzscheck"]
+[Black "winstonl"]
+[Result "1-0"]
+[GameId "92NP7FSU"]
+[UTCDate "2026.08.01"]
+[UTCTime "22:06:39"]
+[WhiteElo "1991"]
+[BlackElo "2101"]
+[WhiteRatingDiff "+166"]
+[BlackRatingDiff "-6"]
+[Variant "Standard"]
+[TimeControl "180+0"]
+[Termination "Time forfeit"]
+
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Qxd4 Nc6 5. Bb5 Bd7 6. Bxc6 Bxc6 7. Nc3 Nf6 8. Bg5 Qb6 9. Qd3 Ng4 10. O-O h6 11. Bd2 e6 12. h3 Nf6 13. Rfe1 Be7 14. e5 dxe5 15. Nxe5 O-O 16. Qg3 Rad8 17. Bxh6 Ne8 18. Ne4 Bxe4 19. Rxe4 Bf6 20. Ng4 Bxb2 21. Rae1 gxh6 22. Nxh6+ Kh7 23. Rh4 Bg7 24. Nxf7+ Kg8 25. Nxd8 Qxd8 26. Rg4 Qf6 27. h4 Kh8 28. h5 Bh6 29. Rf1 Ng7 30. Qh3 Nf5 31. f3 Rg8 32. Rxg8+ Kxg8 33. g4 Ne3 34. Rf2 Qf4 35. Qh2 Nd5 36. Qxf4 Bxf4 37. Kf1 Ne3+ 38. Ke2 Kf7 39. Rf1 Nd5 40. Rb1 Kf6 41. Rxb7 Ke5 42. Rxa7 Nc3+ 43. Kd3 Nd5 44. Kc4 Ne3+ 45. Kb5 Nxc2 46. Ka6 Nd4 47. Kb7 Be3 48. a4 Nf5 49. a5 Bxa7 50. a6 Nd4 51. Kxa7 Nxf3 52. Kb7 Ng5 53. a7 Nf3 54. a8=Q Ng5 55. Qa7 Nh7 56. Qa5+ 1-0
+
+
+[Event "rated blitz game"]
+[Site "https://lichess.org/cNtoVgfe"]
+[Date "2026.08.01"]
+[Round "-"]
+[White "Jaybeth"]
+[Black "Blitzscheck"]
+[Result "1-0"]
+[GameId "cNtoVgfe"]
+[UTCDate "2026.08.01"]
+[UTCTime "22:00:22"]
+[WhiteElo "2266"]
+[BlackElo "2094"]
+[WhiteRatingDiff "+3"]
+[BlackRatingDiff "-103"]
+[Variant "Standard"]
+[TimeControl "180+0"]
+[Termination "Time forfeit"]
+
+1. Nf3 d6 2. g3 e5 3. d3 f5 4. Nbd2 Nf6 5. Bg2 Be7 6. O-O O-O 7. e4 Qe8 8. c3 Qh5 9. exf5 Bxf5 10. Qb3+ Kh8 11. Qxb7 Nbd7 12. Ne4 Bh3 13. Qxc7 Bxg2 14. Kxg2 Ng4 15. h3 Nh6 16. Qxd7 Qxf3+ 17. Kg1 d5 18. Bxh6 gxh6 19. Qxe7 dxe4 20. Qxe5+ Kg8 21. Qxe4 Qh5 22. Qg4+ Qxg4 23. hxg4 Rac8 24. Rae1 Rcd8 25. d4 Rb8 26. Re2 Kg7 27. f4 Kg6 28. Rff2 h5 29. gxh5+ Kxh5 30. Kg2 Kg4 31. Re5 h6 32. f5 Rf6 33. Re6 Rbf8 34. Rxf6 Rxf6 35. Rf4+ Kg5 36. Kf3 h5 37. d5 a5 38. b3 Kh6 39. c4 Kg7 40. Ke4 Kf7 41. Ke5 Ke7 42. g4 hxg4 43. Rxg4 Rf7 44. Rg6 Kd7 45. Ra6 Re7+ 46. Re6 Rh7 47. d6 Rh1 48. Kf6 Rh6+ 49. Ke5 Rh1 50. c5 Ra1 51. Re7+ Kd8 52. c6 Re1+ 53. Kf6 Rh1 54. Ra7 1-0
+
+
+[Event "rated blitz game"]
+[Site "https://lichess.org/VeL05zD2"]
+[Date "2026.08.01"]
+[Round "-"]
+[White "Blitzscheck"]
+[Black "Vanpelt14"]
+[Result "1-0"]
+[GameId "VeL05zD2"]
+[UTCDate "2026.08.01"]
+[UTCTime "21:53:27"]
+[WhiteElo "1500"]
+[BlackElo "1814"]
+[WhiteRatingDiff "+594"]
+[BlackRatingDiff "-5"]
+[Variant "Standard"]
+[TimeControl "180+0"]
+[Termination "Time forfeit"]
+
+1. e4 c5 2. Nf3 Nc6 3. Bb5 a6 4. Bxc6 bxc6 5. O-O e6 6. c3 Nf6 7. e5 Nd5 8. d4 cxd4 9. cxd4 Be7 10. Nc3 O-O 11. Nxd5 cxd5 12. Be3 d6 13. Rc1 dxe5 14. Nxe5 Bb7 15. Qb3 Rb8 16. Rc2 Bd6 17. Bf4 f6 18. Nd3 Bxf4 19. Nxf4 Qd6 20. Qe3 e5 21. dxe5 fxe5 22. Ne2 d4 23. Qg3 Rf6 24. Rfc1 Rg6 25. Qb3+ Qe6 26. Qxe6+ Rxe6 27. Rc7 Rg6 28. Ng3 Rd6 29. Nf5 Rg6 30. Ne7+ Kf7 31. Nxg6+ Kxg6 32. b3 Kf5 33. Rxg7 Ke4 34. Rxh7 d3 35. Rd1 Bd5 36. Rh4+ Kf5 37. f3 e4 38. fxe4+ Bxe4 39. Kf2 Rc8 40. Ke3 Re8 41. Rxd3 Bxd3+ 42. Kxd3 Rd8+ 43. Ke3 Kg5 44. Rh3 Rc8 45. Kd3 Rf8 46. Kc3 Rf2 47. Rg3+ Kf4 48. a4 Ra2 49. Kb4 Ra1 50. Ka5 Rh1 51. b4 Rxh2 52. Rb3 Rxg2 53. b5 axb5 54. axb5 Rg8 55. b6 Ke5 56. b7 Rb8 57. Ka6 Kd6 58. Ka7 Kc7 59. Rc3+ Kd6 60. Rc8 Rxb7+ 61. Kxb7 Kd5 62. Rc7 Kd4 63. Rc6 Kd3 64. Rb6 Ke4 65. Rc6 Ke3 66. Kc7 Ke4 67. Rd6 Kf4 68. Rd7 Kf5 69. Rd8 Kf4 70. Re8 Kg4 71. Rc8 Kg5 72. Rb8 Kf5 73. Rb6 Ke5 74. Ra6 Kd5 75. Ra5+ Kd4 76. Ra7 Kc3 77. Ra8 Kb4 78. Rb8+ Kc4 79. Kc8 Kc5 80. Kd8 Kc4 81. Rc8+ Kd4 82. Rc7 Ke5 83. Rd7 Ke6 84. Re7+ Kf6 85. Re8 Kg6 86. Re7 Kf6 87. Rb7 Kf5 88. Rb6 Ke5 89. Rb7 Kd4 90. Rb8 Kc5 91. Rc8+ Kd5 92. Ke8 Kd6 93. Kf8 Ke6 94. Kg8 Kf6 95. Rb8 Kg6 96. Ra8 Kh6 97. Ra6+ Kg5 98. Ra5+ Kg4 99. Ra4+ Kf3 100. Ra5 Ke3 101. Ra7 Kd4 102. Rb7 Kd3 103. Rc7 1-0
+
+
