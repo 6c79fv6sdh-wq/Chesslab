@@ -60,7 +60,7 @@ Useful flags: `--movetime` (default 0.2s), `--workers` (default: cores - 1),
 
 ### moves.csv
 
-One row per ply, both players' moves. 17 columns:
+One row per ply, both players' moves. 18 columns:
 
 | column | meaning |
 |---|---|
@@ -69,11 +69,12 @@ One row per ply, both players' moves. 17 columns:
 | `color` | `white` / `black` — side that played the move |
 | `is_mine` | `True` when the mover is `--user` |
 | `move` | the move played, SAN |
-| `eval_before` | engine evaluation before the move, centipawns, **White's** point of view |
+| `eval_before` | engine evaluation before the move, centipawns, **the mover's** point of view — positive is good for whoever played this move |
 | `eval_after` | evaluation after the move, same convention |
-| `is_mate_before` | `True` when the evaluation before the move was a mate score |
-| `is_mate_after` | `True` when the evaluation after the move was a mate score |
-| `cp_loss` | centipawns lost by the move, from the **mover's** point of view, never negative |
+| `is_mate_before` | `True` when the position before the move was decided (mate, or past ±1500) |
+| `is_mate_after` | `True` when the position after the move was decided |
+| `cp_loss` | centipawns lost by the move, never negative |
+| `is_critical` | `1` when the opponent's preceding move swung the evaluation by 100+ |
 | `best_move` | the engine's preferred move in that position, SAN |
 | `phase` | `opening` / `middlegame` / `endgame`, by material |
 | `time_spent` | seconds spent on the move |
@@ -84,10 +85,22 @@ One row per ply, both players' moves. 17 columns:
 
 ## Conventions worth knowing
 
+**Point of view.** `eval_before` and `eval_after` are stated from the point of
+view of the side that played the move: positive means the position favours the
+mover. So a game you lost with Black trends negative in its own rows, and
+`cp_loss` is a plain `before - after`.
+
 **Mate scores.** Pinned to exactly ±10000 and flagged with `is_mate_before` /
 `is_mate_after`. python-chess encodes the distance to mate into the score (mate
 in 3 → 9997, mate in 5 → 9995); that distance is not a centipawn quantity, so
-it is discarded rather than differenced.
+it is discarded rather than differenced. A plain centipawn score past ±1500 is
+flagged the same way — the engine has not announced mate, but the position is
+just as decided and the number just as unusable as a difference.
+
+**Critical positions.** `is_critical` marks a move that answers an opponent move
+which shifted the evaluation by 100 centipawns or more: a blunder to punish or a
+threat to meet. The swing is measured on clamped scores, so an already-decided
+game does not mark everything that follows.
 
 **Centipawn loss** is computed on evaluations clamped to ±1000 — both sides of
 the subtraction, so no move can be charged more than 2000. Without the clamp an

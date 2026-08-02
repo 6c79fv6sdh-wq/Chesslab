@@ -42,6 +42,16 @@ EVAL_CLAMP = 1000
 # Non-pawn material remaining on the board, counted with the usual 3/3/5/9
 # weights over both sides. A full board is 62; these cutoffs split the game
 # into roughly equal thirds by material traded.
+# Any evaluation past this magnitude counts as decided and is flagged like a
+# mate, even when the engine reported it as centipawns. Stockfish returns scores
+# such as +8115 once a side has several extra queens; those are not centipawn
+# quantities in any useful sense and differencing them produces noise.
+MATE_ZONE = 1500
+
+# A move by the opponent that swings the evaluation by at least this much leaves
+# the position "critical" -- the reply to it is where games are decided.
+CRITICAL_SWING = 100
+
 PHASE_OPENING_MIN = 52
 PHASE_MIDDLEGAME_MIN = 24
 
@@ -69,6 +79,7 @@ FIELDNAMES = [
     "is_mate_before",
     "is_mate_after",
     "cp_loss",
+    "is_critical",
     "best_move",
     "phase",
     "time_spent",
@@ -91,6 +102,7 @@ class MoveRow:
     is_mate_before: bool
     is_mate_after: bool
     cp_loss: int
+    is_critical: int
     best_move: str
     phase: str
     time_spent: float | None
@@ -164,18 +176,23 @@ def game_datetime(game: chess.pgn.Game) -> datetime | None:
 
 
 def score_cp(score: chess.engine.PovScore) -> tuple[int, bool]:
-    """White-relative centipawns, plus whether the score was a mate.
+    """White-relative centipawns, plus whether the position counts as decided.
 
     python-chess encodes the distance to mate into the folded score (mate in 3
     becomes 9997, mate in 5 becomes 9995). That distance is not a centipawn
     quantity and differencing it produces nonsense, so mates are pinned to
-    exactly +/-MATE_SCORE and flagged instead.
+    exactly +/-MATE_SCORE.
+
+    A plain centipawn score past MATE_ZONE is flagged the same way. The engine
+    has not announced mate there, but the position is just as decided and the
+    number is just as unusable as a difference.
     """
     pov = score.white()
     if pov.is_mate():
         mate = pov.mate() or 0
         return (MATE_SCORE if mate > 0 else -MATE_SCORE), True
-    return pov.score(mate_score=MATE_SCORE), False
+    cp = pov.score(mate_score=MATE_SCORE)
+    return cp, abs(cp) > MATE_ZONE
 
 
 # --- worker ------------------------------------------------------------------
@@ -255,8 +272,12 @@ def analyse_game(job: tuple[int, str, int]) -> tuple[int, list[dict], str | None
     # Evaluate the starting position, then walk forward. At every step the
     # freshly computed evaluation closes out the previous move and opens the
     # next one.
+    # Evaluations are tracked White-relative while walking the game, because
+    # that is the only frame in which one position's score can be carried over
+    # to the next move. Each row converts to its own mover's frame on the way
+    # out.
     info = _ENGINE.analyse(board, _LIMIT)
-    eval_before, mate_before = score_cp(info["score"])
+    white_before, mate_before = score_cp(info["score"])
     best = info.get("pv")
     best_move = board.san(best[0]) if best else ""
 
@@ -277,27 +298,31 @@ def analyse_game(job: tuple[int, str, int]) -> tuple[int, list[dict], str | None
             # No search needed: the result is known exactly.
             outcome = board.outcome()
             if outcome is not None and outcome.winner is not None:
-                eval_after = MATE_SCORE if outcome.winner == chess.WHITE else -MATE_SCORE
+                white_after = MATE_SCORE if outcome.winner == chess.WHITE else -MATE_SCORE
                 mate_after = True
             else:
-                eval_after = 0
+                white_after = 0
                 mate_after = False
         else:
             info = _ENGINE.analyse(board, _LIMIT)
-            eval_after, mate_after = score_cp(info["score"])
+            white_after, mate_after = score_cp(info["score"])
+
+        # Both scores in the mover's frame: positive means good for whoever just
+        # moved, so a loss is a plain subtraction and is never negative.
+        sign = 1 if mover == chess.WHITE else -1
+        eval_before = sign * white_before
+        eval_after = sign * white_after
 
         if mate_before and mate_after and (eval_before > 0) == (eval_after > 0):
-            # Mate before and mate for the same side afterwards: the move kept a
-            # forced win (or stayed lost). Differencing mate scores would invent
-            # a loss out of the change in mating distance, which is not an error.
+            # Decided before and still decided for the same side afterwards: the
+            # move kept a forced win (or stayed lost). Differencing those scores
+            # would invent a loss out of the mating distance, which is not an
+            # error the player made.
             cp_loss = 0
         else:
-            # Convert to the mover's point of view before differencing, so a loss
-            # is always non-negative regardless of who moved. Both sides are
-            # clamped first, so an already-decided position cannot manufacture a
-            # four-digit loss on every subsequent move.
-            sign = 1 if mover == chess.WHITE else -1
-            cp_loss = max(0, sign * clamp(eval_before) - sign * clamp(eval_after))
+            # Clamped on both sides, so an already-decided position cannot
+            # manufacture a four-digit loss on every subsequent move.
+            cp_loss = max(0, clamp(eval_before) - clamp(eval_after))
 
         remaining = parse_clock(node.comment)
         spent: float | None = None
@@ -321,6 +346,7 @@ def analyse_game(job: tuple[int, str, int]) -> tuple[int, list[dict], str | None
                     is_mate_before=mate_before,
                     is_mate_after=mate_after,
                     cp_loss=cp_loss,
+                    is_critical=0,  # filled in below, needs the next row's context
                     best_move=best_move,
                     phase=phase,
                     time_spent=spent,
@@ -334,12 +360,22 @@ def analyse_game(job: tuple[int, str, int]) -> tuple[int, list[dict], str | None
 
         # Roll forward: this position's evaluation is the next move's "before",
         # and its principal variation is the next move's engine recommendation.
-        eval_before, mate_before = eval_after, mate_after
+        white_before, mate_before = white_after, mate_after
         if not board.is_game_over():
             pv = info.get("pv")
             best_move = board.san(pv[0]) if pv else ""
         else:
             best_move = ""
+
+    # A move faces a critical position when the opponent's move just before it
+    # moved the evaluation by CRITICAL_SWING or more -- a blunder to punish or a
+    # threat to answer. The swing is measured on clamped scores so a decided
+    # position does not mark every remaining move as critical. Both terms sit in
+    # the same frame (that of the previous mover), so the magnitude is the same
+    # whichever side is looking at it.
+    for previous, current in zip(rows, rows[1:]):
+        swing = abs(clamp(previous["eval_before"]) - clamp(previous["eval_after"]))
+        current["is_critical"] = 1 if swing >= CRITICAL_SWING else 0
 
     return index, rows, None
 

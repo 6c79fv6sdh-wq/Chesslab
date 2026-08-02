@@ -28,6 +28,7 @@ def load(path: str, only_mine: bool) -> list[dict]:
         row["move_number"] = int(row["move_number"])
         row["session_game_no"] = int(row["session_game_no"])
         row["is_mine"] = row["is_mine"] == "True"
+        row["is_critical"] = row.get("is_critical") == "1"
         row["time_spent"] = float(row["time_spent"]) if row["time_spent"] else None
         row["time_left"] = float(row["time_left"]) if row["time_left"] else None
     if only_mine:
@@ -187,6 +188,34 @@ def main() -> int:
         )
     out.append(table(["game # in session", "games", "ACPL", "blunders"], body))
     out.append("")
+
+    critical = [row for row in rows if row["is_critical"]]
+    quiet = [row for row in rows if not row["is_critical"]]
+    if critical:
+        out.append("## Critical positions\n")
+        out.append(
+            "_A move is critical when the opponent's previous move swung the "
+            "evaluation by 100cp or more — a blunder to punish or a threat to "
+            "meet._\n"
+        )
+        out.append(
+            table(
+                ["position", "moves", "ACPL", "mistakes", "blunders", "top move"],
+                [
+                    [
+                        label,
+                        str(len(group)),
+                        f"{acpl(group):.0f}",
+                        f"{rate(group, MISTAKE):.1f}%",
+                        f"{rate(group, BLUNDER):.1f}%",
+                        f"{100.0*sum(1 for r in group if r['move']==r['best_move'])/len(group):.1f}%",
+                    ]
+                    for label, group in (("critical", critical), ("quiet", quiet))
+                    if group
+                ],
+            )
+        )
+        out.append("")
 
     out.append("## By opening\n")
     out.append(bucket_block(rows, "opening", "opening", min_n=20))
