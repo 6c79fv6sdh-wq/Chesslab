@@ -1,576 +1,979 @@
 game_id,move_number,color,is_mine,move,eval_before,eval_after,is_mate_before,is_mate_after,cp_loss,best_move,phase,time_spent,time_left,session_game_no,opening,result
-oOW508JM,1,white,True,e4,47,41,False,False,6,e4,opening,,,2,,1-0
-oOW508JM,1,black,False,e5,41,42,False,False,1,c6,opening,,,2,,1-0
-oOW508JM,2,white,True,Nf3,42,42,False,False,0,Nf3,opening,,,2,,1-0
-oOW508JM,2,black,False,f5,42,147,False,False,105,Nc6,opening,,,2,,1-0
-oOW508JM,3,white,True,Nxe5,147,160,False,False,0,Nxe5,opening,,,2,,1-0
-oOW508JM,3,black,False,fxe4,160,260,False,False,100,Qf6,opening,,,2,,1-0
-oOW508JM,4,white,True,d4,260,46,False,False,214,Qh5+,opening,,,2,,1-0
-oOW508JM,4,black,False,Nf6,46,50,False,False,4,Nf6,opening,,,2,,1-0
-oOW508JM,5,white,True,Bc4,50,44,False,False,6,Be2,opening,,,2,,1-0
-oOW508JM,5,black,False,d5,44,45,False,False,1,d5,opening,,,2,,1-0
-oOW508JM,6,white,True,Bb3,45,41,False,False,4,Bb3,opening,,,2,,1-0
-oOW508JM,6,black,False,Nc6,41,62,False,False,21,Bb4+,opening,,,2,,1-0
-oOW508JM,7,white,True,O-O,62,40,False,False,22,O-O,opening,,,2,,1-0
-oOW508JM,7,black,False,Bd6,40,39,False,False,0,Bd6,opening,,,2,,1-0
-oOW508JM,8,white,True,Nxc6,39,-147,False,False,186,Nc3,opening,,,2,,1-0
-oOW508JM,8,black,False,bxc6,-147,-164,False,False,0,bxc6,opening,,,2,,1-0
-oOW508JM,9,white,True,Nc3,-164,-185,False,False,21,f3,opening,,,2,,1-0
-oOW508JM,9,black,False,O-O,-185,-195,False,False,0,O-O,opening,,,2,,1-0
-oOW508JM,10,white,True,Bg5,-195,-212,False,False,17,Bg5,opening,,,2,,1-0
-oOW508JM,10,black,False,Kh8,-212,-171,False,False,41,Kh8,opening,,,2,,1-0
-oOW508JM,11,white,True,g3,-171,-283,False,False,112,Ba4,opening,,,2,,1-0
-oOW508JM,11,black,False,Qe8,-283,-307,False,False,0,Ba6,opening,,,2,,1-0
-oOW508JM,12,white,True,Bxf6,-307,-315,False,False,8,Bxf6,opening,,,2,,1-0
-oOW508JM,12,black,False,Rxf6,-315,-313,False,False,2,Rxf6,opening,,,2,,1-0
-oOW508JM,13,white,True,Bxd5,-313,-442,False,False,129,Ba4,middlegame,,,2,,1-0
-oOW508JM,13,black,False,cxd5,-442,-448,False,False,0,cxd5,middlegame,,,2,,1-0
-oOW508JM,14,white,True,Nxd5,-448,-448,False,False,0,Nxd5,middlegame,,,2,,1-0
-oOW508JM,14,black,False,Rh6,-448,-413,False,False,35,Rf8,middlegame,,,2,,1-0
-oOW508JM,15,white,True,f4,-413,-451,False,False,38,c4,middlegame,,,2,,1-0
-oOW508JM,15,black,False,exf3,-451,-420,False,False,31,e3,middlegame,,,2,,1-0
-oOW508JM,16,white,True,Qxf3,-420,-454,False,False,34,Qxf3,middlegame,,,2,,1-0
-oOW508JM,16,black,False,Bh3,-454,-395,False,False,59,Bb7,middlegame,,,2,,1-0
-oOW508JM,17,white,True,Rfe1,-395,-438,False,False,43,Rae1,middlegame,,,2,,1-0
-oOW508JM,17,black,False,Qg6,-438,290,False,False,728,Qc6,middlegame,,,2,,1-0
-oOW508JM,18,white,True,Nf4,290,301,False,False,0,Nf4,middlegame,,,2,,1-0
-oOW508JM,18,black,False,Qxc2,301,10000,False,True,699,Rf8,middlegame,,,2,,1-0
-oOW508JM,19,white,True,Nxh3,10000,-6,True,False,1006,Qxa8+,middlegame,,,2,,1-0
-oOW508JM,19,black,False,Rxh3,-6,10000,False,True,1006,Rf8,middlegame,,,2,,1-0
-oOW508JM,20,white,True,Re2,10000,486,True,False,514,Qxa8+,middlegame,,,2,,1-0
-oOW508JM,20,black,False,Qg6,486,10000,False,True,514,Rf8,middlegame,,,2,,1-0
-oOW508JM,21,white,True,Qxa8+,10000,10000,True,True,0,Qxa8+,middlegame,,,2,,1-0
-zKK8HEU1,1,white,True,e4,47,46,False,False,1,e4,opening,,,1,,1-0
-zKK8HEU1,1,black,False,e5,46,39,False,False,0,c5,opening,,,1,,1-0
-zKK8HEU1,2,white,True,Nf3,39,35,False,False,4,Nf3,opening,,,1,,1-0
-zKK8HEU1,2,black,False,Nc6,35,30,False,False,0,Nc6,opening,,,1,,1-0
-zKK8HEU1,3,white,True,Bc4,30,21,False,False,9,d4,opening,,,1,,1-0
-zKK8HEU1,3,black,False,Nf6,21,23,False,False,2,Bc5,opening,,,1,,1-0
-zKK8HEU1,4,white,True,Ng5,23,23,False,False,0,d3,opening,,,1,,1-0
-zKK8HEU1,4,black,False,d5,23,25,False,False,2,d5,opening,,,1,,1-0
-zKK8HEU1,5,white,True,exd5,25,24,False,False,1,exd5,opening,,,1,,1-0
-zKK8HEU1,5,black,False,b5,24,77,False,False,53,Na5,opening,,,1,,1-0
-zKK8HEU1,6,white,True,Bf1,77,69,False,False,8,Bf1,opening,,,1,,1-0
-zKK8HEU1,6,black,False,Nd4,69,66,False,False,0,Nd4,opening,,,1,,1-0
-zKK8HEU1,7,white,True,c3,66,52,False,False,14,c3,opening,,,1,,1-0
-zKK8HEU1,7,black,False,Nxd5,52,47,False,False,0,Nxd5,opening,,,1,,1-0
-zKK8HEU1,8,white,True,Nxf7,47,36,False,False,11,Nxf7,opening,,,1,,1-0
-zKK8HEU1,8,black,False,Kxf7,36,36,False,False,0,Kxf7,opening,,,1,,1-0
-zKK8HEU1,9,white,True,cxd4,36,32,False,False,4,cxd4,opening,,,1,,1-0
-zKK8HEU1,9,black,False,exd4,32,31,False,False,0,exd4,opening,,,1,,1-0
-zKK8HEU1,10,white,True,Bxb5,31,26,False,False,5,Qf3+,opening,,,1,,1-0
-zKK8HEU1,10,black,False,Qe7+,26,17,False,False,0,Qe7+,opening,,,1,,1-0
-zKK8HEU1,11,white,True,Qe2,17,-76,False,False,93,Kf1,opening,,,1,,1-0
-zKK8HEU1,11,black,False,Rb8,-76,15,False,False,91,Qxe2+,opening,,,1,,1-0
-zKK8HEU1,12,white,True,Bc4,15,-5,False,False,20,Bc4,opening,,,1,,1-0
-zKK8HEU1,12,black,False,Qxe2+,-5,-2,False,False,3,Qxe2+,opening,,,1,,1-0
-zKK8HEU1,13,white,True,Bxe2,-2,-145,False,False,143,Kxe2,middlegame,,,1,,1-0
-zKK8HEU1,13,black,False,Be6,-145,-74,False,False,71,Nf4,middlegame,,,1,,1-0
-zKK8HEU1,14,white,True,O-O,-74,-86,False,False,12,d3,middlegame,,,1,,1-0
-zKK8HEU1,14,black,False,Nf4,-86,-68,False,False,18,Nb4,middlegame,,,1,,1-0
-zKK8HEU1,15,white,True,Bf3,-68,-57,False,False,0,Bf3,middlegame,,,1,,1-0
-zKK8HEU1,15,black,False,Nd3,-57,-43,False,False,14,g6,middlegame,,,1,,1-0
-zKK8HEU1,16,white,True,Be4,-43,-33,False,False,0,Be4,middlegame,,,1,,1-0
-zKK8HEU1,16,black,False,Nxc1,-33,-8,False,False,25,Nxb2,middlegame,,,1,,1-0
-zKK8HEU1,17,white,True,Rxc1,-8,-6,False,False,0,Rxc1,middlegame,,,1,,1-0
-zKK8HEU1,17,black,False,Bd6,-6,111,False,False,117,Rxb2,middlegame,,,1,,1-0
-zKK8HEU1,18,white,True,d3,111,-129,False,False,240,b3,middlegame,,,1,,1-0
-zKK8HEU1,18,black,False,Rxb2,-129,-144,False,False,0,Rxb2,middlegame,,,1,,1-0
-zKK8HEU1,19,white,True,a4,-144,-148,False,False,4,a4,middlegame,,,1,,1-0
-zKK8HEU1,19,black,False,Rhb8,-148,-51,False,False,97,Ke7,middlegame,,,1,,1-0
-zKK8HEU1,20,white,True,g3,-51,-221,False,False,170,Na3,middlegame,,,1,,1-0
-zKK8HEU1,20,black,False,Bh3,-221,-67,False,False,154,R8b3,middlegame,,,1,,1-0
-zKK8HEU1,21,white,True,Bg2,-67,-288,False,False,221,Na3,middlegame,,,1,,1-0
-zKK8HEU1,21,black,False,Bf5,-288,-174,False,False,114,Bxg2,middlegame,,,1,,1-0
-zKK8HEU1,22,white,True,Be4,-174,-422,False,False,248,Na3,middlegame,,,1,,1-0
-zKK8HEU1,22,black,False,Bxe4,-422,-401,False,False,21,Bxe4,middlegame,,,1,,1-0
-zKK8HEU1,23,white,True,dxe4,-401,-424,False,False,23,dxe4,middlegame,,,1,,1-0
-zKK8HEU1,23,black,False,d3,-424,-203,False,False,221,R8b3,middlegame,,,1,,1-0
-zKK8HEU1,24,white,True,Nc3,-203,-319,False,False,116,Rd1,middlegame,,,1,,1-0
-zKK8HEU1,24,black,False,Bc5,-319,-276,False,False,43,Be5,middlegame,,,1,,1-0
-zKK8HEU1,25,white,True,Rf1,-276,-341,False,False,65,Nb5,middlegame,,,1,,1-0
-zKK8HEU1,25,black,False,Bd4,-341,-215,False,False,126,R8b3,middlegame,,,1,,1-0
-zKK8HEU1,26,white,True,Nb5,-215,-254,False,False,39,Nb5,middlegame,,,1,,1-0
-zKK8HEU1,26,black,False,R2xb5,-254,-208,False,False,46,Rd8,middlegame,,,1,,1-0
-zKK8HEU1,27,white,True,axb5,-208,-232,False,False,24,axb5,endgame,,,1,,1-0
-zKK8HEU1,27,black,False,Bxa1,-232,-255,False,False,0,Bxa1,endgame,,,1,,1-0
-zKK8HEU1,28,white,True,Rxa1,-255,-232,False,False,0,Rxa1,endgame,,,1,,1-0
-zKK8HEU1,28,black,False,Rxb5,-232,-230,False,False,2,Rxb5,endgame,,,1,,1-0
-zKK8HEU1,29,white,True,f4,-230,-244,False,False,14,Kg2,endgame,,,1,,1-0
-zKK8HEU1,29,black,False,Rb2,-244,-30,False,False,214,c5,endgame,,,1,,1-0
-zKK8HEU1,30,white,True,Rd1,-30,-12,False,False,0,Rd1,endgame,,,1,,1-0
-zKK8HEU1,30,black,False,d2,-12,7,False,False,19,Re2,endgame,,,1,,1-0
-zKK8HEU1,31,white,True,Kf2,7,0,False,False,7,Kf2,endgame,,,1,,1-0
-zKK8HEU1,31,black,False,a5,0,0,False,False,0,a5,endgame,,,1,,1-0
-zKK8HEU1,32,white,True,Ke3,0,2,False,False,0,Ke3,endgame,,,1,,1-0
-zKK8HEU1,32,black,False,a4,2,0,False,False,0,a4,endgame,,,1,,1-0
-zKK8HEU1,33,white,True,Rxd2,0,0,False,False,0,Rxd2,endgame,,,1,,1-0
-zKK8HEU1,33,black,False,a3,0,8,False,False,8,Rb3+,endgame,,,1,,1-0
-zKK8HEU1,34,white,True,Rd7+,8,3,False,False,5,Rd7+,endgame,,,1,,1-0
-zKK8HEU1,34,black,False,Kf6,3,17,False,False,14,Ke6,endgame,,,1,,1-0
-zKK8HEU1,35,white,True,Rxc7,17,1,False,False,16,Rxc7,endgame,,,1,,1-0
-zKK8HEU1,35,black,False,Rxh2,1,67,False,False,66,Rb3+,endgame,,,1,,1-0
-zKK8HEU1,36,white,True,e5+,67,66,False,False,1,e5+,endgame,,,1,,1-0
-zKK8HEU1,36,black,False,Ke6,66,51,False,False,0,Kg6,endgame,,,1,,1-0
-zKK8HEU1,37,white,True,Rxg7,51,13,False,False,38,Rxg7,endgame,,,1,,1-0
-zKK8HEU1,37,black,False,a2,13,30,False,False,17,a2,endgame,,,1,,1-0
-zKK8HEU1,38,white,True,Ra7,30,13,False,False,17,Ra7,endgame,,,1,,1-0
-zKK8HEU1,38,black,False,Kd5,13,320,False,False,307,h5,endgame,,,1,,1-0
-zKK8HEU1,39,white,True,Ra5+,320,355,False,False,0,Ra5+,endgame,,,1,,1-0
-zKK8HEU1,39,black,False,Kc4,355,402,False,False,47,Kc4,endgame,,,1,,1-0
-zKK8HEU1,40,white,True,e6,402,409,False,False,0,f5,endgame,,,1,,1-0
-zKK8HEU1,40,black,False,Kb4,409,459,False,False,50,Rg2,endgame,,,1,,1-0
-zKK8HEU1,41,white,True,Ra7,459,472,False,False,0,Ra8,endgame,,,1,,1-0
-zKK8HEU1,41,black,False,Kc5,472,744,False,False,272,Rg2,endgame,,,1,,1-0
-zKK8HEU1,42,white,True,e7,744,763,False,False,0,e7,endgame,,,1,,1-0
-zKK8HEU1,42,black,False,Rh1,763,827,False,False,64,Kb6,endgame,,,1,,1-0
-zKK8HEU1,43,white,True,Rxa2,827,833,False,False,0,Rxa2,endgame,,,1,,1-0
-MSYU402A,1,white,False,e4,47,43,False,False,4,e4,opening,,,4,,0-1
-MSYU402A,1,black,True,d5,43,74,False,False,31,e6,opening,,,4,,0-1
-MSYU402A,2,white,False,Nc3,74,-47,False,False,121,exd5,opening,,,4,,0-1
-MSYU402A,2,black,True,dxe4,-47,14,False,False,61,d4,opening,,,4,,0-1
-MSYU402A,3,white,False,Nxe4,14,16,False,False,0,Nxe4,opening,,,4,,0-1
-MSYU402A,3,black,True,Nf6,16,19,False,False,3,Nf6,opening,,,4,,0-1
-MSYU402A,4,white,False,Nxf6+,19,10,False,False,9,Nxf6+,opening,,,4,,0-1
-MSYU402A,4,black,True,gxf6,10,39,False,False,29,exf6,opening,,,4,,0-1
-MSYU402A,5,white,False,g3,39,-38,False,False,77,d4,opening,,,4,,0-1
-MSYU402A,5,black,True,e5,-38,-36,False,False,2,e5,opening,,,4,,0-1
-MSYU402A,6,white,False,Bg2,-36,-37,False,False,1,Bg2,opening,,,4,,0-1
-MSYU402A,6,black,True,Nc6,-37,-26,False,False,11,Nc6,opening,,,4,,0-1
-MSYU402A,7,white,False,Ne2,-26,-20,False,False,0,Ne2,opening,,,4,,0-1
-MSYU402A,7,black,True,Bd7,-20,54,False,False,74,h5,opening,,,4,,0-1
-MSYU402A,8,white,False,O-O,54,54,False,False,0,d4,opening,,,4,,0-1
-MSYU402A,8,black,True,h5,54,66,False,False,12,Bg4,opening,,,4,,0-1
-MSYU402A,9,white,False,h3,66,-144,False,False,210,d4,opening,,,4,,0-1
-MSYU402A,9,black,True,Qe7,-144,11,False,False,155,h4,opening,,,4,,0-1
-MSYU402A,10,white,False,d4,11,10,False,False,1,d4,opening,,,4,,0-1
-MSYU402A,10,black,True,O-O-O,10,1,False,False,0,O-O-O,opening,,,4,,0-1
-MSYU402A,11,white,False,d5,1,5,False,False,0,d5,opening,,,4,,0-1
-MSYU402A,11,black,True,Nb8,5,8,False,False,3,Nb8,opening,,,4,,0-1
-MSYU402A,12,white,False,c4,8,-4,False,False,12,h4,opening,,,4,,0-1
-MSYU402A,12,black,True,Bh6,-4,131,False,False,135,h4,opening,,,4,,0-1
-MSYU402A,13,white,False,Qa4,131,-532,False,False,663,Qb3,opening,,,4,,0-1
-MSYU402A,13,black,True,Bxa4,-532,-533,False,False,0,Bxa4,opening,,,4,,0-1
-92NP7FSU,1,white,True,e4,36,43,False,False,0,e4,opening,,,3,,1-0
-92NP7FSU,1,black,False,c5,43,52,False,False,9,e6,opening,,,3,,1-0
-92NP7FSU,2,white,True,Nf3,52,53,False,False,0,Nf3,opening,,,3,,1-0
-92NP7FSU,2,black,False,d6,53,27,False,False,0,e6,opening,,,3,,1-0
-92NP7FSU,3,white,True,d4,27,37,False,False,0,d4,opening,,,3,,1-0
-92NP7FSU,3,black,False,cxd4,37,37,False,False,0,cxd4,opening,,,3,,1-0
-92NP7FSU,4,white,True,Qxd4,37,14,False,False,23,Nxd4,opening,,,3,,1-0
-92NP7FSU,4,black,False,Nc6,14,25,False,False,11,Nc6,opening,,,3,,1-0
-92NP7FSU,5,white,True,Bb5,25,12,False,False,13,Bb5,opening,,,3,,1-0
-92NP7FSU,5,black,False,Bd7,12,21,False,False,9,Bd7,opening,,,3,,1-0
-92NP7FSU,6,white,True,Bxc6,21,19,False,False,2,Bxc6,opening,,,3,,1-0
-92NP7FSU,6,black,False,Bxc6,19,19,False,False,0,Bxc6,opening,,,3,,1-0
-92NP7FSU,7,white,True,Nc3,19,16,False,False,3,Nc3,opening,,,3,,1-0
-92NP7FSU,7,black,False,Nf6,16,17,False,False,1,Nf6,opening,,,3,,1-0
-92NP7FSU,8,white,True,Bg5,17,13,False,False,4,Bg5,opening,,,3,,1-0
-92NP7FSU,8,black,False,Qb6,13,40,False,False,27,e6,opening,,,3,,1-0
-92NP7FSU,9,white,True,Qd3,40,40,False,False,0,Qd3,opening,,,3,,1-0
-92NP7FSU,9,black,False,Ng4,40,39,False,False,0,Ng4,opening,,,3,,1-0
-92NP7FSU,10,white,True,O-O,39,39,False,False,0,O-O,opening,,,3,,1-0
-92NP7FSU,10,black,False,h6,39,43,False,False,4,f6,opening,,,3,,1-0
-92NP7FSU,11,white,True,Bd2,43,19,False,False,24,Bh4,opening,,,3,,1-0
-92NP7FSU,11,black,False,e6,19,14,False,False,0,e6,opening,,,3,,1-0
-92NP7FSU,12,white,True,h3,14,8,False,False,6,h3,opening,,,3,,1-0
-92NP7FSU,12,black,False,Nf6,8,10,False,False,2,Nf6,opening,,,3,,1-0
-92NP7FSU,13,white,True,Rfe1,10,-10,False,False,20,Nd4,opening,,,3,,1-0
-92NP7FSU,13,black,False,Be7,-10,-11,False,False,0,Be7,opening,,,3,,1-0
-92NP7FSU,14,white,True,e5,-11,-109,False,False,98,Be3,opening,,,3,,1-0
-92NP7FSU,14,black,False,dxe5,-109,-99,False,False,10,dxe5,opening,,,3,,1-0
-92NP7FSU,15,white,True,Nxe5,-99,-109,False,False,10,Nxe5,opening,,,3,,1-0
-92NP7FSU,15,black,False,O-O,-109,-23,False,False,86,Rd8,opening,,,3,,1-0
-92NP7FSU,16,white,True,Qg3,-23,-69,False,False,46,Be3,opening,,,3,,1-0
-92NP7FSU,16,black,False,Rad8,-69,37,False,False,106,Qxb2,opening,,,3,,1-0
-92NP7FSU,17,white,True,Bxh6,37,42,False,False,0,Bxh6,opening,,,3,,1-0
-92NP7FSU,17,black,False,Ne8,42,123,False,False,81,Nh5,opening,,,3,,1-0
-92NP7FSU,18,white,True,Ne4,123,-67,False,False,190,Rab1,opening,,,3,,1-0
-92NP7FSU,18,black,False,Bxe4,-67,-82,False,False,0,Bxe4,opening,,,3,,1-0
-92NP7FSU,19,white,True,Rxe4,-82,-75,False,False,0,Rxe4,opening,,,3,,1-0
-92NP7FSU,19,black,False,Bf6,-75,39,False,False,114,Qxb2,middlegame,,,3,,1-0
-92NP7FSU,20,white,True,Ng4,39,52,False,False,0,Nc4,middlegame,,,3,,1-0
-92NP7FSU,20,black,False,Bxb2,52,160,False,False,108,Qxb2,middlegame,,,3,,1-0
-92NP7FSU,21,white,True,Rae1,160,24,False,False,136,c3,middlegame,,,3,,1-0
-92NP7FSU,21,black,False,gxh6,24,508,False,False,484,Qa5,middlegame,,,3,,1-0
-92NP7FSU,22,white,True,Nxh6+,508,499,False,False,9,Nxh6+,middlegame,,,3,,1-0
-92NP7FSU,22,black,False,Kh7,499,520,False,False,21,Kh7,middlegame,,,3,,1-0
-92NP7FSU,23,white,True,Rh4,520,575,False,False,0,Rh4,middlegame,,,3,,1-0
-92NP7FSU,23,black,False,Bg7,575,10000,False,True,425,Rd4,middlegame,,,3,,1-0
-92NP7FSU,24,white,True,Nxf7+,10000,343,True,False,657,Nf5+,middlegame,,,3,,1-0
-92NP7FSU,24,black,False,Kg8,343,352,False,False,9,Kg8,middlegame,,,3,,1-0
-92NP7FSU,25,white,True,Nxd8,352,345,False,False,7,Nxd8,middlegame,,,3,,1-0
-92NP7FSU,25,black,False,Qxd8,345,344,False,False,0,Qxd8,middlegame,,,3,,1-0
-92NP7FSU,26,white,True,Rg4,344,184,False,False,160,Rxe6,middlegame,,,3,,1-0
-92NP7FSU,26,black,False,Qf6,184,329,False,False,145,Rf6,middlegame,,,3,,1-0
-92NP7FSU,27,white,True,h4,329,236,False,False,93,Rg6,middlegame,,,3,,1-0
-92NP7FSU,27,black,False,Kh8,236,279,False,False,43,Qe7,middlegame,,,3,,1-0
-92NP7FSU,28,white,True,h5,279,152,False,False,127,Rg6,middlegame,,,3,,1-0
-92NP7FSU,28,black,False,Bh6,152,364,False,False,212,Qf5,middlegame,,,3,,1-0
-92NP7FSU,29,white,True,Rf1,364,110,False,False,254,Rg6,middlegame,,,3,,1-0
-92NP7FSU,29,black,False,Ng7,110,216,False,False,106,Qf5,middlegame,,,3,,1-0
-92NP7FSU,30,white,True,Qh3,216,124,False,False,92,Rg6,middlegame,,,3,,1-0
-92NP7FSU,30,black,False,Nf5,124,137,False,False,13,Bg5,middlegame,,,3,,1-0
-92NP7FSU,31,white,True,f3,137,-151,False,False,288,Qf3,middlegame,,,3,,1-0
-92NP7FSU,31,black,False,Rg8,-151,13,False,False,164,Qc3,middlegame,,,3,,1-0
-92NP7FSU,32,white,True,Rxg8+,13,35,False,False,0,Rxg8+,middlegame,,,3,,1-0
-92NP7FSU,32,black,False,Kxg8,35,34,False,False,0,Kxg8,middlegame,,,3,,1-0
-92NP7FSU,33,white,True,g4,34,-153,False,False,187,f4,middlegame,,,3,,1-0
-92NP7FSU,33,black,False,Ne3,-153,-164,False,False,0,Ne3,middlegame,,,3,,1-0
-92NP7FSU,34,white,True,Rf2,-164,-307,False,False,143,Rb1,middlegame,,,3,,1-0
-92NP7FSU,34,black,False,Qf4,-307,-104,False,False,203,Qa1+,middlegame,,,3,,1-0
-92NP7FSU,35,white,True,Qh2,-104,-131,False,False,27,Qh2,middlegame,,,3,,1-0
-92NP7FSU,35,black,False,Nd5,-131,167,False,False,298,Qd4,middlegame,,,3,,1-0
-92NP7FSU,36,white,True,Qxf4,167,175,False,False,0,Qxf4,middlegame,,,3,,1-0
-92NP7FSU,36,black,False,Bxf4,175,162,False,False,0,Nxf4,endgame,,,3,,1-0
-92NP7FSU,37,white,True,Kf1,162,10,False,False,152,c4,endgame,,,3,,1-0
-92NP7FSU,37,black,False,Ne3+,10,103,False,False,93,Nc3,endgame,,,3,,1-0
-92NP7FSU,38,white,True,Ke2,103,114,False,False,0,Ke2,endgame,,,3,,1-0
-92NP7FSU,38,black,False,Kf7,114,171,False,False,57,Nxc2,endgame,,,3,,1-0
-92NP7FSU,39,white,True,Rf1,171,-330,False,False,501,Kd3,endgame,,,3,,1-0
-92NP7FSU,39,black,False,Nd5,-330,209,False,False,539,Nxf1,endgame,,,3,,1-0
-92NP7FSU,40,white,True,Rb1,209,-502,False,False,711,c4,endgame,,,3,,1-0
-92NP7FSU,40,black,False,Kf6,-502,391,False,False,893,Nc3+,endgame,,,3,,1-0
-92NP7FSU,41,white,True,Rxb7,391,409,False,False,0,Rxb7,endgame,,,3,,1-0
-92NP7FSU,41,black,False,Ke5,409,432,False,False,23,a6,endgame,,,3,,1-0
-92NP7FSU,42,white,True,Rxa7,432,451,False,False,0,Rxa7,endgame,,,3,,1-0
-92NP7FSU,42,black,False,Nc3+,451,479,False,False,28,Bg5,endgame,,,3,,1-0
-92NP7FSU,43,white,True,Kd3,479,499,False,False,0,Kd3,endgame,,,3,,1-0
-92NP7FSU,43,black,False,Nd5,499,498,False,False,0,Nd5,endgame,,,3,,1-0
-92NP7FSU,44,white,True,Kc4,498,487,False,False,11,Rb7,endgame,,,3,,1-0
-92NP7FSU,44,black,False,Ne3+,487,497,False,False,10,Ne3+,endgame,,,3,,1-0
-92NP7FSU,45,white,True,Kb5,497,416,False,False,81,Kd3,endgame,,,3,,1-0
-92NP7FSU,45,black,False,Nxc2,416,416,False,False,0,Nxc2,endgame,,,3,,1-0
-92NP7FSU,46,white,True,Ka6,416,357,False,False,59,Kc4,endgame,,,3,,1-0
-92NP7FSU,46,black,False,Nd4,357,390,False,False,33,Nd4,endgame,,,3,,1-0
-92NP7FSU,47,white,True,Kb7,390,283,False,False,107,Rf7,endgame,,,3,,1-0
-92NP7FSU,47,black,False,Be3,283,429,False,False,146,Nxf3,endgame,,,3,,1-0
-92NP7FSU,48,white,True,a4,429,344,False,False,85,Ra3,endgame,,,3,,1-0
-92NP7FSU,48,black,False,Nf5,344,592,False,False,248,Nxf3,endgame,,,3,,1-0
-92NP7FSU,49,white,True,a5,592,441,False,False,151,Ra5+,endgame,,,3,,1-0
-92NP7FSU,49,black,False,Bxa7,441,512,False,False,71,Nd4,endgame,,,3,,1-0
-92NP7FSU,50,white,True,a6,512,44,False,False,468,Kxa7,endgame,,,3,,1-0
-92NP7FSU,50,black,False,Nd4,44,513,False,False,469,Bg1,endgame,,,3,,1-0
-92NP7FSU,51,white,True,Kxa7,513,536,False,False,0,Kxa7,endgame,,,3,,1-0
-92NP7FSU,51,black,False,Nxf3,536,545,False,False,9,Nb5+,endgame,,,3,,1-0
-92NP7FSU,52,white,True,Kb7,545,647,False,False,0,Kb7,endgame,,,3,,1-0
-92NP7FSU,52,black,False,Ng5,647,684,False,False,37,Kf4,endgame,,,3,,1-0
-92NP7FSU,53,white,True,a7,684,720,False,False,0,a7,endgame,,,3,,1-0
-92NP7FSU,53,black,False,Nf3,720,778,False,False,58,Kf4,endgame,,,3,,1-0
-92NP7FSU,54,white,True,a8=Q,778,829,False,False,0,h6,endgame,,,3,,1-0
-92NP7FSU,54,black,False,Ng5,829,841,False,False,12,Ng5,endgame,,,3,,1-0
-92NP7FSU,55,white,True,Qa7,841,792,False,False,49,h6,endgame,,,3,,1-0
-92NP7FSU,55,black,False,Nh7,792,1340,False,False,208,Ke4,endgame,,,3,,1-0
-92NP7FSU,56,white,True,Qa5+,1340,858,False,False,142,Qe3+,endgame,,,3,,1-0
-cNtoVgfe,1,white,False,Nf3,41,32,False,False,9,e4,opening,,,2,,1-0
-cNtoVgfe,1,black,True,d6,32,47,False,False,15,d5,opening,,,2,,1-0
-cNtoVgfe,2,white,False,g3,47,26,False,False,21,d4,opening,,,2,,1-0
-cNtoVgfe,2,black,True,e5,26,40,False,False,14,e5,opening,,,2,,1-0
-cNtoVgfe,3,white,False,d3,40,18,False,False,22,c4,opening,,,2,,1-0
-cNtoVgfe,3,black,True,f5,18,28,False,False,10,g6,opening,,,2,,1-0
-cNtoVgfe,4,white,False,Nbd2,28,-28,False,False,56,c4,opening,,,2,,1-0
-cNtoVgfe,4,black,True,Nf6,-28,-24,False,False,4,Nf6,opening,,,2,,1-0
-cNtoVgfe,5,white,False,Bg2,-24,-28,False,False,4,e4,opening,,,2,,1-0
-cNtoVgfe,5,black,True,Be7,-28,-8,False,False,20,Nc6,opening,,,2,,1-0
-cNtoVgfe,6,white,False,O-O,-8,-22,False,False,14,b4,opening,,,2,,1-0
-cNtoVgfe,6,black,True,O-O,-22,-22,False,False,0,a5,opening,,,2,,1-0
-cNtoVgfe,7,white,False,e4,-22,-25,False,False,3,b4,opening,,,2,,1-0
-cNtoVgfe,7,black,True,Qe8,-25,8,False,False,33,Nc6,opening,,,2,,1-0
-cNtoVgfe,8,white,False,c3,8,-49,False,False,57,exf5,opening,,,2,,1-0
-cNtoVgfe,8,black,True,Qh5,-49,29,False,False,78,fxe4,opening,,,2,,1-0
-cNtoVgfe,9,white,False,exf5,29,11,False,False,18,exf5,opening,,,2,,1-0
-cNtoVgfe,9,black,True,Bxf5,11,10,False,False,0,Bxf5,opening,,,2,,1-0
-cNtoVgfe,10,white,False,Qb3+,10,-35,False,False,45,Nh4,opening,,,2,,1-0
-cNtoVgfe,10,black,True,Kh8,-35,-40,False,False,0,Kh8,opening,,,2,,1-0
-cNtoVgfe,11,white,False,Qxb7,-40,-42,False,False,2,Qxb7,opening,,,2,,1-0
-cNtoVgfe,11,black,True,Nbd7,-42,-47,False,False,0,Nbd7,opening,,,2,,1-0
-cNtoVgfe,12,white,False,Ne4,-47,-49,False,False,2,Ne4,opening,,,2,,1-0
-cNtoVgfe,12,black,True,Bh3,-49,82,False,False,131,Nxe4,opening,,,2,,1-0
-cNtoVgfe,13,white,False,Qxc7,82,-320,False,False,402,Bxh3,opening,,,2,,1-0
-cNtoVgfe,13,black,True,Bxg2,-320,-333,False,False,0,Nxe4,opening,,,2,,1-0
-cNtoVgfe,14,white,False,Kxg2,-333,-319,False,False,0,Kxg2,opening,,,2,,1-0
-cNtoVgfe,14,black,True,Ng4,-319,305,False,False,624,Nxe4,opening,,,2,,1-0
-cNtoVgfe,15,white,False,h3,305,214,False,False,91,Qxd7,opening,,,2,,1-0
-cNtoVgfe,15,black,True,Nh6,214,246,False,False,32,Qf5,opening,,,2,,1-0
-cNtoVgfe,16,white,False,Qxd7,246,68,False,False,178,Nfg5,opening,,,2,,1-0
-cNtoVgfe,16,black,True,Qxf3+,68,65,False,False,0,Qxf3+,opening,,,2,,1-0
-cNtoVgfe,17,white,False,Kg1,65,31,False,False,34,Kh2,middlegame,,,2,,1-0
-cNtoVgfe,17,black,True,d5,31,398,False,False,367,Nf5,middlegame,,,2,,1-0
-cNtoVgfe,18,white,False,Bxh6,398,407,False,False,0,Bxh6,middlegame,,,2,,1-0
-cNtoVgfe,18,black,True,gxh6,407,414,False,False,7,gxh6,middlegame,,,2,,1-0
-cNtoVgfe,19,white,False,Qxe7,414,429,False,False,0,Qxe7,middlegame,,,2,,1-0
-cNtoVgfe,19,black,True,dxe4,429,497,False,False,68,Rae8,middlegame,,,2,,1-0
-cNtoVgfe,20,white,False,Qxe5+,497,495,False,False,2,Qxe5+,middlegame,,,2,,1-0
-cNtoVgfe,20,black,True,Kg8,495,493,False,False,0,Kg8,middlegame,,,2,,1-0
-cNtoVgfe,21,white,False,Qxe4,493,493,False,False,0,Qxe4,middlegame,,,2,,1-0
-cNtoVgfe,21,black,True,Qh5,493,503,False,False,10,Rab8,middlegame,,,2,,1-0
-cNtoVgfe,22,white,False,Qg4+,503,493,False,False,10,h4,middlegame,,,2,,1-0
-cNtoVgfe,22,black,True,Qxg4,493,512,False,False,19,Qxg4,middlegame,,,2,,1-0
-cNtoVgfe,23,white,False,hxg4,512,528,False,False,0,hxg4,middlegame,,,2,,1-0
-cNtoVgfe,23,black,True,Rac8,528,534,False,False,6,Rab8,endgame,,,2,,1-0
-cNtoVgfe,24,white,False,Rae1,534,523,False,False,11,Kg2,endgame,,,2,,1-0
-cNtoVgfe,24,black,True,Rcd8,523,541,False,False,18,Kf7,endgame,,,2,,1-0
-cNtoVgfe,25,white,False,d4,541,535,False,False,6,d4,endgame,,,2,,1-0
-cNtoVgfe,25,black,True,Rb8,535,563,False,False,28,Rf6,endgame,,,2,,1-0
-cNtoVgfe,26,white,False,Re2,563,556,False,False,7,b3,endgame,,,2,,1-0
-cNtoVgfe,26,black,True,Kg7,556,574,False,False,18,Kf7,endgame,,,2,,1-0
-cNtoVgfe,27,white,False,f4,574,582,False,False,0,Rfe1,endgame,,,2,,1-0
-cNtoVgfe,27,black,True,Kg6,582,586,False,False,4,Kf7,endgame,,,2,,1-0
-cNtoVgfe,28,white,False,Rff2,586,579,False,False,7,Kf2,endgame,,,2,,1-0
-cNtoVgfe,28,black,True,h5,579,574,False,False,0,h5,endgame,,,2,,1-0
-cNtoVgfe,29,white,False,gxh5+,574,576,False,False,0,gxh5+,endgame,,,2,,1-0
-cNtoVgfe,29,black,True,Kxh5,576,572,False,False,0,Kxh5,endgame,,,2,,1-0
-cNtoVgfe,30,white,False,Kg2,572,585,False,False,0,Re5+,endgame,,,2,,1-0
-cNtoVgfe,30,black,True,Kg4,585,556,False,False,0,Kg6,endgame,,,2,,1-0
-cNtoVgfe,31,white,False,Re5,556,562,False,False,0,Re5,endgame,,,2,,1-0
-cNtoVgfe,31,black,True,h6,562,574,False,False,12,h6,endgame,,,2,,1-0
-cNtoVgfe,32,white,False,f5,574,530,False,False,44,c4,endgame,,,2,,1-0
-cNtoVgfe,32,black,True,Rf6,530,534,False,False,4,Rf6,endgame,,,2,,1-0
-cNtoVgfe,33,white,False,Re6,534,514,False,False,20,c4,endgame,,,2,,1-0
-cNtoVgfe,33,black,True,Rbf8,514,595,False,False,81,Rxf5,endgame,,,2,,1-0
-cNtoVgfe,34,white,False,Rxf6,595,611,False,False,0,Rxf6,endgame,,,2,,1-0
-cNtoVgfe,34,black,True,Rxf6,611,605,False,False,0,Rxf6,endgame,,,2,,1-0
-cNtoVgfe,35,white,False,Rf4+,605,553,False,False,52,d5,endgame,,,2,,1-0
-cNtoVgfe,35,black,True,Kg5,553,548,False,False,0,Kg5,endgame,,,2,,1-0
-cNtoVgfe,36,white,False,Kf3,548,513,False,False,35,d5,endgame,,,2,,1-0
-cNtoVgfe,36,black,True,h5,513,548,False,False,35,Rxf5,endgame,,,2,,1-0
-cNtoVgfe,37,white,False,d5,548,588,False,False,0,Ke4,endgame,,,2,,1-0
-cNtoVgfe,37,black,True,a5,588,613,False,False,25,Rxf5,endgame,,,2,,1-0
-cNtoVgfe,38,white,False,b3,613,593,False,False,20,c4,endgame,,,2,,1-0
-cNtoVgfe,38,black,True,Kh6,593,655,False,False,62,Rf8,endgame,,,2,,1-0
-cNtoVgfe,39,white,False,c4,655,654,False,False,1,c4,endgame,,,2,,1-0
-cNtoVgfe,39,black,True,Kg7,654,650,False,False,0,Kg7,endgame,,,2,,1-0
-cNtoVgfe,40,white,False,Ke4,650,629,False,False,21,c5,endgame,,,2,,1-0
-cNtoVgfe,40,black,True,Kf7,629,663,False,False,34,Rb6,endgame,,,2,,1-0
-cNtoVgfe,41,white,False,Ke5,663,687,False,False,0,c5,endgame,,,2,,1-0
-cNtoVgfe,41,black,True,Ke7,687,831,False,False,144,a4,endgame,,,2,,1-0
-cNtoVgfe,42,white,False,g4,831,647,False,False,184,d6+,endgame,,,2,,1-0
-cNtoVgfe,42,black,True,hxg4,647,669,False,False,22,a4,endgame,,,2,,1-0
-cNtoVgfe,43,white,False,Rxg4,669,663,False,False,6,Rxg4,endgame,,,2,,1-0
-cNtoVgfe,43,black,True,Rf7,663,683,False,False,20,Rf7,endgame,,,2,,1-0
-cNtoVgfe,44,white,False,Rg6,683,666,False,False,17,Rg8,endgame,,,2,,1-0
-cNtoVgfe,44,black,True,Kd7,666,779,False,False,113,a4,endgame,,,2,,1-0
-cNtoVgfe,45,white,False,Ra6,779,649,False,False,130,f6,endgame,,,2,,1-0
-cNtoVgfe,45,black,True,Re7+,649,646,False,False,0,Kc8,endgame,,,2,,1-0
-cNtoVgfe,46,white,False,Re6,646,643,False,False,3,Kd4,endgame,,,2,,1-0
-cNtoVgfe,46,black,True,Rh7,643,665,False,False,22,Rh7,endgame,,,2,,1-0
-cNtoVgfe,47,white,False,d6,665,620,False,False,45,Ra6,endgame,,,2,,1-0
-cNtoVgfe,47,black,True,Rh1,620,714,False,False,94,a4,endgame,,,2,,1-0
-cNtoVgfe,48,white,False,Kf6,714,587,False,False,127,Kd5,endgame,,,2,,1-0
-cNtoVgfe,48,black,True,Rh6+,587,676,False,False,89,Kc6,endgame,,,2,,1-0
-cNtoVgfe,49,white,False,Ke5,676,706,False,False,0,Ke5,endgame,,,2,,1-0
-cNtoVgfe,49,black,True,Rh1,706,758,False,False,52,Rh2,endgame,,,2,,1-0
-cNtoVgfe,50,white,False,c5,758,604,False,False,154,Kd5,endgame,,,2,,1-0
-cNtoVgfe,50,black,True,Ra1,604,760,False,False,156,Kc6,endgame,,,2,,1-0
-cNtoVgfe,51,white,False,Re7+,760,740,False,False,20,Re7+,endgame,,,2,,1-0
-cNtoVgfe,51,black,True,Kd8,740,880,False,False,140,Kd8,endgame,,,2,,1-0
-cNtoVgfe,52,white,False,c6,880,10000,False,True,0,Kd5,endgame,,,2,,1-0
-cNtoVgfe,52,black,True,Re1+,10000,10000,True,True,0,Re1+,endgame,,,2,,1-0
-cNtoVgfe,53,white,False,Kf6,10000,10000,True,True,0,Kf6,endgame,,,2,,1-0
-cNtoVgfe,53,black,True,Rh1,10000,10000,True,True,0,Rc1,endgame,,,2,,1-0
-cNtoVgfe,54,white,False,Ra7,10000,10000,True,True,0,c7+,endgame,,,2,,1-0
-VeL05zD2,1,white,True,e4,34,35,False,False,0,d4,opening,,,1,,1-0
-VeL05zD2,1,black,False,c5,35,53,False,False,18,e5,opening,,,1,,1-0
-VeL05zD2,2,white,True,Nf3,53,44,False,False,9,Nf3,opening,,,1,,1-0
-VeL05zD2,2,black,False,Nc6,44,43,False,False,0,e6,opening,,,1,,1-0
-VeL05zD2,3,white,True,Bb5,43,39,False,False,4,Bb5,opening,,,1,,1-0
-VeL05zD2,3,black,False,a6,39,77,False,False,38,e6,opening,,,1,,1-0
-VeL05zD2,4,white,True,Bxc6,77,80,False,False,0,Bxc6,opening,,,1,,1-0
-VeL05zD2,4,black,False,bxc6,80,77,False,False,0,bxc6,opening,,,1,,1-0
-VeL05zD2,5,white,True,O-O,77,80,False,False,0,O-O,opening,,,1,,1-0
-VeL05zD2,5,black,False,e6,80,74,False,False,0,Qc7,opening,,,1,,1-0
-VeL05zD2,6,white,True,c3,74,19,False,False,55,e5,opening,,,1,,1-0
-VeL05zD2,6,black,False,Nf6,19,89,False,False,70,Ne7,opening,,,1,,1-0
-VeL05zD2,7,white,True,e5,89,80,False,False,9,e5,opening,,,1,,1-0
-VeL05zD2,7,black,False,Nd5,80,91,False,False,11,Nd5,opening,,,1,,1-0
-VeL05zD2,8,white,True,d4,91,29,False,False,62,c4,opening,,,1,,1-0
-VeL05zD2,8,black,False,cxd4,29,30,False,False,1,cxd4,opening,,,1,,1-0
-VeL05zD2,9,white,True,cxd4,30,11,False,False,19,Qxd4,opening,,,1,,1-0
-VeL05zD2,9,black,False,Be7,11,12,False,False,1,c5,opening,,,1,,1-0
-VeL05zD2,10,white,True,Nc3,12,19,False,False,0,Nc3,opening,,,1,,1-0
-VeL05zD2,10,black,False,O-O,19,19,False,False,0,a5,opening,,,1,,1-0
-VeL05zD2,11,white,True,Nxd5,19,2,False,False,17,Ne4,opening,,,1,,1-0
-VeL05zD2,11,black,False,cxd5,2,0,False,False,0,cxd5,opening,,,1,,1-0
-VeL05zD2,12,white,True,Be3,0,-34,False,False,34,Re1,middlegame,,,1,,1-0
-VeL05zD2,12,black,False,d6,-34,16,False,False,50,a5,middlegame,,,1,,1-0
-VeL05zD2,13,white,True,Rc1,16,9,False,False,7,Bf4,middlegame,,,1,,1-0
-VeL05zD2,13,black,False,dxe5,9,38,False,False,29,Bd7,middlegame,,,1,,1-0
-VeL05zD2,14,white,True,Nxe5,38,34,False,False,4,Nxe5,middlegame,,,1,,1-0
-VeL05zD2,14,black,False,Bb7,34,91,False,False,57,f6,middlegame,,,1,,1-0
-VeL05zD2,15,white,True,Qb3,91,69,False,False,22,Qg4,middlegame,,,1,,1-0
-VeL05zD2,15,black,False,Rb8,69,71,False,False,2,Bc8,middlegame,,,1,,1-0
-VeL05zD2,16,white,True,Rc2,71,6,False,False,65,Bf4,middlegame,,,1,,1-0
-VeL05zD2,16,black,False,Bd6,6,38,False,False,32,f6,middlegame,,,1,,1-0
-VeL05zD2,17,white,True,Bf4,38,36,False,False,2,Bf4,middlegame,,,1,,1-0
-VeL05zD2,17,black,False,f6,36,26,False,False,0,f6,middlegame,,,1,,1-0
-VeL05zD2,18,white,True,Nd3,26,33,False,False,0,Nd3,middlegame,,,1,,1-0
-VeL05zD2,18,black,False,Bxf4,33,51,False,False,18,Bc6,middlegame,,,1,,1-0
-VeL05zD2,19,white,True,Nxf4,51,44,False,False,7,Nxf4,middlegame,,,1,,1-0
-VeL05zD2,19,black,False,Qd6,44,36,False,False,0,Qd6,middlegame,,,1,,1-0
-VeL05zD2,20,white,True,Qe3,36,38,False,False,0,Qg3,middlegame,,,1,,1-0
-VeL05zD2,20,black,False,e5,38,37,False,False,0,e5,middlegame,,,1,,1-0
-VeL05zD2,21,white,True,dxe5,37,-1,False,False,38,Nd3,middlegame,,,1,,1-0
-VeL05zD2,21,black,False,fxe5,-1,-2,False,False,0,fxe5,middlegame,,,1,,1-0
-VeL05zD2,22,white,True,Ne2,-2,-102,False,False,100,Nd3,middlegame,,,1,,1-0
-VeL05zD2,22,black,False,d4,-102,-107,False,False,0,d4,middlegame,,,1,,1-0
-VeL05zD2,23,white,True,Qg3,-107,-149,False,False,42,Qd3,middlegame,,,1,,1-0
-VeL05zD2,23,black,False,Rf6,-149,-114,False,False,35,h5,middlegame,,,1,,1-0
-VeL05zD2,24,white,True,Rfc1,-114,-232,False,False,118,Qb3+,middlegame,,,1,,1-0
-VeL05zD2,24,black,False,Rg6,-232,-122,False,False,110,d3,middlegame,,,1,,1-0
-VeL05zD2,25,white,True,Qb3+,-122,-124,False,False,2,Qb3+,middlegame,,,1,,1-0
-VeL05zD2,25,black,False,Qe6,-124,-9,False,False,115,Bd5,middlegame,,,1,,1-0
-VeL05zD2,26,white,True,Qxe6+,-9,2,False,False,0,Qxe6+,middlegame,,,1,,1-0
-VeL05zD2,26,black,False,Rxe6,2,6,False,False,4,Rxe6,middlegame,,,1,,1-0
-VeL05zD2,27,white,True,Rc7,6,-12,False,False,18,Ng3,middlegame,,,1,,1-0
-VeL05zD2,27,black,False,Rg6,-12,30,False,False,42,a5,middlegame,,,1,,1-0
-VeL05zD2,28,white,True,Ng3,30,31,False,False,0,Ng3,middlegame,,,1,,1-0
-VeL05zD2,28,black,False,Rd6,31,226,False,False,195,Rb6,middlegame,,,1,,1-0
-VeL05zD2,29,white,True,Nf5,226,220,False,False,6,Nf5,middlegame,,,1,,1-0
-VeL05zD2,29,black,False,Rg6,220,363,False,False,143,Rf6,middlegame,,,1,,1-0
-VeL05zD2,30,white,True,Ne7+,363,360,False,False,3,Ne7+,middlegame,,,1,,1-0
-VeL05zD2,30,black,False,Kf7,360,355,False,False,0,Kf7,middlegame,,,1,,1-0
-VeL05zD2,31,white,True,Nxg6+,355,341,False,False,14,f3,middlegame,,,1,,1-0
-VeL05zD2,31,black,False,Kxg6,341,343,False,False,2,Kxg6,endgame,,,1,,1-0
-VeL05zD2,32,white,True,b3,343,343,False,False,0,b3,endgame,,,1,,1-0
-VeL05zD2,32,black,False,Kf5,343,381,False,False,38,d3,endgame,,,1,,1-0
-VeL05zD2,33,white,True,Rxg7,381,374,False,False,7,Rxg7,endgame,,,1,,1-0
-VeL05zD2,33,black,False,Ke4,374,406,False,False,32,Ke4,endgame,,,1,,1-0
-VeL05zD2,34,white,True,Rxh7,406,356,False,False,50,Re1+,endgame,,,1,,1-0
-VeL05zD2,34,black,False,d3,356,525,False,False,169,Kd3,endgame,,,1,,1-0
-VeL05zD2,35,white,True,Rd1,525,492,False,False,33,Rd7,endgame,,,1,,1-0
-VeL05zD2,35,black,False,Bd5,492,540,False,False,48,Bc6,endgame,,,1,,1-0
-VeL05zD2,36,white,True,Rh4+,540,552,False,False,0,Rh4+,endgame,,,1,,1-0
-VeL05zD2,36,black,False,Kf5,552,542,False,False,0,Kf5,endgame,,,1,,1-0
-VeL05zD2,37,white,True,f3,542,486,False,False,56,Rxd3,endgame,,,1,,1-0
-VeL05zD2,37,black,False,e4,486,487,False,False,1,e4,endgame,,,1,,1-0
-VeL05zD2,38,white,True,fxe4+,487,490,False,False,0,fxe4+,endgame,,,1,,1-0
-VeL05zD2,38,black,False,Bxe4,490,493,False,False,3,Bxe4,endgame,,,1,,1-0
-VeL05zD2,39,white,True,Kf2,493,483,False,False,10,Kf2,endgame,,,1,,1-0
-VeL05zD2,39,black,False,Rc8,483,503,False,False,20,Re8,endgame,,,1,,1-0
-VeL05zD2,40,white,True,Ke3,503,503,False,False,0,Ke3,endgame,,,1,,1-0
-VeL05zD2,40,black,False,Re8,503,702,False,False,199,Bxg2,endgame,,,1,,1-0
-VeL05zD2,41,white,True,Rxd3,702,478,False,False,224,Rf4+,endgame,,,1,,1-0
-VeL05zD2,41,black,False,Bxd3+,478,469,False,False,0,Bxd3+,endgame,,,1,,1-0
-VeL05zD2,42,white,True,Kxd3,469,479,False,False,0,Kxd3,endgame,,,1,,1-0
-VeL05zD2,42,black,False,Rd8+,479,487,False,False,8,Re1,endgame,,,1,,1-0
-VeL05zD2,43,white,True,Ke3,487,499,False,False,0,Ke3,endgame,,,1,,1-0
-VeL05zD2,43,black,False,Kg5,499,498,False,False,0,a5,endgame,,,1,,1-0
-VeL05zD2,44,white,True,Rh3,498,450,False,False,48,Ra4,endgame,,,1,,1-0
-VeL05zD2,44,black,False,Rc8,450,462,False,False,12,Rc8,endgame,,,1,,1-0
-VeL05zD2,45,white,True,Kd3,462,456,False,False,6,Rg3+,endgame,,,1,,1-0
-VeL05zD2,45,black,False,Rf8,456,470,False,False,14,a5,endgame,,,1,,1-0
-VeL05zD2,46,white,True,Kc3,470,460,False,False,10,Rg3+,endgame,,,1,,1-0
-VeL05zD2,46,black,False,Rf2,460,467,False,False,7,Rc8+,endgame,,,1,,1-0
-VeL05zD2,47,white,True,Rg3+,467,478,False,False,0,a4,endgame,,,1,,1-0
-VeL05zD2,47,black,False,Kf4,478,539,False,False,61,Kh4,endgame,,,1,,1-0
-VeL05zD2,48,white,True,a4,539,488,False,False,51,Rf3+,endgame,,,1,,1-0
-VeL05zD2,48,black,False,Ra2,488,492,False,False,4,Ke4,endgame,,,1,,1-0
-VeL05zD2,49,white,True,Kb4,492,480,False,False,12,Rg6,endgame,,,1,,1-0
-VeL05zD2,49,black,False,Ra1,480,496,False,False,16,Re2,endgame,,,1,,1-0
-VeL05zD2,50,white,True,Ka5,496,507,False,False,0,Ka5,endgame,,,1,,1-0
-VeL05zD2,50,black,False,Rh1,507,516,False,False,9,Rh1,endgame,,,1,,1-0
-VeL05zD2,51,white,True,b4,516,514,False,False,2,b4,endgame,,,1,,1-0
-VeL05zD2,51,black,False,Rxh2,514,563,False,False,49,Re1,endgame,,,1,,1-0
-VeL05zD2,52,white,True,Rb3,563,498,False,False,65,Rh3,endgame,,,1,,1-0
-VeL05zD2,52,black,False,Rxg2,498,509,False,False,11,Ke5,endgame,,,1,,1-0
-VeL05zD2,53,white,True,b5,509,423,False,False,86,Kxa6,endgame,,,1,,1-0
-VeL05zD2,53,black,False,axb5,423,469,False,False,46,axb5,endgame,,,1,,1-0
-VeL05zD2,54,white,True,axb5,469,470,False,False,0,axb5,endgame,,,1,,1-0
-VeL05zD2,54,black,False,Rg8,470,487,False,False,17,Ra2+,endgame,,,1,,1-0
-VeL05zD2,55,white,True,b6,487,425,False,False,62,b6,endgame,,,1,,1-0
-VeL05zD2,55,black,False,Ke5,425,410,False,False,0,Ke4,endgame,,,1,,1-0
-VeL05zD2,56,white,True,b7,410,439,False,False,0,Rd3,endgame,,,1,,1-0
-VeL05zD2,56,black,False,Rb8,439,416,False,False,0,Kd4,endgame,,,1,,1-0
-VeL05zD2,57,white,True,Ka6,416,393,False,False,23,Rb4,endgame,,,1,,1-0
-VeL05zD2,57,black,False,Kd6,393,483,False,False,90,Kd4,endgame,,,1,,1-0
-VeL05zD2,58,white,True,Ka7,483,4997,False,False,0,Ka7,endgame,,,1,,1-0
-VeL05zD2,58,black,False,Kc7,4997,10000,False,True,0,Rg8,endgame,,,1,,1-0
-VeL05zD2,59,white,True,Rc3+,10000,10000,True,True,0,Rc3+,endgame,,,1,,1-0
-VeL05zD2,59,black,False,Kd6,10000,10000,True,True,0,Kd6,endgame,,,1,,1-0
-VeL05zD2,60,white,True,Rc8,10000,8115,True,False,0,Kxb8,endgame,,,1,,1-0
-VeL05zD2,60,black,False,Rxb7+,8115,5273,False,False,0,Rxc8,endgame,,,1,,1-0
-VeL05zD2,61,white,True,Kxb7,5273,8115,False,False,0,Kxb7,endgame,,,1,,1-0
-VeL05zD2,61,black,False,Kd5,8115,6162,False,False,0,Ke7,endgame,,,1,,1-0
-VeL05zD2,62,white,True,Rc7,6162,6344,False,False,0,Re8,endgame,,,1,,1-0
-VeL05zD2,62,black,False,Kd4,6344,8115,False,False,0,Ke4,endgame,,,1,,1-0
-VeL05zD2,63,white,True,Rc6,8115,6800,False,False,0,Re7,endgame,,,1,,1-0
-VeL05zD2,63,black,False,Kd3,6800,7620,False,False,0,Ke4,endgame,,,1,,1-0
-VeL05zD2,64,white,True,Rb6,7620,7378,False,False,0,Re6,endgame,,,1,,1-0
-VeL05zD2,64,black,False,Ke4,7378,6635,False,False,0,Ke4,endgame,,,1,,1-0
-VeL05zD2,65,white,True,Rc6,6635,7088,False,False,0,Rf6,endgame,,,1,,1-0
-VeL05zD2,65,black,False,Ke3,7088,3714,False,False,0,Kf4,endgame,,,1,,1-0
-VeL05zD2,66,white,True,Kc7,3714,3916,False,False,0,Re6+,endgame,,,1,,1-0
-VeL05zD2,66,black,False,Ke4,3916,4272,False,False,0,Kf4,endgame,,,1,,1-0
-VeL05zD2,67,white,True,Rd6,4272,5447,False,False,0,Rd6,endgame,,,1,,1-0
-VeL05zD2,67,black,False,Kf4,5447,1370,False,False,0,Kf5,endgame,,,1,,1-0
-VeL05zD2,68,white,True,Rd7,1370,4090,False,False,0,Re6,endgame,,,1,,1-0
-VeL05zD2,68,black,False,Kf5,4090,10000,False,True,0,Ke3,endgame,,,1,,1-0
-VeL05zD2,69,white,True,Rd8,10000,8115,True,False,0,Re7,endgame,,,1,,1-0
-VeL05zD2,69,black,False,Kf4,8115,7336,False,False,0,Ke4,endgame,,,1,,1-0
-VeL05zD2,70,white,True,Re8,7336,8115,False,False,0,Kd6,endgame,,,1,,1-0
-VeL05zD2,70,black,False,Kg4,8115,10000,False,True,0,Kg5,endgame,,,1,,1-0
-VeL05zD2,71,white,True,Rc8,10000,1342,True,False,0,Rf8,endgame,,,1,,1-0
-VeL05zD2,71,black,False,Kg5,1342,10000,False,True,0,Kf3,endgame,,,1,,1-0
-VeL05zD2,72,white,True,Rb8,10000,3516,True,False,0,Kd6,endgame,,,1,,1-0
-VeL05zD2,72,black,False,Kf5,3516,10000,False,True,0,Kf4,endgame,,,1,,1-0
-VeL05zD2,73,white,True,Rb6,10000,4509,True,False,0,Rb4,endgame,,,1,,1-0
-VeL05zD2,73,black,False,Ke5,4509,10000,False,True,0,Ke4,endgame,,,1,,1-0
-VeL05zD2,74,white,True,Ra6,10000,7221,True,False,0,Rb4,endgame,,,1,,1-0
-VeL05zD2,74,black,False,Kd5,7221,10000,False,True,0,Ke4,endgame,,,1,,1-0
-VeL05zD2,75,white,True,Ra5+,10000,5974,True,False,0,Rd6+,endgame,,,1,,1-0
-VeL05zD2,75,black,False,Kd4,5974,10000,False,True,0,Kc4,endgame,,,1,,1-0
-VeL05zD2,76,white,True,Ra7,10000,10000,True,True,0,Kc6,endgame,,,1,,1-0
-VeL05zD2,76,black,False,Kc3,10000,6645,True,False,0,Kc5,endgame,,,1,,1-0
-VeL05zD2,77,white,True,Ra8,6645,7763,False,False,0,Ra4,endgame,,,1,,1-0
-VeL05zD2,77,black,False,Kb4,7763,10000,False,True,0,Kc4,endgame,,,1,,1-0
-VeL05zD2,78,white,True,Rb8+,10000,10000,True,True,0,Kb6,endgame,,,1,,1-0
-VeL05zD2,78,black,False,Kc4,10000,10000,True,True,0,Kc4,endgame,,,1,,1-0
-VeL05zD2,79,white,True,Kc8,10000,10000,True,True,0,Rd8,endgame,,,1,,1-0
-VeL05zD2,79,black,False,Kc5,10000,6170,True,False,0,Kd5,endgame,,,1,,1-0
-VeL05zD2,80,white,True,Kd8,6170,5453,False,False,0,Kc7,endgame,,,1,,1-0
-VeL05zD2,80,black,False,Kc4,5453,10000,False,True,0,Kd6,endgame,,,1,,1-0
-VeL05zD2,81,white,True,Rc8+,10000,7633,True,False,0,Kc7,endgame,,,1,,1-0
-VeL05zD2,81,black,False,Kd4,7633,8115,False,False,0,Kd4,endgame,,,1,,1-0
-VeL05zD2,82,white,True,Rc7,8115,10000,False,True,0,Kc7,endgame,,,1,,1-0
-VeL05zD2,82,black,False,Ke5,10000,10000,True,True,0,Kd5,endgame,,,1,,1-0
-VeL05zD2,83,white,True,Rd7,10000,10000,True,True,0,Rd7,endgame,,,1,,1-0
-VeL05zD2,83,black,False,Ke6,10000,10000,True,True,0,Kf6,endgame,,,1,,1-0
-VeL05zD2,84,white,True,Re7+,10000,10000,True,True,0,Kc7,endgame,,,1,,1-0
-VeL05zD2,84,black,False,Kf6,10000,10000,True,True,0,Kd6,endgame,,,1,,1-0
-VeL05zD2,85,white,True,Re8,10000,8077,True,False,0,Kd7,endgame,,,1,,1-0
-VeL05zD2,85,black,False,Kg6,8077,10000,False,True,0,Kf5,endgame,,,1,,1-0
-VeL05zD2,86,white,True,Re7,10000,10000,True,True,0,Re5,endgame,,,1,,1-0
-VeL05zD2,86,black,False,Kf6,10000,10000,True,True,0,Kf5,endgame,,,1,,1-0
-VeL05zD2,87,white,True,Rb7,10000,10000,True,True,0,Kd7,endgame,,,1,,1-0
-VeL05zD2,87,black,False,Kf5,10000,10000,True,True,0,Ke5,endgame,,,1,,1-0
-VeL05zD2,88,white,True,Rb6,10000,10000,True,True,0,Kd7,endgame,,,1,,1-0
-VeL05zD2,88,black,False,Ke5,10000,10000,True,True,0,Ke5,endgame,,,1,,1-0
-VeL05zD2,89,white,True,Rb7,10000,10000,True,True,0,Kd7,endgame,,,1,,1-0
-VeL05zD2,89,black,False,Kd4,10000,10000,True,True,0,Kd5,endgame,,,1,,1-0
-VeL05zD2,90,white,True,Rb8,10000,10000,True,True,0,Re7,endgame,,,1,,1-0
-VeL05zD2,90,black,False,Kc5,10000,10000,True,True,0,Kd5,endgame,,,1,,1-0
-VeL05zD2,91,white,True,Rc8+,10000,8115,True,False,0,Kd7,endgame,,,1,,1-0
-VeL05zD2,91,black,False,Kd5,8115,10000,False,True,0,Kd6,endgame,,,1,,1-0
-VeL05zD2,92,white,True,Ke8,10000,10000,True,True,0,Kc7,endgame,,,1,,1-0
-VeL05zD2,92,black,False,Kd6,10000,10000,True,True,0,Ke6,endgame,,,1,,1-0
-VeL05zD2,93,white,True,Kf8,10000,10000,True,True,0,Kd8,endgame,,,1,,1-0
-VeL05zD2,93,black,False,Ke6,10000,10000,True,True,0,Ke5,endgame,,,1,,1-0
-VeL05zD2,94,white,True,Kg8,10000,2489,True,False,0,Rc5,endgame,,,1,,1-0
-VeL05zD2,94,black,False,Kf6,2489,10000,False,True,0,Kd5,endgame,,,1,,1-0
-VeL05zD2,95,white,True,Rb8,10000,2572,True,False,0,Rc5,endgame,,,1,,1-0
-VeL05zD2,95,black,False,Kg6,2572,10000,False,True,0,Ke5,endgame,,,1,,1-0
-VeL05zD2,96,white,True,Ra8,10000,363,True,False,637,Rb5,endgame,,,1,,1-0
-VeL05zD2,96,black,False,Kh6,363,8115,False,False,637,Kf5,endgame,,,1,,1-0
-VeL05zD2,97,white,True,Ra6+,8115,2278,False,False,0,Ra5,endgame,,,1,,1-0
-VeL05zD2,97,black,False,Kg5,2278,2601,False,False,0,Kg5,endgame,,,1,,1-0
-VeL05zD2,98,white,True,Ra5+,2601,154,False,False,846,Kf7,endgame,,,1,,1-0
-VeL05zD2,98,black,False,Kg4,154,2236,False,False,846,Kf4,endgame,,,1,,1-0
-VeL05zD2,99,white,True,Ra4+,2236,164,False,False,836,Kf7,endgame,,,1,,1-0
-VeL05zD2,99,black,False,Kf3,164,336,False,False,172,Kf3,endgame,,,1,,1-0
-VeL05zD2,100,white,True,Ra5,336,148,False,False,188,Kf7,endgame,,,1,,1-0
-VeL05zD2,100,black,False,Ke3,148,106,False,False,0,Ke3,endgame,,,1,,1-0
-VeL05zD2,101,white,True,Ra7,106,96,False,False,10,Kf7,endgame,,,1,,1-0
-VeL05zD2,101,black,False,Kd4,96,73,False,False,0,Kd4,endgame,,,1,,1-0
-VeL05zD2,102,white,True,Rb7,73,60,False,False,13,Kf7,endgame,,,1,,1-0
-VeL05zD2,102,black,False,Kd3,60,43,False,False,0,Kc5,endgame,,,1,,1-0
-VeL05zD2,103,white,True,Rc7,43,30,False,False,13,Rd7+,endgame,,,1,,1-0
+oOW508JM,1,white,True,e4,47,36,False,False,11,e4,opening,0.0,180.0,8,Latvian Gambit,1-0
+oOW508JM,1,black,False,e5,36,45,False,False,9,e6,opening,0.0,180.0,8,Latvian Gambit,1-0
+oOW508JM,2,white,True,Nf3,45,44,False,False,1,Nf3,opening,1.0,179.0,8,Latvian Gambit,1-0
+oOW508JM,2,black,False,f5,44,151,False,False,107,Nc6,opening,0.0,180.0,8,Latvian Gambit,1-0
+oOW508JM,3,white,True,Nxe5,151,153,False,False,0,Nxe5,opening,2.0,177.0,8,Latvian Gambit,1-0
+oOW508JM,3,black,False,fxe4,153,248,False,False,95,Qf6,opening,0.0,180.0,8,Latvian Gambit,1-0
+oOW508JM,4,white,True,d4,248,51,False,False,197,Qh5+,opening,2.0,175.0,8,Latvian Gambit,1-0
+oOW508JM,4,black,False,Nf6,51,51,False,False,0,Nf6,opening,3.0,177.0,8,Latvian Gambit,1-0
+oOW508JM,5,white,True,Bc4,51,38,False,False,13,Be2,opening,3.0,172.0,8,Latvian Gambit,1-0
+oOW508JM,5,black,False,d5,38,38,False,False,0,d5,opening,1.0,176.0,8,Latvian Gambit,1-0
+oOW508JM,6,white,True,Bb3,38,43,False,False,0,Bb3,opening,7.0,165.0,8,Latvian Gambit,1-0
+oOW508JM,6,black,False,Nc6,43,65,False,False,22,Nbd7,opening,1.0,175.0,8,Latvian Gambit,1-0
+oOW508JM,7,white,True,O-O,65,40,False,False,25,O-O,opening,2.0,163.0,8,Latvian Gambit,1-0
+oOW508JM,7,black,False,Bd6,40,64,False,False,24,Bd6,opening,1.0,174.0,8,Latvian Gambit,1-0
+oOW508JM,8,white,True,Nxc6,64,-150,False,False,214,Nc3,opening,2.0,161.0,8,Latvian Gambit,1-0
+oOW508JM,8,black,False,bxc6,-150,-129,False,False,21,bxc6,opening,0.0,174.0,8,Latvian Gambit,1-0
+oOW508JM,9,white,True,Nc3,-129,-180,False,False,51,f3,opening,2.0,159.0,8,Latvian Gambit,1-0
+oOW508JM,9,black,False,O-O,-180,-210,False,False,0,O-O,opening,2.0,172.0,8,Latvian Gambit,1-0
+oOW508JM,10,white,True,Bg5,-210,-190,False,False,0,Bg5,opening,2.0,157.0,8,Latvian Gambit,1-0
+oOW508JM,10,black,False,Kh8,-190,-202,False,False,0,Qe8,opening,0.0,172.0,8,Latvian Gambit,1-0
+oOW508JM,11,white,True,g3,-202,-282,False,False,80,Bh4,opening,3.0,154.0,8,Latvian Gambit,1-0
+oOW508JM,11,black,False,Qe8,-282,-303,False,False,0,h6,opening,2.0,170.0,8,Latvian Gambit,1-0
+oOW508JM,12,white,True,Bxf6,-303,-290,False,False,0,Bxf6,opening,5.0,149.0,8,Latvian Gambit,1-0
+oOW508JM,12,black,False,Rxf6,-290,-322,False,False,0,Rxf6,opening,0.0,170.0,8,Latvian Gambit,1-0
+oOW508JM,13,white,True,Bxd5,-322,-450,False,False,128,Ba4,middlegame,3.0,146.0,8,Latvian Gambit,1-0
+oOW508JM,13,black,False,cxd5,-450,-453,False,False,0,cxd5,middlegame,3.0,167.0,8,Latvian Gambit,1-0
+oOW508JM,14,white,True,Nxd5,-453,-449,False,False,0,Nxd5,middlegame,0.0,146.0,8,Latvian Gambit,1-0
+oOW508JM,14,black,False,Rh6,-449,-410,False,False,39,Rf8,middlegame,12.0,155.0,8,Latvian Gambit,1-0
+oOW508JM,15,white,True,f4,-410,-420,False,False,10,c4,middlegame,29.0,117.0,8,Latvian Gambit,1-0
+oOW508JM,15,black,False,exf3,-420,-400,False,False,20,Bh3,middlegame,6.0,149.0,8,Latvian Gambit,1-0
+oOW508JM,16,white,True,Qxf3,-400,-446,False,False,46,Qxf3,middlegame,7.0,110.0,8,Latvian Gambit,1-0
+oOW508JM,16,black,False,Bh3,-446,-376,False,False,70,Bb7,middlegame,3.0,146.0,8,Latvian Gambit,1-0
+oOW508JM,17,white,True,Rfe1,-376,-473,False,False,97,Rae1,middlegame,2.0,108.0,8,Latvian Gambit,1-0
+oOW508JM,17,black,False,Qg6,-473,286,False,False,759,Qc6,middlegame,6.0,140.0,8,Latvian Gambit,1-0
+oOW508JM,18,white,True,Nf4,286,310,False,False,0,Nf4,middlegame,17.0,91.0,8,Latvian Gambit,1-0
+oOW508JM,18,black,False,Qxc2,310,10000,False,True,690,Rf8,middlegame,9.0,131.0,8,Latvian Gambit,1-0
+oOW508JM,19,white,True,Nxh3,10000,-7,True,False,1007,Qxa8+,middlegame,5.0,86.0,8,Latvian Gambit,1-0
+oOW508JM,19,black,False,Rxh3,-7,10000,False,True,1007,Rf8,middlegame,1.0,130.0,8,Latvian Gambit,1-0
+oOW508JM,20,white,True,Re2,10000,469,True,False,531,Qxa8+,middlegame,12.0,74.0,8,Latvian Gambit,1-0
+oOW508JM,20,black,False,Qg6,469,10000,False,True,531,Rf8,middlegame,5.0,125.0,8,Latvian Gambit,1-0
+oOW508JM,21,white,True,Qxa8+,10000,10000,True,True,0,Qxa8+,middlegame,11.0,63.0,8,Latvian Gambit,1-0
+ZBb5GrI0,1,white,False,d4,47,33,False,False,14,e4,opening,0.0,180.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,1,black,True,e5,33,128,False,False,95,Nf6,opening,0.0,180.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,2,white,False,dxe5,128,125,False,False,3,dxe5,opening,2.0,178.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,2,black,True,d6,125,143,False,False,18,Nc6,opening,0.0,180.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,3,white,False,Nf3,143,146,False,False,0,Nf3,opening,2.0,176.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,3,black,True,Nc6,146,143,False,False,0,Nc6,opening,1.0,179.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,4,white,False,Bf4,143,104,False,False,39,Bg5,opening,2.0,174.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,4,black,True,Bg4,104,91,False,False,0,Bg4,opening,2.0,177.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,5,white,False,Nbd2,91,91,False,False,0,exd6,opening,6.0,168.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,5,black,True,Qd7,91,106,False,False,15,dxe5,opening,11.0,166.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,6,white,False,h3,106,104,False,False,2,c3,opening,2.0,166.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,6,black,True,Bxf3,104,98,False,False,0,Bxf3,opening,2.0,164.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,7,white,False,Nxf3,98,95,False,False,3,Nxf3,opening,1.0,165.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,7,black,True,O-O-O,95,164,False,False,69,Qf5,opening,0.0,164.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,8,white,False,exd6,164,154,False,False,10,e3,opening,2.0,163.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,8,black,True,Bxd6,154,168,False,False,14,Bxd6,opening,0.0,164.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,9,white,False,Bxd6,168,175,False,False,0,Bxd6,opening,1.0,162.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,9,black,True,Qe6,175,170,False,False,0,Qe8,opening,6.0,158.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,10,white,False,Nd4,170,16,False,False,154,c3,opening,10.0,152.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,10,black,True,Nxd4,16,142,False,False,126,Qxd6,opening,1.0,157.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,11,white,False,Qxd4,142,142,False,False,0,Qxd4,middlegame,2.0,150.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,11,black,True,Rxd6,142,146,False,False,4,Rxd6,middlegame,0.0,157.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,12,white,False,Qxa7,146,39,False,False,107,Qg4,middlegame,9.0,141.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,12,black,True,Qd5,39,35,False,False,0,Qd5,middlegame,4.0,153.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,13,white,False,Qa8+,35,38,False,False,0,Qa8+,middlegame,24.0,117.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,13,black,True,Kd7,38,34,False,False,0,Kd7,middlegame,1.0,152.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,14,white,False,Qa4+,34,31,False,False,3,Qa4+,middlegame,2.0,115.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,14,black,True,b5,31,245,False,False,214,Kc8,middlegame,7.0,145.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,15,white,False,Qf4,245,165,False,False,80,Qb4,middlegame,3.0,112.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,15,black,True,g5,165,277,False,False,112,Nf6,middlegame,7.0,138.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,16,white,False,Qb4,277,273,False,False,4,Qb4,middlegame,14.0,98.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,16,black,True,Ne7,273,321,False,False,48,c5,middlegame,23.0,115.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,17,white,False,e4,321,354,False,False,0,e4,middlegame,2.0,96.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,17,black,True,Qc6,354,649,False,False,295,Nc6,middlegame,5.0,110.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+ZBb5GrI0,18,white,False,Bxb5,649,636,False,False,13,Bxb5,middlegame,3.0,93.0,7,Englund Gambit: Hartlaub-Charlick Gambit,1-0
+bgimmUvv,1,white,True,e4,47,35,False,False,12,e4,opening,0.0,180.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,1,black,False,d5,35,65,False,False,30,c6,opening,0.0,180.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,2,white,True,exd5,65,75,False,False,0,exd5,opening,1.0,179.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,2,black,False,Nf6,75,74,False,False,0,Nf6,opening,0.0,180.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,3,white,True,d4,74,70,False,False,4,d4,opening,1.0,178.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,3,black,False,Bg4,70,86,False,False,16,Nxd5,opening,1.0,179.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,4,white,True,f3,86,100,False,False,0,Bb5+,opening,2.0,176.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,4,black,False,Bf5,100,119,False,False,19,Bc8,opening,1.0,178.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,5,white,True,g4,119,109,False,False,10,g4,opening,26.0,150.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,5,black,False,Bg6,109,108,False,False,0,Bg6,opening,1.0,177.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,6,white,True,c4,108,120,False,False,0,c4,opening,1.0,149.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,6,black,False,e6,120,114,False,False,0,e6,opening,1.0,176.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,7,white,True,Nc3,114,119,False,False,0,Nc3,opening,2.0,147.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,7,black,False,exd5,119,118,False,False,0,c5,opening,1.0,175.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,8,white,True,g5,118,140,False,False,0,g5,opening,1.0,146.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,8,black,False,Nh5,140,143,False,False,3,Nfd7,opening,0.0,175.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,9,white,True,f4,143,129,False,False,14,f4,opening,8.0,138.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,9,black,False,dxc4,129,127,False,False,0,Nc6,opening,2.0,173.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,10,white,True,f5,127,149,False,False,0,f5,opening,34.0,104.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,10,black,False,Bxf5,149,148,False,False,0,Qe7+,opening,1.0,172.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,11,white,True,Qxh5,148,154,False,False,0,Qxh5,opening,3.0,101.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,11,black,False,Qxd4,154,208,False,False,54,Nc6,opening,1.0,171.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,12,white,True,Qe2+,208,229,False,False,0,Qe2+,opening,6.0,95.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,12,black,False,Be7,229,231,False,False,2,Be6,opening,4.0,167.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,13,white,True,Nf3,231,211,False,False,20,Nf3,opening,1.0,94.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,13,black,False,Qd7,211,192,False,False,0,Qd7,opening,5.0,162.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,14,white,True,Ne5,192,188,False,False,4,Bf4,opening,3.0,91.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,14,black,False,Qe6,188,208,False,False,20,Qe6,opening,6.0,156.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,15,white,True,Bf4,208,210,False,False,0,Bf4,opening,1.0,90.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,15,black,False,O-O,210,231,False,False,21,Nd7,opening,4.0,152.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,16,white,True,O-O-O,231,239,False,False,0,O-O-O,opening,3.0,87.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,16,black,False,Nc6,239,294,False,False,55,Na6,opening,1.0,151.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,17,white,True,Nd5,294,110,False,False,184,Nxc6,opening,6.0,81.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,17,black,False,Bd6,110,147,False,False,37,Bxg5,opening,12.0,139.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,18,white,True,Nxc6,147,164,False,False,0,Nxc6,opening,6.0,75.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,18,black,False,Bxf4+,164,135,False,False,0,Bxf4+,opening,6.0,133.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,19,white,True,Nxf4,135,147,False,False,0,Nxf4,opening,3.0,72.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,19,black,False,Qxc6,147,149,False,False,2,Qxc6,middlegame,2.0,131.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,20,white,True,Bg2,149,139,False,False,10,Bg2,middlegame,3.0,69.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,20,black,False,Qa4,139,148,False,False,9,Qa6,middlegame,10.0,121.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,21,white,True,Rd5,148,157,False,False,0,Rd5,middlegame,11.0,58.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,21,black,False,Rfe8,157,155,False,False,0,Rfe8,middlegame,11.0,110.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,22,white,True,Qd1,155,204,False,False,0,Qd2,middlegame,2.0,56.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,22,black,False,Qxd1+,204,207,False,False,3,Qxa2,middlegame,7.0,103.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,23,white,True,Rhxd1,207,205,False,False,2,Rhxd1,middlegame,5.0,51.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,23,black,False,Bg4,205,218,False,False,13,Bg4,middlegame,1.0,102.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,24,white,True,R1d4,218,202,False,False,16,Rg1,middlegame,9.0,42.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,24,black,False,Re1+,202,229,False,False,27,c6,middlegame,2.0,100.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,25,white,True,Kd2,229,213,False,False,16,Kd2,middlegame,2.0,40.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,25,black,False,Rb1,213,10000,False,True,787,Rae8,middlegame,3.0,97.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,26,white,True,Kc3,10000,241,True,False,759,Rd8+,middlegame,2.0,38.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,26,black,False,g6,241,229,False,False,0,Rf8,middlegame,1.0,96.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,27,white,True,Rxc4,229,212,False,False,17,h3,middlegame,5.0,33.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,27,black,False,c6,212,215,False,False,3,c6,middlegame,9.0,87.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,28,white,True,Rd6,215,185,False,False,30,Rd2,middlegame,4.0,29.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,28,black,False,Re8,185,189,False,False,4,Re8,middlegame,2.0,85.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,29,white,True,Rcd4,189,105,False,False,84,Re4,middlegame,1.0,28.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,29,black,False,Re3+,105,90,False,False,0,Re3+,middlegame,1.0,84.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,30,white,True,Rd3,90,122,False,False,0,Kd2,middlegame,1.0,27.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,30,black,False,Re5,122,106,False,False,0,Re5,middlegame,2.0,82.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,31,white,True,Rd8+,106,94,False,False,12,h3,middlegame,1.0,26.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,31,black,False,Kg7,94,94,False,False,0,Kg7,middlegame,1.0,81.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,32,white,True,R8d4,94,-35,False,False,129,h3,middlegame,0.0,26.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,32,black,False,Rxg5,-35,-21,False,False,14,Rc5+,middlegame,1.0,80.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,33,white,True,h3,-21,-65,False,False,44,Kc2,middlegame,1.0,25.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,33,black,False,Bf5,-65,-25,False,False,40,Rc5+,middlegame,1.0,79.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,34,white,True,Be4,-25,-17,False,False,0,Be4,middlegame,3.0,22.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,34,black,False,Rc1+,-17,3,False,False,20,c5,middlegame,3.0,76.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,35,white,True,Kd2,3,5,False,False,0,Kd2,middlegame,2.0,20.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,35,black,False,Bxe4,5,-4,False,False,0,Bxe4,middlegame,1.0,75.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,36,white,True,Rxe4,-4,-2,False,False,0,Kxc1,middlegame,0.0,20.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,36,black,False,Rh1,-2,63,False,False,65,Rgc5,endgame,2.0,73.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,37,white,True,Rd7,63,70,False,False,0,Rd7,endgame,3.0,17.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,37,black,False,Rf5,70,70,False,False,0,Rf5,endgame,2.0,71.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,38,white,True,Nd3,70,-11,False,False,81,h4,endgame,5.0,12.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,38,black,False,Rxh3,-11,-19,False,False,0,Rh2+,endgame,1.0,70.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,39,white,True,Ree7,-19,-73,False,False,54,Rxb7,endgame,0.0,12.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,39,black,False,Rh2+,-73,-23,False,False,50,h5,endgame,2.0,68.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,40,white,True,Kc3,-23,-105,False,False,82,Re2,endgame,1.0,11.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,40,black,False,Rh3,-105,-60,False,False,45,b6,endgame,1.0,67.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,41,white,True,Rxb7,-60,-53,False,False,0,Rxb7,endgame,1.0,10.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,41,black,False,h5,-53,-44,False,False,9,h5,endgame,2.0,65.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,42,white,True,Rbd7,-44,-120,False,False,76,Kd2,endgame,0.0,10.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,42,black,False,Rhf3,-120,-92,False,False,28,h4,endgame,1.0,64.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,43,white,True,Rxa7,-92,-378,False,False,286,Kd2,endgame,3.0,7.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,43,black,False,h4,-378,-132,False,False,246,Rd5,endgame,1.0,63.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,44,white,True,Kd4,-132,-445,False,False,313,Ra4,endgame,1.0,6.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,44,black,False,Rd5+,-445,-461,False,False,0,Rd5+,endgame,1.0,62.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,45,white,True,Ke4,-461,-502,False,False,41,Kc4,endgame,1.0,5.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,45,black,False,Rdxd3,-502,-501,False,False,1,Rdxd3,endgame,0.0,62.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,46,white,True,a4,-501,-586,False,False,85,Rad7,endgame,2.0,3.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,46,black,False,Rde3+,-586,-464,False,False,122,h3,endgame,7.0,55.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,47,white,True,Kd4,-464,-495,False,False,31,Kd4,endgame,2.0,1.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,47,black,False,Rxe7,-495,-493,False,False,2,Rxe7,endgame,0.0,55.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,48,white,True,Rxe7,-493,-489,False,False,0,Rxe7,endgame,0.0,1.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+bgimmUvv,48,black,False,h3,-489,-473,False,False,16,Rb3,endgame,0.0,55.0,6,Scandinavian Defense: Portuguese Gambit,0-1
+nJL3JFGH,1,white,False,e4,38,41,False,False,0,e4,opening,0.0,180.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,1,black,True,d5,41,76,False,False,35,e5,opening,0.0,180.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,2,white,False,exd5,76,76,False,False,0,exd5,opening,1.0,179.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,2,black,True,Nf6,76,71,False,False,0,Nf6,opening,0.0,180.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,3,white,False,Nc3,71,28,False,False,43,d4,opening,0.0,179.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,3,black,True,Nxd5,28,29,False,False,1,Nxd5,opening,1.0,179.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,4,white,False,d4,29,6,False,False,23,Nf3,opening,1.0,178.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,4,black,True,Nc6,6,42,False,False,36,Nxc3,opening,1.0,178.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,5,white,False,Nf3,42,44,False,False,0,Nf3,opening,1.0,177.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,5,black,True,Bg4,44,44,False,False,0,Bg4,opening,1.0,177.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,6,white,False,Be2,44,46,False,False,0,Be2,opening,1.0,176.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,6,black,True,e6,46,47,False,False,1,e6,opening,7.0,170.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,7,white,False,O-O,47,49,False,False,0,O-O,opening,1.0,175.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,7,black,True,Be7,49,55,False,False,6,Nxc3,opening,5.0,165.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,8,white,False,Re1,55,47,False,False,8,Ne4,opening,1.0,174.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,8,black,True,O-O,47,56,False,False,9,Nf6,opening,2.0,163.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,9,white,False,Ne4,56,60,False,False,0,Ne4,opening,1.0,173.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,9,black,True,Nf6,60,64,False,False,4,a5,opening,2.0,161.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,10,white,False,Ng3,64,-68,False,False,132,Nxf6+,opening,2.0,171.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,10,black,True,Bxf3,-68,-61,False,False,7,Bxf3,opening,32.0,129.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,11,white,False,Bxf3,-61,-72,False,False,11,Bxf3,opening,2.0,169.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,11,black,True,Qxd4,-72,-72,False,False,0,Qxd4,opening,0.0,129.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,12,white,False,Qxd4,-72,-120,False,False,48,Qe2,opening,5.0,164.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,12,black,True,Nxd4,-120,-122,False,False,0,Nxd4,middlegame,2.0,127.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,13,white,False,Bd1,-122,-127,False,False,5,Bd1,middlegame,1.0,163.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,13,black,True,Bd6,-127,-93,False,False,34,Rfd8,middlegame,17.0,110.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,14,white,False,c3,-93,-97,False,False,4,Ne4,middlegame,3.0,160.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,14,black,True,Nc6,-97,-98,False,False,0,Nc6,middlegame,3.0,107.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,15,white,False,Ne4,-98,-87,False,False,0,Ne4,middlegame,6.0,154.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,15,black,True,Be7,-87,-38,False,False,49,Nxe4,middlegame,23.0,84.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,16,white,False,b4,-38,-140,False,False,102,Nxf6+,middlegame,9.0,145.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,16,black,True,Rad8,-140,-135,False,False,5,Rfd8,middlegame,4.0,80.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,17,white,False,Bf3,-135,-156,False,False,21,Bf4,middlegame,14.0,131.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,17,black,True,Nxe4,-156,-99,False,False,57,Ne5,middlegame,6.0,74.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,18,white,False,Bxe4,-99,-208,False,False,109,Rxe4,middlegame,1.0,130.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,18,black,True,Bf6,-208,-199,False,False,9,Bf6,middlegame,0.0,74.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,19,white,False,Bxc6,-199,-365,False,False,166,Rb1,middlegame,10.0,120.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,19,black,True,bxc6,-365,-207,False,False,158,Bxc3,middlegame,0.0,74.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,20,white,False,Bb2,-207,-197,False,False,0,Bb2,middlegame,2.0,118.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,20,black,True,Rd2,-197,-206,False,False,0,Rd2,middlegame,1.0,73.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,21,white,False,Bc1,-206,-222,False,False,16,Bc1,middlegame,9.0,109.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,21,black,True,Rd3,-222,-214,False,False,8,Rd3,middlegame,17.0,56.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,22,white,False,Rb1,-214,-285,False,False,71,Bb2,middlegame,7.0,102.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,22,black,True,Bxc3,-285,-302,False,False,0,Bxc3,middlegame,2.0,54.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,23,white,False,Rf1,-302,-308,False,False,6,Rf1,middlegame,5.0,97.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,23,black,True,Rfd8,-308,-264,False,False,44,Rb8,middlegame,1.0,53.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,24,white,False,Be3,-264,-232,False,False,0,g3,middlegame,3.0,94.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,24,black,True,a6,-232,-204,False,False,28,Bd2,middlegame,5.0,48.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,25,white,False,Rb3,-204,-293,False,False,89,g3,middlegame,9.0,85.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,25,black,True,Bd2,-293,211,False,False,504,Be5,middlegame,6.0,42.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,26,white,False,Rxd3,211,220,False,False,0,Rxd3,middlegame,5.0,80.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,26,black,True,Rxd3,220,217,False,False,0,Rxd3,endgame,0.0,42.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,27,white,False,Bc5,217,-279,False,False,496,Rd1,endgame,2.0,78.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,27,black,True,Ra3,-279,-277,False,False,2,f5,endgame,3.0,39.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,28,white,False,g3,-277,-358,False,False,81,Ra1,endgame,7.0,71.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,28,black,True,h6,-358,-291,False,False,67,Rxa2,endgame,3.0,36.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,29,white,False,Kg2,-291,-370,False,False,79,Ra1,endgame,1.0,70.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,29,black,True,Rxa2,-370,-356,False,False,14,Rxa2,endgame,2.0,34.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,30,white,False,Rb1,-356,-360,False,False,4,Rb1,endgame,5.0,65.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,30,black,True,Ra4,-360,-357,False,False,3,f6,endgame,2.0,32.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,31,white,False,Be7,-357,-365,False,False,8,h4,endgame,5.0,60.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,31,black,True,Kh7,-365,-307,False,False,58,Ra2,endgame,1.0,31.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,32,white,False,Rd1,-307,-410,False,False,103,Rb2,endgame,2.0,58.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,32,black,True,Bxb4,-410,-415,False,False,0,Bxb4,endgame,1.0,30.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,33,white,False,Rd4,-415,-401,False,False,0,Rd4,endgame,1.0,57.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,33,black,True,a5,-401,-423,False,False,0,a5,endgame,4.0,26.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,34,white,False,Bd8,-423,-492,False,False,69,Re4,endgame,7.0,50.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,34,black,True,c5,-492,-415,False,False,77,Ra2,endgame,1.0,25.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,35,white,False,Rd7,-415,-459,False,False,44,Rd7,endgame,6.0,44.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,35,black,True,c6,-459,-391,False,False,68,Kg8,endgame,1.0,24.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,36,white,False,Rxf7,-391,-395,False,False,4,Rxf7,endgame,3.0,41.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,36,black,True,Ra2,-395,-399,False,False,0,Ra2,endgame,1.0,23.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,37,white,False,Bf6,-399,-565,False,False,166,Rc7,endgame,3.0,38.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,37,black,True,Kg8,-565,-171,False,False,394,Kg6,endgame,5.0,18.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,38,white,False,Rxg7+,-171,-155,False,False,0,Rxg7+,endgame,3.0,35.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,38,black,True,Kf8,-155,-181,False,False,0,Kf8,endgame,0.0,18.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,39,white,False,Be5,-181,-244,False,False,63,Rc7,endgame,3.0,32.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,39,black,True,a4,-244,-208,False,False,36,Re2,endgame,0.0,18.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,40,white,False,h4,-208,-326,False,False,118,Rb7,endgame,10.0,22.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,40,black,True,a3,-326,-175,False,False,151,Re2,endgame,0.0,18.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,41,white,False,Rg6,-175,-382,False,False,207,Ra7,endgame,5.0,17.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,41,black,True,Rc2,-382,-185,False,False,197,Re2,endgame,1.0,17.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,42,white,False,Rxh6,-185,-187,False,False,2,Rf6+,endgame,7.0,10.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,42,black,True,Bc3,-187,-78,False,False,109,Re2,endgame,1.0,16.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,43,white,False,Bxc3,-78,-71,False,False,0,Bxc3,endgame,3.0,7.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,43,black,True,Rxc3,-71,-64,False,False,7,Rxc3,endgame,0.0,16.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,44,white,False,Rh8+,-64,-62,False,False,0,Rh8+,endgame,1.0,6.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,44,black,True,Ke7,-62,-17,False,False,45,Kg7,endgame,0.0,16.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,45,white,False,Ra8,-17,-5,False,False,0,Ra8,endgame,1.0,5.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,45,black,True,Kd6,-5,89,False,False,94,c4,endgame,0.0,16.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,46,white,False,h5,89,92,False,False,0,h5,endgame,1.0,4.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,46,black,True,Rb3,92,90,False,False,0,Rb3,endgame,3.0,13.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,47,white,False,h6,90,69,False,False,21,g4,endgame,2.0,2.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,47,black,True,Rb7,69,54,False,False,0,Rb7,endgame,4.0,9.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,48,white,False,Rxa3,54,0,False,False,54,g4,endgame,2.0,0.0,5,Scandinavian Defense: Modern Variation,0-1
+nJL3JFGH,48,black,True,Rh7,0,0,False,False,0,Rh7,endgame,0.0,9.0,5,Scandinavian Defense: Modern Variation,0-1
+pIbl188a,1,white,True,e4,36,43,False,False,0,e4,opening,0.0,180.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,1,black,False,c5,43,49,False,False,6,e6,opening,0.0,180.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,2,white,True,Nf3,49,55,False,False,0,Nf3,opening,1.0,179.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,2,black,False,Nc6,55,40,False,False,0,e6,opening,1.0,179.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,3,white,True,Bb5,40,39,False,False,1,d4,opening,2.0,177.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,3,black,False,g6,39,44,False,False,5,e6,opening,1.0,178.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,4,white,True,h4,44,-38,False,False,82,O-O,opening,1.0,176.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,4,black,False,Bg7,-38,-4,False,False,34,Nf6,opening,2.0,176.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,5,white,True,h5,-4,-18,False,False,14,h5,opening,2.0,174.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,5,black,False,Nf6,-18,109,False,False,127,d6,opening,7.0,169.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,6,white,True,h6,109,103,False,False,6,h6,opening,3.0,171.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,6,black,False,Bf8,103,93,False,False,0,Bf8,opening,0.0,169.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,7,white,True,e5,93,104,False,False,0,Nc3,opening,1.0,170.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,7,black,False,Nd5,104,111,False,False,7,Ng4,opening,2.0,167.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,8,white,True,d4,111,-47,False,False,158,Nc3,opening,18.0,152.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,8,black,False,Qa5+,-47,-43,False,False,4,Qa5+,opening,1.0,166.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,9,white,True,Bd2,-43,-257,False,False,214,Nbd2,opening,45.0,107.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,9,black,False,Qxb5,-257,-245,False,False,12,Qxb5,opening,1.0,165.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,10,white,True,c4,-245,-378,False,False,133,Na3,opening,2.0,105.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,10,black,False,Qxc4,-378,-354,False,False,24,Qxc4,opening,11.0,154.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,11,white,True,b3,-354,-439,False,False,85,a4,opening,1.0,104.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,11,black,False,Qd3,-439,-428,False,False,11,Qd3,opening,4.0,150.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,12,white,True,dxc5,-428,-440,False,False,12,Na3,opening,4.0,100.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,12,black,False,Qe4+,-440,-317,False,False,123,b5,opening,14.0,136.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,13,white,True,Kf1,-317,-339,False,False,22,Kf1,opening,4.0,96.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,13,black,False,Nxe5,-339,-315,False,False,24,Nd4,opening,4.0,132.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,14,white,True,Nxe5,-315,-359,False,False,44,Bc3,opening,3.0,93.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,14,black,False,Qxe5,-359,-336,False,False,23,Qxe5,opening,1.0,131.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,15,white,True,Bc3,-336,-551,False,False,215,Na3,opening,1.0,92.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,15,black,False,Nxc3,-551,-546,False,False,5,Nxc3,opening,3.0,128.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,16,white,True,Nxc3,-546,-536,False,False,0,Nxc3,middlegame,0.0,92.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,16,black,False,Qxc3,-536,-561,False,False,0,Qxc3,middlegame,2.0,126.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,17,white,True,Rc1,-561,-562,False,False,1,Rh3,middlegame,0.0,92.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,17,black,False,Qe5,-562,-543,False,False,19,Qf6,middlegame,7.0,119.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,18,white,True,f4,-543,-732,False,False,189,Kg1,middlegame,2.0,90.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+pIbl188a,18,black,False,Qxf4+,-732,-744,False,False,0,Qxf4+,middlegame,2.0,117.0,4,"Sicilian Defense: Nyezhmetdinov-Rossolimo Attack, Fianchetto Variation",0-1
+hJ4LZx8F,1,white,False,e4,41,43,False,False,0,e4,opening,0.0,180.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,1,black,True,d5,43,65,False,False,22,e6,opening,0.0,180.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,2,white,False,exd5,65,71,False,False,0,exd5,opening,1.0,179.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,2,black,True,Nf6,71,66,False,False,0,Nf6,opening,0.0,180.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,3,white,False,Nf3,66,73,False,False,0,d4,opening,1.0,178.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,3,black,True,Qxd5,73,71,False,False,0,Nxd5,opening,2.0,178.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,4,white,False,d4,71,49,False,False,22,Nc3,opening,1.0,177.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,4,black,True,Nc6,49,86,False,False,37,Bg4,opening,1.0,177.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,5,white,False,Be2,86,35,False,False,51,Nc3,opening,0.0,177.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,5,black,True,Bg4,35,52,False,False,17,Bg4,opening,1.0,176.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,6,white,False,O-O,52,45,False,False,7,h3,opening,2.0,175.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,6,black,True,O-O-O,45,40,False,False,0,O-O-O,opening,2.0,174.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,7,white,False,c3,40,29,False,False,11,Be3,opening,1.0,174.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,7,black,True,e5,29,40,False,False,11,e5,opening,2.0,172.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,8,white,False,c4,40,41,False,False,0,c4,opening,2.0,172.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,8,black,True,Qe4,41,50,False,False,9,Qd7,opening,2.0,170.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,9,white,False,Nbd2,50,76,False,False,0,Nbd2,opening,2.0,170.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,9,black,True,Qg6,76,85,False,False,9,Qf5,opening,2.0,168.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,10,white,False,d5,85,43,False,False,42,Nxe5,opening,1.0,169.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,10,black,True,Nd4,43,33,False,False,0,Nd4,opening,9.0,159.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,11,white,False,Nxd4,33,35,False,False,0,Nxd4,opening,2.0,167.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,11,black,True,exd4,35,36,False,False,1,exd4,opening,0.0,159.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,12,white,False,Nf3,36,16,False,False,20,Bxg4+,opening,3.0,164.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,12,black,True,Bc5,16,10,False,False,0,Bc5,opening,9.0,150.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,13,white,False,Kh1,10,-89,False,False,99,b4,opening,8.0,156.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,13,black,True,h5,-89,54,False,False,143,Rhe8,opening,1.0,149.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,14,white,False,a3,54,39,False,False,15,b4,opening,10.0,146.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,14,black,True,h4,39,90,False,False,51,Ne4,opening,18.0,131.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,15,white,False,h3,90,95,False,False,0,h3,opening,8.0,138.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,15,black,True,Rde8,95,179,False,False,84,Bxf3,opening,15.0,116.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,16,white,False,hxg4,179,192,False,False,0,hxg4,opening,14.0,124.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,16,black,True,Nxg4,192,271,False,False,79,Rxe2,opening,0.0,116.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,17,white,False,Bd3,271,300,False,False,0,Ng5,opening,4.0,120.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,17,black,True,Qh5,300,307,False,False,7,Nxf2+,opening,7.0,109.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,18,white,False,b4,307,228,False,False,79,Bf4,opening,4.0,116.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,18,black,True,h3,228,372,False,False,144,Bd6,opening,1.0,108.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,19,white,False,g3,372,370,False,False,2,g3,opening,1.0,115.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,19,black,True,Bd6,370,364,False,False,0,Bd6,opening,6.0,102.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,20,white,False,Bb2,364,322,False,False,42,Ra2,opening,10.0,105.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,20,black,True,Nxf2+,322,347,False,False,25,Bxg3,opening,32.0,70.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,21,white,False,Rxf2,347,392,False,False,0,Rxf2,opening,7.0,98.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,21,black,True,Bxg3,392,373,False,False,0,Bxg3,middlegame,1.0,69.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,22,white,False,Rf1,373,366,False,False,7,Rf1,middlegame,11.0,87.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,22,black,True,Re3,366,463,False,False,97,Kb8,middlegame,18.0,51.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,23,white,False,Nxd4,463,454,False,False,9,Bxd4,middlegame,4.0,83.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,23,black,True,Qe5,454,569,False,False,115,Qg5,middlegame,14.0,37.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,24,white,False,Qg4+,569,551,False,False,18,Bf5+,middlegame,4.0,79.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,24,black,True,f5,551,674,False,False,123,Kb8,middlegame,7.0,30.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,25,white,False,Rxf5,674,608,False,False,66,Nxf5,middlegame,8.0,71.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,25,black,True,Re1+,608,784,False,False,176,Kb8,middlegame,6.0,24.0,3,Scandinavian Defense: Modern Variation,1-0
+hJ4LZx8F,26,white,False,Rf1+,784,793,False,False,0,Rxe1,middlegame,3.0,68.0,3,Scandinavian Defense: Modern Variation,1-0
+zKK8HEU1,1,white,True,e4,49,32,False,False,17,e4,opening,0.0,180.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,1,black,False,e5,32,38,False,False,6,c6,opening,0.0,180.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,2,white,True,Nf3,38,39,False,False,0,Nf3,opening,1.0,179.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,2,black,False,Nc6,39,39,False,False,0,Nc6,opening,0.0,180.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,3,white,True,Bc4,39,19,False,False,20,Bb5,opening,1.0,178.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,3,black,False,Nf6,19,21,False,False,2,Bc5,opening,1.0,179.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,4,white,True,Ng5,21,18,False,False,3,Ng5,opening,1.0,177.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,4,black,False,d5,18,23,False,False,5,d5,opening,1.0,178.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,5,white,True,exd5,23,27,False,False,0,exd5,opening,0.0,177.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,5,black,False,b5,27,48,False,False,21,Na5,opening,1.0,177.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,6,white,True,Bf1,48,53,False,False,0,Bf1,opening,2.0,175.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,6,black,False,Nd4,53,58,False,False,5,Nd4,opening,1.0,176.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,7,white,True,c3,58,64,False,False,0,c3,opening,6.0,169.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,7,black,False,Nxd5,64,72,False,False,8,Nxd5,opening,3.0,173.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,8,white,True,Nxf7,72,40,False,False,32,cxd4,opening,4.0,165.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,8,black,False,Kxf7,40,52,False,False,12,Kxf7,opening,1.0,172.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,9,white,True,cxd4,52,51,False,False,1,cxd4,opening,4.0,161.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,9,black,False,exd4,51,25,False,False,0,exd4,opening,7.0,165.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,10,white,True,Bxb5,25,24,False,False,1,Bxb5,opening,5.0,156.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,10,black,False,Qe7+,24,24,False,False,0,Qe7+,opening,9.0,156.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,11,white,True,Qe2,24,-88,False,False,112,Kf1,opening,6.0,150.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,11,black,False,Rb8,-88,-1,False,False,87,Qxe2+,opening,9.0,147.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,12,white,True,Bc4,-1,3,False,False,0,Bc4,opening,2.0,148.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,12,black,False,Qxe2+,3,1,False,False,0,Qxe2+,opening,2.0,145.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,13,white,True,Bxe2,1,-142,False,False,143,Kxe2,middlegame,9.0,139.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,13,black,False,Be6,-142,-79,False,False,63,Nf4,middlegame,1.0,144.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,14,white,True,O-O,-79,-99,False,False,20,d3,middlegame,1.0,138.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,14,black,False,Nf4,-99,-79,False,False,20,Nb4,middlegame,1.0,143.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,15,white,True,Bf3,-79,-64,False,False,0,Bf3,middlegame,9.0,129.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,15,black,False,Nd3,-64,-58,False,False,6,g6,middlegame,2.0,141.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,16,white,True,Be4,-58,-53,False,False,0,Be4,middlegame,10.0,119.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,16,black,False,Nxc1,-53,-9,False,False,44,Nxb2,middlegame,3.0,138.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,17,white,True,Rxc1,-9,-13,False,False,4,Rxc1,middlegame,0.0,119.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,17,black,False,Bd6,-13,102,False,False,115,Rxb2,middlegame,3.0,135.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,18,white,True,d3,102,-141,False,False,243,b3,middlegame,4.0,115.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,18,black,False,Rxb2,-141,-131,False,False,10,Rxb2,middlegame,1.0,134.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,19,white,True,a4,-131,-152,False,False,21,Rd1,middlegame,32.0,83.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,19,black,False,Rhb8,-152,-59,False,False,93,Ke7,middlegame,9.0,125.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,20,white,True,g3,-59,-231,False,False,172,Na3,middlegame,10.0,73.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,20,black,False,Bh3,-231,-76,False,False,155,R8b3,middlegame,12.0,113.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,21,white,True,Bg2,-76,-314,False,False,238,Na3,middlegame,5.0,68.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,21,black,False,Bf5,-314,-194,False,False,120,Bxg2,middlegame,3.0,110.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,22,white,True,Be4,-194,-420,False,False,226,Na3,middlegame,1.0,67.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,22,black,False,Bxe4,-420,-432,False,False,0,Bxe4,middlegame,2.0,108.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,23,white,True,dxe4,-432,-423,False,False,0,dxe4,middlegame,0.0,67.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,23,black,False,d3,-423,-263,False,False,160,R8b3,middlegame,7.0,101.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,24,white,True,Nc3,-263,-357,False,False,94,Rd1,middlegame,7.0,60.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,24,black,False,Bc5,-357,-312,False,False,45,Be5,middlegame,9.0,92.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,25,white,True,Rf1,-312,-374,False,False,62,Nb5,middlegame,7.0,53.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,25,black,False,Bd4,-374,-247,False,False,127,R8b3,middlegame,8.0,84.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,26,white,True,Nb5,-247,-252,False,False,5,Nb5,middlegame,8.0,45.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,26,black,False,R2xb5,-252,-212,False,False,40,Rd8,middlegame,20.0,64.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,27,white,True,axb5,-212,-206,False,False,0,axb5,endgame,2.0,43.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,27,black,False,Bxa1,-206,-219,False,False,0,Bxa1,endgame,6.0,58.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,28,white,True,Rxa1,-219,-226,False,False,7,Rxa1,endgame,2.0,41.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,28,black,False,Rxb5,-226,-209,False,False,17,Rxb5,endgame,1.0,57.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,29,white,True,f4,-209,-250,False,False,41,Kg2,endgame,2.0,39.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,29,black,False,Rb2,-250,-35,False,False,215,c5,endgame,2.0,55.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,30,white,True,Rd1,-35,-27,False,False,0,Rd1,endgame,3.0,36.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,30,black,False,d2,-27,-5,False,False,22,a5,endgame,2.0,53.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,31,white,True,Kf2,-5,0,False,False,0,Kf2,endgame,1.0,35.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,31,black,False,a5,0,0,False,False,0,a5,endgame,1.0,52.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,32,white,True,Ke3,0,0,False,False,0,Ke3,endgame,4.0,31.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,32,black,False,a4,0,0,False,False,0,a4,endgame,1.0,51.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,33,white,True,Rxd2,0,0,False,False,0,Rxd2,endgame,0.0,31.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,33,black,False,a3,0,11,False,False,11,Rxd2,endgame,2.0,49.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,34,white,True,Rd7+,11,0,False,False,11,Rd7+,endgame,5.0,26.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,34,black,False,Kf6,0,19,False,False,19,Kf8,endgame,6.0,43.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,35,white,True,Rxc7,19,4,False,False,15,Rxc7,endgame,1.0,25.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,35,black,False,Rxh2,4,71,False,False,67,Rb3+,endgame,5.0,38.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,36,white,True,e5+,71,42,False,False,29,e5+,endgame,2.0,23.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,36,black,False,Ke6,42,50,False,False,8,Kg6,endgame,1.0,37.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,37,white,True,Rxg7,50,17,False,False,33,Rxg7,endgame,3.0,20.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,37,black,False,a2,17,17,False,False,0,a2,endgame,5.0,32.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,38,white,True,Ra7,17,15,False,False,2,Ra7,endgame,2.0,18.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,38,black,False,Kd5,15,329,False,False,314,h5,endgame,6.0,26.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,39,white,True,Ra5+,329,357,False,False,0,Ra5+,endgame,3.0,15.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,39,black,False,Kc4,357,443,False,False,86,Ke6,endgame,1.0,25.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,40,white,True,e6,443,468,False,False,0,e6,endgame,1.0,14.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,40,black,False,Kb4,468,528,False,False,60,Rb2,endgame,6.0,19.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,41,white,True,Ra7,528,472,False,False,56,Ra8,endgame,2.0,12.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,41,black,False,Kc5,472,683,False,False,211,Rc2,endgame,4.0,15.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,42,white,True,e7,683,801,False,False,0,e7,endgame,1.0,11.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,42,black,False,Rh1,801,837,False,False,36,Kb6,endgame,4.0,11.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+zKK8HEU1,43,white,True,Rxa2,837,884,False,False,0,Rxa2,endgame,4.0,7.0,2,"Italian Game: Two Knights Defense, Knight Attack, Normal Variation",1-0
+geDe7mnO,1,white,False,g3,39,20,False,False,19,e4,opening,0.0,180.0,1,Hungarian Opening,1-0
+geDe7mnO,1,black,True,d5,20,25,False,False,5,e5,opening,0.0,180.0,1,Hungarian Opening,1-0
+geDe7mnO,2,white,False,Bg2,25,-20,False,False,45,Nf3,opening,1.0,179.0,1,Hungarian Opening,1-0
+geDe7mnO,2,black,True,e5,-20,-15,False,False,5,e5,opening,0.0,180.0,1,Hungarian Opening,1-0
+geDe7mnO,3,white,False,c4,-15,-30,False,False,15,d3,opening,1.0,178.0,1,Hungarian Opening,1-0
+geDe7mnO,3,black,True,Nf6,-30,30,False,False,60,d4,opening,7.0,173.0,1,Hungarian Opening,1-0
+geDe7mnO,4,white,False,cxd5,30,38,False,False,0,cxd5,opening,0.0,178.0,1,Hungarian Opening,1-0
+geDe7mnO,4,black,True,Nxd5,38,38,False,False,0,Nxd5,opening,7.0,166.0,1,Hungarian Opening,1-0
+geDe7mnO,5,white,False,Nc3,38,33,False,False,5,Nc3,opening,1.0,177.0,1,Hungarian Opening,1-0
+geDe7mnO,5,black,True,Nf6,33,39,False,False,6,Nb6,opening,11.0,155.0,1,Hungarian Opening,1-0
+geDe7mnO,6,white,False,d3,39,31,False,False,8,Nf3,opening,2.0,175.0,1,Hungarian Opening,1-0
+geDe7mnO,6,black,True,Bc5,31,58,False,False,27,h6,opening,9.0,146.0,1,Hungarian Opening,1-0
+geDe7mnO,7,white,False,Nf3,58,52,False,False,6,Nf3,opening,1.0,174.0,1,Hungarian Opening,1-0
+geDe7mnO,7,black,True,Nc6,52,56,False,False,4,Nc6,opening,3.0,143.0,1,Hungarian Opening,1-0
+geDe7mnO,8,white,False,O-O,56,43,False,False,13,a3,opening,2.0,172.0,1,Hungarian Opening,1-0
+geDe7mnO,8,black,True,Bg4,43,80,False,False,37,h6,opening,3.0,140.0,1,Hungarian Opening,1-0
+geDe7mnO,9,white,False,Bg5,80,87,False,False,0,Bg5,opening,2.0,170.0,1,Hungarian Opening,1-0
+geDe7mnO,9,black,True,Qd7,87,91,False,False,4,h6,opening,4.0,136.0,1,Hungarian Opening,1-0
+geDe7mnO,10,white,False,Bxf6,91,67,False,False,24,Rc1,opening,2.0,168.0,1,Hungarian Opening,1-0
+geDe7mnO,10,black,True,gxf6,67,69,False,False,2,gxf6,opening,1.0,135.0,1,Hungarian Opening,1-0
+geDe7mnO,11,white,False,Ne4,69,39,False,False,30,Rb1,opening,0.0,168.0,1,Hungarian Opening,1-0
+geDe7mnO,11,black,True,Be7,39,46,False,False,7,Be7,opening,5.0,130.0,1,Hungarian Opening,1-0
+geDe7mnO,12,white,False,Qa4,46,21,False,False,25,Rc1,opening,17.0,151.0,1,Hungarian Opening,1-0
+geDe7mnO,12,black,True,Bh3,21,152,False,False,131,h5,opening,14.0,116.0,1,Hungarian Opening,1-0
+geDe7mnO,13,white,False,Rac1,152,122,False,False,30,Bxh3,opening,12.0,139.0,1,Hungarian Opening,1-0
+geDe7mnO,13,black,True,h5,122,244,False,False,122,Bg4,opening,5.0,111.0,1,Hungarian Opening,1-0
+geDe7mnO,14,white,False,Nc5,244,128,False,False,116,Bxh3,opening,4.0,135.0,1,Hungarian Opening,1-0
+geDe7mnO,14,black,True,Bxc5,128,119,False,False,0,Bxc5,opening,3.0,108.0,1,Hungarian Opening,1-0
+geDe7mnO,15,white,False,Rxc5,119,111,False,False,8,Bxh3,opening,0.0,135.0,1,Hungarian Opening,1-0
+geDe7mnO,15,black,True,Nd4,111,331,False,False,220,Bxg2,middlegame,31.0,77.0,1,Hungarian Opening,1-0
+geDe7mnO,16,white,False,Qxd7+,331,367,False,False,0,Qxd7+,middlegame,4.0,131.0,1,Hungarian Opening,1-0
+geDe7mnO,16,black,True,Bxd7,367,368,False,False,1,Bxd7,middlegame,5.0,72.0,1,Hungarian Opening,1-0
+geDe7mnO,17,white,False,Nxd4,368,363,False,False,5,Nxd4,middlegame,0.0,131.0,1,Hungarian Opening,1-0
+geDe7mnO,17,black,True,exd4,363,393,False,False,30,exd4,middlegame,0.0,72.0,1,Hungarian Opening,1-0
+geDe7mnO,18,white,False,Rxc7,393,382,False,False,11,Rxc7,middlegame,3.0,128.0,1,Hungarian Opening,1-0
+geDe7mnO,18,black,True,h4,382,375,False,False,0,h4,middlegame,2.0,70.0,1,Hungarian Opening,1-0
+geDe7mnO,19,white,False,Rxb7,375,363,False,False,12,Rfc1,middlegame,8.0,120.0,1,Hungarian Opening,1-0
+geDe7mnO,19,black,True,hxg3,363,426,False,False,63,Rc8,middlegame,5.0,65.0,1,Hungarian Opening,1-0
+geDe7mnO,20,white,False,hxg3,426,410,False,False,16,fxg3,middlegame,5.0,115.0,1,Hungarian Opening,1-0
+geDe7mnO,20,black,True,Bh3,410,483,False,False,73,Bg4,middlegame,11.0,54.0,1,Hungarian Opening,1-0
+geDe7mnO,21,white,False,Rc1,483,424,False,False,59,Bxh3,middlegame,10.0,105.0,1,Hungarian Opening,1-0
+geDe7mnO,21,black,True,Kf8,424,504,False,False,80,Be6,middlegame,16.0,38.0,1,Hungarian Opening,1-0
+geDe7mnO,22,white,False,Rcc7,504,433,False,False,71,Bxh3,middlegame,6.0,99.0,1,Hungarian Opening,1-0
+geDe7mnO,22,black,True,Be6,433,443,False,False,10,Be6,middlegame,2.0,36.0,1,Hungarian Opening,1-0
+geDe7mnO,23,white,False,Rxa7,443,470,False,False,0,Rxa7,middlegame,2.0,97.0,1,Hungarian Opening,1-0
+geDe7mnO,23,black,True,Rb8,470,465,False,False,0,Rd8,middlegame,2.0,34.0,1,Hungarian Opening,1-0
+geDe7mnO,24,white,False,b3,465,426,False,False,39,Rab7,middlegame,7.0,90.0,1,Hungarian Opening,1-0
+geDe7mnO,24,black,True,Rb5,426,483,False,False,57,Kg7,middlegame,1.0,33.0,1,Hungarian Opening,1-0
+geDe7mnO,25,white,False,Ra8+,483,470,False,False,13,Ra8+,middlegame,3.0,87.0,1,Hungarian Opening,1-0
+geDe7mnO,25,black,True,Kg7,470,484,False,False,14,Kg7,middlegame,1.0,32.0,1,Hungarian Opening,1-0
+geDe7mnO,26,white,False,Rxh8,484,478,False,False,6,Rxh8,middlegame,1.0,86.0,1,Hungarian Opening,1-0
+geDe7mnO,26,black,True,Kxh8,478,480,False,False,2,Kxh8,endgame,0.0,32.0,1,Hungarian Opening,1-0
+geDe7mnO,27,white,False,Be4,480,452,False,False,28,f4,endgame,8.0,78.0,1,Hungarian Opening,1-0
+geDe7mnO,27,black,True,f5,452,455,False,False,3,f5,endgame,2.0,30.0,1,Hungarian Opening,1-0
+geDe7mnO,28,white,False,Bf3,455,462,False,False,0,Bf3,endgame,4.0,74.0,1,Hungarian Opening,1-0
+geDe7mnO,28,black,True,Ra5,462,487,False,False,25,Kg7,endgame,2.0,28.0,1,Hungarian Opening,1-0
+geDe7mnO,29,white,False,b4,487,482,False,False,5,Rc2,endgame,10.0,64.0,1,Hungarian Opening,1-0
+geDe7mnO,29,black,True,Rxa2,482,486,False,False,4,Rxa2,endgame,2.0,26.0,1,Hungarian Opening,1-0
+geDe7mnO,30,white,False,b5,486,478,False,False,8,b5,endgame,0.0,64.0,1,Hungarian Opening,1-0
+geDe7mnO,30,black,True,Ra1+,478,508,False,False,30,Rb2,endgame,8.0,18.0,1,Hungarian Opening,1-0
+geDe7mnO,31,white,False,Kg2,508,513,False,False,0,Kg2,endgame,1.0,63.0,1,Hungarian Opening,1-0
+geDe7mnO,31,black,True,Ra5,513,610,False,False,97,Rb1,endgame,9.0,9.0,1,Hungarian Opening,1-0
+geDe7mnO,32,white,False,b6,610,653,False,False,0,b6,endgame,4.0,59.0,1,Hungarian Opening,1-0
+geDe7mnO,32,black,True,Rb5,653,657,False,False,4,Rb5,endgame,0.0,9.0,1,Hungarian Opening,1-0
+geDe7mnO,33,white,False,b7,657,676,False,False,0,b7,endgame,1.0,58.0,1,Hungarian Opening,1-0
+geDe7mnO,33,black,True,Kg7,676,681,False,False,5,Kh7,endgame,2.0,7.0,1,Hungarian Opening,1-0
+geDe7mnO,34,white,False,Rc8,681,698,False,False,0,Rc8,endgame,18.0,40.0,1,Hungarian Opening,1-0
+geDe7mnO,34,black,True,Rxb7,698,698,False,False,0,Rxb7,endgame,3.0,4.0,1,Hungarian Opening,1-0
+geDe7mnO,35,white,False,Bxb7,698,699,False,False,0,Bxb7,endgame,1.0,39.0,1,Hungarian Opening,1-0
+geDe7mnO,35,black,True,Bxc8,699,704,False,False,5,Kf6,endgame,1.0,3.0,1,Hungarian Opening,1-0
+geDe7mnO,36,white,False,Bxc8,704,714,False,False,0,Bxc8,endgame,0.0,39.0,1,Hungarian Opening,1-0
+geDe7mnO,36,black,True,Kf6,714,811,False,False,97,Kf6,endgame,0.0,3.0,1,Hungarian Opening,1-0
+geDe7mnO,37,white,False,Kf3,811,808,False,False,3,Kf3,endgame,1.0,38.0,1,Hungarian Opening,1-0
+geDe7mnO,37,black,True,Ke5,808,810,False,False,2,Kg5,endgame,0.0,3.0,1,Hungarian Opening,1-0
+geDe7mnO,38,white,False,e3,810,711,False,False,99,Ba6,endgame,3.0,35.0,1,Hungarian Opening,1-0
+geDe7mnO,38,black,True,f6,711,778,False,False,67,dxe3,endgame,0.0,3.0,1,Hungarian Opening,1-0
+geDe7mnO,39,white,False,exd4+,778,888,False,False,0,Ba6,endgame,2.0,33.0,1,Hungarian Opening,1-0
+geDe7mnO,39,black,True,Kxd4,888,1008,False,False,112,Kd6,endgame,0.0,3.0,1,Hungarian Opening,1-0
+geDe7mnO,40,white,False,Kf4,1008,740,False,False,260,Ba6,endgame,1.0,32.0,1,Hungarian Opening,1-0
+geDe7mnO,40,black,True,Kxd3,740,1332,False,False,260,Kxd3,endgame,0.0,3.0,1,Hungarian Opening,1-0
+geDe7mnO,41,white,False,Kxf5,1332,995,False,False,5,Kxf5,endgame,0.0,32.0,1,Hungarian Opening,1-0
+geDe7mnO,41,black,True,Ke2,995,8115,False,False,5,Kc2,endgame,0.0,3.0,1,Hungarian Opening,1-0
+geDe7mnO,42,white,False,Kxf6,8115,10000,False,True,0,g4,endgame,1.0,31.0,1,Hungarian Opening,1-0
+geDe7mnO,42,black,True,Kxf2,10000,8115,True,False,0,Ke1,endgame,0.0,3.0,1,Hungarian Opening,1-0
+geDe7mnO,43,white,False,g4,8115,6014,False,False,0,g4,endgame,0.0,31.0,1,Hungarian Opening,1-0
+geDe7mnO,43,black,True,Kg3,6014,8115,False,False,0,Ke1,endgame,0.0,3.0,1,Hungarian Opening,1-0
+geDe7mnO,44,white,False,g5,8115,10000,False,True,0,Be6,endgame,0.0,31.0,1,Hungarian Opening,1-0
+geDe7mnO,44,black,True,Kf4,10000,10000,True,True,0,Kf4,endgame,1.0,2.0,1,Hungarian Opening,1-0
+geDe7mnO,45,white,False,g6,10000,10000,True,True,0,g6,endgame,0.0,31.0,1,Hungarian Opening,1-0
+MSYU402A,1,white,False,e4,37,43,False,False,0,e4,opening,0.0,180.0,4,Scandinavian Defense,0-1
+MSYU402A,1,black,True,d5,43,71,False,False,28,e5,opening,0.0,180.0,4,Scandinavian Defense,0-1
+MSYU402A,2,white,False,Nc3,71,-43,False,False,114,exd5,opening,0.0,180.0,4,Scandinavian Defense,0-1
+MSYU402A,2,black,True,dxe4,-43,16,False,False,59,d4,opening,1.0,179.0,4,Scandinavian Defense,0-1
+MSYU402A,3,white,False,Nxe4,16,14,False,False,2,Nxe4,opening,0.0,180.0,4,Scandinavian Defense,0-1
+MSYU402A,3,black,True,Nf6,14,11,False,False,0,Nf6,opening,1.0,178.0,4,Scandinavian Defense,0-1
+MSYU402A,4,white,False,Nxf6+,11,11,False,False,0,Nxf6+,opening,1.0,179.0,4,Scandinavian Defense,0-1
+MSYU402A,4,black,True,gxf6,11,38,False,False,27,exf6,opening,1.0,177.0,4,Scandinavian Defense,0-1
+MSYU402A,5,white,False,g3,38,-52,False,False,90,d4,opening,0.0,179.0,4,Scandinavian Defense,0-1
+MSYU402A,5,black,True,e5,-52,-41,False,False,11,Nc6,opening,0.0,177.0,4,Scandinavian Defense,0-1
+MSYU402A,6,white,False,Bg2,-41,-36,False,False,0,Bg2,opening,0.0,179.0,4,Scandinavian Defense,0-1
+MSYU402A,6,black,True,Nc6,-36,-27,False,False,9,Nc6,opening,2.0,175.0,4,Scandinavian Defense,0-1
+MSYU402A,7,white,False,Ne2,-27,-29,False,False,2,Ne2,opening,1.0,178.0,4,Scandinavian Defense,0-1
+MSYU402A,7,black,True,Bd7,-29,50,False,False,79,Bf5,opening,2.0,173.0,4,Scandinavian Defense,0-1
+MSYU402A,8,white,False,O-O,50,45,False,False,5,d4,opening,1.0,177.0,4,Scandinavian Defense,0-1
+MSYU402A,8,black,True,h5,45,36,False,False,0,Bg4,opening,0.0,173.0,4,Scandinavian Defense,0-1
+MSYU402A,9,white,False,h3,36,-148,False,False,184,d4,opening,1.0,176.0,4,Scandinavian Defense,0-1
+MSYU402A,9,black,True,Qe7,-148,38,False,False,186,h4,opening,3.0,170.0,4,Scandinavian Defense,0-1
+MSYU402A,10,white,False,d4,38,27,False,False,11,d4,opening,2.0,174.0,4,Scandinavian Defense,0-1
+MSYU402A,10,black,True,O-O-O,27,20,False,False,0,O-O-O,opening,4.0,166.0,4,Scandinavian Defense,0-1
+MSYU402A,11,white,False,d5,20,16,False,False,4,d5,opening,1.0,173.0,4,Scandinavian Defense,0-1
+MSYU402A,11,black,True,Nb8,16,11,False,False,0,Nb8,opening,5.0,161.0,4,Scandinavian Defense,0-1
+MSYU402A,12,white,False,c4,11,-23,False,False,34,h4,opening,3.0,170.0,4,Scandinavian Defense,0-1
+MSYU402A,12,black,True,Bh6,-23,123,False,False,146,h4,opening,5.0,156.0,4,Scandinavian Defense,0-1
+MSYU402A,13,white,False,Qa4,123,-566,False,False,689,Qb3,opening,7.0,163.0,4,Scandinavian Defense,0-1
+MSYU402A,13,black,True,Bxa4,-566,-571,False,False,0,Bxa4,opening,7.0,149.0,4,Scandinavian Defense,0-1
+92NP7FSU,1,white,True,e4,44,42,False,False,2,e4,opening,0.0,180.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,1,black,False,c5,42,32,False,False,0,e5,opening,0.0,180.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,2,white,True,Nf3,32,35,False,False,0,Nc3,opening,1.0,179.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,2,black,False,d6,35,31,False,False,0,d6,opening,1.0,179.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,3,white,True,d4,31,37,False,False,0,d4,opening,2.0,177.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,3,black,False,cxd4,37,26,False,False,0,Nf6,opening,1.0,178.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,4,white,True,Qxd4,26,1,False,False,25,Nxd4,opening,0.0,177.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,4,black,False,Nc6,1,9,False,False,8,Nc6,opening,2.0,176.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,5,white,True,Bb5,9,21,False,False,0,Qe3,opening,2.0,175.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,5,black,False,Bd7,21,23,False,False,2,a6,opening,1.0,175.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,6,white,True,Bxc6,23,17,False,False,6,Qd3,opening,1.0,174.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,6,black,False,Bxc6,17,16,False,False,0,Bxc6,opening,0.0,175.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,7,white,True,Nc3,16,-8,False,False,24,c4,opening,1.0,173.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,7,black,False,Nf6,-8,-7,False,False,1,Nf6,opening,1.0,174.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,8,white,True,Bg5,-7,-11,False,False,4,Bg5,opening,1.0,172.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,8,black,False,Qb6,-11,36,False,False,47,e6,opening,3.0,171.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,9,white,True,Qd3,36,26,False,False,10,Bxf6,opening,32.0,140.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,9,black,False,Ng4,26,35,False,False,9,Qa6,opening,4.0,167.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,10,white,True,O-O,35,37,False,False,0,O-O,opening,7.0,133.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,10,black,False,h6,37,36,False,False,0,f6,opening,2.0,165.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,11,white,True,Bd2,36,8,False,False,28,Bh4,opening,11.0,122.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,11,black,False,e6,8,6,False,False,0,e6,opening,13.0,152.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,12,white,True,h3,6,-13,False,False,19,b4,opening,1.0,121.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,12,black,False,Nf6,-13,-2,False,False,11,Ne5,opening,3.0,149.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,13,white,True,Rfe1,-2,-19,False,False,17,Nd4,opening,21.0,100.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,13,black,False,Be7,-19,-24,False,False,0,Be7,opening,2.0,147.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,14,white,True,e5,-24,-114,False,False,90,Nd4,opening,13.0,87.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,14,black,False,dxe5,-114,-114,False,False,0,dxe5,opening,10.0,137.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,15,white,True,Nxe5,-114,-120,False,False,6,Nxe5,opening,0.0,87.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,15,black,False,O-O,-120,-45,False,False,75,Rd8,opening,1.0,136.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,16,white,True,Qg3,-45,-75,False,False,30,Nxc6,opening,9.0,78.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,16,black,False,Rad8,-75,61,False,False,136,Qxb2,opening,6.0,130.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,17,white,True,Bxh6,61,37,False,False,24,Bxh6,opening,2.0,76.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,17,black,False,Ne8,37,115,False,False,78,Nh5,opening,3.0,127.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,18,white,True,Ne4,115,-67,False,False,182,Rab1,opening,16.0,60.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,18,black,False,Bxe4,-67,-65,False,False,2,Bxe4,opening,3.0,124.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,19,white,True,Rxe4,-65,-74,False,False,9,Rxe4,opening,0.0,60.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,19,black,False,Bf6,-74,38,False,False,112,Qxb2,middlegame,4.0,120.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,20,white,True,Ng4,38,18,False,False,20,Nc4,middlegame,21.0,39.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,20,black,False,Bxb2,18,170,False,False,152,Be7,middlegame,20.0,100.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,21,white,True,Rae1,170,25,False,False,145,c3,middlegame,1.0,38.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,21,black,False,gxh6,25,482,False,False,457,Qa5,middlegame,23.0,77.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,22,white,True,Nxh6+,482,500,False,False,0,Nxh6+,middlegame,10.0,28.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,22,black,False,Kh7,500,511,False,False,11,Kh7,middlegame,14.0,63.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,23,white,True,Rh4,511,540,False,False,0,Rh4,middlegame,1.0,27.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,23,black,False,Bg7,540,10000,False,True,460,Rd4,middlegame,11.0,52.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,24,white,True,Nxf7+,10000,341,True,False,659,Nf5+,middlegame,5.0,22.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,24,black,False,Kg8,341,339,False,False,0,Kg8,middlegame,3.0,49.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,25,white,True,Nxd8,339,355,False,False,0,Nxd8,middlegame,6.0,16.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,25,black,False,Qxd8,355,353,False,False,0,Qxd8,middlegame,8.0,41.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,26,white,True,Rg4,353,189,False,False,164,Rxe6,middlegame,1.0,15.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,26,black,False,Qf6,189,308,False,False,119,Rf6,middlegame,3.0,38.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,27,white,True,h4,308,222,False,False,86,Rg6,middlegame,1.0,14.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,27,black,False,Kh8,222,286,False,False,64,Qf7,middlegame,11.0,27.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,28,white,True,h5,286,178,False,False,108,Rg6,middlegame,0.0,14.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,28,black,False,Bh6,178,363,False,False,185,Qf5,middlegame,7.0,20.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,29,white,True,Rf1,363,89,False,False,274,Rg6,middlegame,2.0,12.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,29,black,False,Ng7,89,227,False,False,138,Qf5,middlegame,3.0,17.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,30,white,True,Qh3,227,122,False,False,105,Rg6,middlegame,0.0,12.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,30,black,False,Nf5,122,138,False,False,16,Bg5,middlegame,1.0,16.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,31,white,True,f3,138,-132,False,False,270,Rg6,middlegame,0.0,12.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,31,black,False,Rg8,-132,17,False,False,149,Qe5,middlegame,1.0,15.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,32,white,True,Rxg8+,17,18,False,False,0,Rxg8+,middlegame,2.0,10.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,32,black,False,Kxg8,18,3,False,False,0,Kxg8,middlegame,2.0,13.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,33,white,True,g4,3,-154,False,False,157,f4,middlegame,2.0,8.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,33,black,False,Ne3,-154,-156,False,False,0,Ne3,middlegame,1.0,12.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,34,white,True,Rf2,-156,-279,False,False,123,Rb1,middlegame,0.0,8.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,34,black,False,Qf4,-279,-106,False,False,173,Qa1+,middlegame,1.0,11.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,35,white,True,Qh2,-106,-113,False,False,7,Qh2,middlegame,2.0,6.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,35,black,False,Nd5,-113,154,False,False,267,Qd4,middlegame,1.0,10.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,36,white,True,Qxf4,154,162,False,False,0,Qxf4,middlegame,1.0,5.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,36,black,False,Bxf4,162,173,False,False,11,Bxf4,endgame,1.0,9.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,37,white,True,Kf1,173,21,False,False,152,c4,endgame,0.0,5.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,37,black,False,Ne3+,21,84,False,False,63,Nc3,endgame,1.0,8.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,38,white,True,Ke2,84,65,False,False,19,Ke2,endgame,1.0,4.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,38,black,False,Kf7,65,190,False,False,125,Nxc2,endgame,0.0,8.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,39,white,True,Rf1,190,-324,False,False,514,Kd3,endgame,1.0,3.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,39,black,False,Nd5,-324,202,False,False,526,Nxf1,endgame,1.0,7.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,40,white,True,Rb1,202,-493,False,False,695,c4,endgame,0.0,3.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,40,black,False,Kf6,-493,390,False,False,883,Nc3+,endgame,0.0,7.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,41,white,True,Rxb7,390,409,False,False,0,Rxb7,endgame,1.0,2.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,41,black,False,Ke5,409,446,False,False,37,Nc3+,endgame,0.0,7.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,42,white,True,Rxa7,446,447,False,False,0,Rxa7,endgame,0.0,2.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,42,black,False,Nc3+,447,490,False,False,43,Be3,endgame,1.0,6.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,43,white,True,Kd3,490,483,False,False,7,Kd3,endgame,1.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,43,black,False,Nd5,483,489,False,False,6,Nd5,endgame,0.0,6.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,44,white,True,Kc4,489,475,False,False,14,a4,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,44,black,False,Ne3+,475,492,False,False,17,Nb6+,endgame,1.0,5.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,45,white,True,Kb5,492,381,False,False,111,Kd3,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,45,black,False,Nxc2,381,415,False,False,34,Nxc2,endgame,0.0,5.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,46,white,True,Ka6,415,340,False,False,75,Kc4,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,46,black,False,Nd4,340,401,False,False,61,Kf6,endgame,0.0,5.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,47,white,True,Kb7,401,278,False,False,123,Rf7,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,47,black,False,Be3,278,407,False,False,129,Nxf3,endgame,1.0,4.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,48,white,True,a4,407,353,False,False,54,Ra3,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,48,black,False,Nf5,353,597,False,False,244,Nxf3,endgame,0.0,4.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,49,white,True,a5,597,445,False,False,152,Ra5+,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,49,black,False,Bxa7,445,493,False,False,48,Nd4,endgame,1.0,3.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,50,white,True,a6,493,44,False,False,449,Kxa7,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,50,black,False,Nd4,44,508,False,False,464,Be3,endgame,0.0,3.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,51,white,True,Kxa7,508,506,False,False,2,Kxa7,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,51,black,False,Nxf3,506,500,False,False,0,Nxf3,endgame,0.0,3.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,52,white,True,Kb7,500,592,False,False,0,Kb7,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,52,black,False,Ng5,592,676,False,False,84,Kf4,endgame,0.0,3.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,53,white,True,a7,676,733,False,False,0,a7,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,53,black,False,Nf3,733,795,False,False,62,Kf4,endgame,1.0,2.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,54,white,True,a8=Q,795,809,False,False,0,a8=Q,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,54,black,False,Ng5,809,829,False,False,20,Ng5,endgame,1.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,55,white,True,Qa7,829,776,False,False,53,Qf8,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,55,black,False,Nh7,776,10000,False,True,224,Ke4,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+92NP7FSU,56,white,True,Qa5+,10000,1265,True,False,0,Qe3+,endgame,0.0,1.0,3,Sicilian Defense: Chekhover Variation,1-0
+cNtoVgfe,1,white,False,Nf3,38,32,False,False,6,e4,opening,0.0,180.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,1,black,True,d6,32,41,False,False,9,Nf6,opening,0.0,180.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,2,white,False,g3,41,42,False,False,0,d4,opening,5.0,175.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,2,black,True,e5,42,38,False,False,0,g6,opening,0.0,180.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,3,white,False,d3,38,20,False,False,18,Bg2,opening,2.0,173.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,3,black,True,f5,20,29,False,False,9,g6,opening,1.0,179.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,4,white,False,Nbd2,29,-18,False,False,47,Bg2,opening,0.0,173.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,4,black,True,Nf6,-18,-28,False,False,0,Nf6,opening,0.0,179.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,5,white,False,Bg2,-28,-32,False,False,4,Bg2,opening,1.0,172.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,5,black,True,Be7,-32,-4,False,False,28,Nc6,opening,0.0,179.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,6,white,False,O-O,-4,-27,False,False,23,b4,opening,0.0,172.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,6,black,True,O-O,-27,-27,False,False,0,Nc6,opening,1.0,178.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,7,white,False,e4,-27,-29,False,False,2,b4,opening,0.0,172.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,7,black,True,Qe8,-29,9,False,False,38,Nc6,opening,1.0,177.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,8,white,False,c3,9,-36,False,False,45,exf5,opening,2.0,170.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,8,black,True,Qh5,-36,17,False,False,53,fxe4,opening,1.0,176.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,9,white,False,exf5,17,19,False,False,0,exf5,opening,6.0,164.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,9,black,True,Bxf5,19,23,False,False,4,Bxf5,opening,0.0,176.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,10,white,False,Qb3+,23,-34,False,False,57,Nh4,opening,2.0,162.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,10,black,True,Kh8,-34,-46,False,False,0,Kh8,opening,2.0,174.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,11,white,False,Qxb7,-46,-43,False,False,0,Qxb7,opening,0.0,162.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,11,black,True,Nbd7,-43,-40,False,False,3,Nbd7,opening,9.0,165.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,12,white,False,Ne4,-40,-51,False,False,11,Ne4,opening,2.0,160.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,12,black,True,Bh3,-51,85,False,False,136,Nxe4,opening,3.0,162.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,13,white,False,Qxc7,85,-325,False,False,410,Bxh3,opening,7.0,153.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,13,black,True,Bxg2,-325,-327,False,False,0,Bxg2,opening,2.0,160.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,14,white,False,Kxg2,-327,-326,False,False,0,Kxg2,opening,1.0,152.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,14,black,True,Ng4,-326,265,False,False,591,Nxe4,opening,11.0,149.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,15,white,False,h3,265,215,False,False,50,Qxd7,opening,19.0,133.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,15,black,True,Nh6,215,261,False,False,46,Qf7,opening,17.0,132.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,16,white,False,Qxd7,261,82,False,False,179,Nfg5,opening,10.0,123.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,16,black,True,Qxf3+,82,74,False,False,0,Qxf3+,opening,1.0,131.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,17,white,False,Kg1,74,24,False,False,50,Kh2,middlegame,4.0,119.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,17,black,True,d5,24,427,False,False,403,Nf5,middlegame,34.0,97.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,18,white,False,Bxh6,427,413,False,False,14,Bxh6,middlegame,2.0,117.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,18,black,True,gxh6,413,416,False,False,3,gxh6,middlegame,15.0,82.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,19,white,False,Qxe7,416,419,False,False,0,Qxd5,middlegame,7.0,110.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,19,black,True,dxe4,419,491,False,False,72,Rae8,middlegame,3.0,79.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,20,white,False,Qxe5+,491,489,False,False,2,Qxe5+,middlegame,1.0,109.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,20,black,True,Kg8,489,499,False,False,10,Kg8,middlegame,2.0,77.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,21,white,False,Qxe4,499,501,False,False,0,Qd5+,middlegame,2.0,107.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,21,black,True,Qh5,501,525,False,False,24,Rab8,middlegame,8.0,69.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,22,white,False,Qg4+,525,510,False,False,15,Rae1,middlegame,2.0,105.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,22,black,True,Qxg4,510,520,False,False,10,Qxg4,middlegame,3.0,66.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,23,white,False,hxg4,520,561,False,False,0,hxg4,middlegame,0.0,105.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,23,black,True,Rac8,561,531,False,False,0,a5,endgame,3.0,63.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,24,white,False,Rae1,531,535,False,False,0,Rad1,endgame,4.0,101.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,24,black,True,Rcd8,535,545,False,False,10,Rf6,endgame,2.0,61.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,25,white,False,d4,545,554,False,False,0,d4,endgame,2.0,99.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,25,black,True,Rb8,554,567,False,False,13,Rd6,endgame,1.0,60.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,26,white,False,Re2,567,572,False,False,0,Re2,endgame,1.0,98.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,26,black,True,Kg7,572,585,False,False,13,Rb5,endgame,2.0,58.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,27,white,False,f4,585,583,False,False,2,Rfe1,endgame,2.0,96.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,27,black,True,Kg6,583,597,False,False,14,Rbe8,endgame,1.0,57.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,28,white,False,Rff2,597,569,False,False,28,Kf2,endgame,1.0,95.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,28,black,True,h5,569,582,False,False,13,h5,endgame,3.0,54.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,29,white,False,gxh5+,582,586,False,False,0,gxh5+,endgame,2.0,93.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,29,black,True,Kxh5,586,585,False,False,0,Kxh5,endgame,0.0,54.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,30,white,False,Kg2,585,587,False,False,0,Re5+,endgame,2.0,91.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,30,black,True,Kg4,587,551,False,False,0,Kg6,endgame,0.0,54.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,31,white,False,Re5,551,537,False,False,14,Re5,endgame,1.0,90.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,31,black,True,h6,537,559,False,False,22,Rg8,endgame,2.0,52.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,32,white,False,f5,559,522,False,False,37,d5,endgame,5.0,85.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,32,black,True,Rf6,522,545,False,False,23,Kg5,endgame,5.0,47.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,33,white,False,Re6,545,510,False,False,35,Re7,endgame,5.0,80.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,33,black,True,Rbf8,510,549,False,False,39,Rxf5,endgame,3.0,44.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,34,white,False,Rxf6,549,578,False,False,0,Rxf6,endgame,4.0,76.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,34,black,True,Rxf6,578,594,False,False,16,Rxf6,endgame,0.0,44.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,35,white,False,Rf4+,594,559,False,False,35,d5,endgame,2.0,74.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,35,black,True,Kg5,559,568,False,False,9,Kg5,endgame,2.0,42.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,36,white,False,Kf3,568,531,False,False,37,c4,endgame,1.0,73.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,36,black,True,h5,531,599,False,False,68,Rxf5,endgame,4.0,38.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,37,white,False,d5,599,623,False,False,0,c4,endgame,2.0,71.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,37,black,True,a5,623,616,False,False,0,Rxf5,endgame,3.0,35.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,38,white,False,b3,616,623,False,False,0,Ke4,endgame,1.0,70.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,38,black,True,Kh6,623,655,False,False,32,Rf8,endgame,4.0,31.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,39,white,False,c4,655,657,False,False,0,c4,endgame,2.0,68.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,39,black,True,Kg7,657,653,False,False,0,Kg7,endgame,2.0,29.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,40,white,False,Ke4,653,647,False,False,6,c5,endgame,1.0,67.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,40,black,True,Kf7,647,677,False,False,30,a4,endgame,2.0,27.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,41,white,False,Ke5,677,681,False,False,0,c5,endgame,2.0,65.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,41,black,True,Ke7,681,811,False,False,130,Rh6,endgame,1.0,26.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,42,white,False,g4,811,644,False,False,167,d6+,endgame,2.0,63.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,42,black,True,hxg4,644,680,False,False,36,Rf8,endgame,1.0,25.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,43,white,False,Rxg4,680,681,False,False,0,Rxg4,endgame,1.0,62.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,43,black,True,Rf7,681,738,False,False,57,Rh6,endgame,5.0,20.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,44,white,False,Rg6,738,670,False,False,68,c5,endgame,2.0,60.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,44,black,True,Kd7,670,773,False,False,103,a4,endgame,2.0,18.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,45,white,False,Ra6,773,630,False,False,143,f6,endgame,1.0,59.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,45,black,True,Re7+,630,653,False,False,23,Re7+,endgame,1.0,17.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,46,white,False,Re6,653,656,False,False,0,Kd4,endgame,3.0,56.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,46,black,True,Rh7,656,659,False,False,3,Rh7,endgame,2.0,15.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,47,white,False,d6,659,673,False,False,0,a4,endgame,2.0,54.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,47,black,True,Rh1,673,708,False,False,35,Rh3,endgame,0.0,15.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,48,white,False,Kf6,708,587,False,False,121,Kd5,endgame,2.0,52.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,48,black,True,Rh6+,587,707,False,False,120,Kc6,endgame,2.0,13.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,49,white,False,Ke5,707,733,False,False,0,Ke5,endgame,1.0,51.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,49,black,True,Rh1,733,782,False,False,49,Rh5,endgame,2.0,11.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,50,white,False,c5,782,604,False,False,178,Kd5,endgame,1.0,50.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,50,black,True,Ra1,604,803,False,False,199,Kc6,endgame,3.0,8.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,51,white,False,Re7+,803,804,False,False,0,Re7+,endgame,2.0,48.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,51,black,True,Kd8,804,931,False,False,127,Kc6,endgame,1.0,7.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,52,white,False,c6,931,1081,False,False,0,Kd5,endgame,1.0,47.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,52,black,True,Re1+,1081,2369,False,False,0,Rc1,endgame,3.0,4.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,53,white,False,Kf6,2369,10000,False,True,0,Kf6,endgame,1.0,46.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,53,black,True,Rh1,10000,10000,True,True,0,Rc1,endgame,2.0,2.0,2,Zukertort Opening: Pirc Invitation,1-0
+cNtoVgfe,54,white,False,Ra7,10000,10000,True,True,0,c7+,endgame,3.0,43.0,2,Zukertort Opening: Pirc Invitation,1-0
+VeL05zD2,1,white,True,e4,43,40,False,False,3,e4,opening,0.0,180.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,1,black,False,c5,40,41,False,False,1,e5,opening,0.0,180.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,2,white,True,Nf3,41,38,False,False,3,Nf3,opening,1.0,179.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,2,black,False,Nc6,38,51,False,False,13,Nc6,opening,1.0,179.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,3,white,True,Bb5,51,51,False,False,0,Bb5,opening,1.0,178.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,3,black,False,a6,51,77,False,False,26,g6,opening,1.0,178.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,4,white,True,Bxc6,77,73,False,False,4,Bxc6,opening,1.0,177.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,4,black,False,bxc6,73,72,False,False,0,bxc6,opening,1.0,177.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,5,white,True,O-O,72,68,False,False,4,O-O,opening,0.0,177.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,5,black,False,e6,68,93,False,False,25,e6,opening,0.0,177.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,6,white,True,c3,93,41,False,False,52,e5,opening,1.0,176.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,6,black,False,Nf6,41,91,False,False,50,Ne7,opening,2.0,175.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,7,white,True,e5,91,95,False,False,0,e5,opening,1.0,175.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,7,black,False,Nd5,95,88,False,False,0,Nd5,opening,1.0,174.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,8,white,True,d4,88,42,False,False,46,c4,opening,0.0,175.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,8,black,False,cxd4,42,27,False,False,0,cxd4,opening,1.0,173.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,9,white,True,cxd4,27,15,False,False,12,Qxd4,opening,0.0,175.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,9,black,False,Be7,15,22,False,False,7,Be7,opening,2.0,171.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,10,white,True,Nc3,22,22,False,False,0,Nc3,opening,1.0,174.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,10,black,False,O-O,22,29,False,False,7,O-O,opening,2.0,169.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,11,white,True,Nxd5,29,4,False,False,25,Ne4,opening,4.0,170.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,11,black,False,cxd5,4,1,False,False,0,cxd5,opening,1.0,168.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,12,white,True,Be3,1,-29,False,False,30,Re1,middlegame,1.0,169.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,12,black,False,d6,-29,23,False,False,52,Qb6,middlegame,1.0,167.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,13,white,True,Rc1,23,29,False,False,0,Bf4,middlegame,2.0,167.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,13,black,False,dxe5,29,45,False,False,16,Bd7,middlegame,1.0,166.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,14,white,True,Nxe5,45,41,False,False,4,Nxe5,middlegame,4.0,163.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,14,black,False,Bb7,41,89,False,False,48,f6,middlegame,3.0,163.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,15,white,True,Qb3,89,90,False,False,0,Qg4,middlegame,4.0,159.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,15,black,False,Rb8,90,96,False,False,6,Bc8,middlegame,2.0,161.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,16,white,True,Rc2,96,12,False,False,84,Bf4,middlegame,16.0,143.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,16,black,False,Bd6,12,44,False,False,32,f6,middlegame,1.0,160.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,17,white,True,Bf4,44,39,False,False,5,Bf4,middlegame,12.0,131.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,17,black,False,f6,39,37,False,False,0,f6,middlegame,8.0,152.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,18,white,True,Nd3,37,43,False,False,0,Nd3,middlegame,1.0,130.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,18,black,False,Bxf4,43,41,False,False,0,Bc6,middlegame,1.0,151.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,19,white,True,Nxf4,41,42,False,False,0,Nxf4,middlegame,0.0,130.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,19,black,False,Qd6,42,42,False,False,0,Qd6,middlegame,7.0,144.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,20,white,True,Qe3,42,34,False,False,8,Qg3,middlegame,6.0,124.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,20,black,False,e5,34,42,False,False,8,e5,middlegame,3.0,141.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,21,white,True,dxe5,42,-15,False,False,57,Nd3,middlegame,3.0,121.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,21,black,False,fxe5,-15,-2,False,False,13,fxe5,middlegame,1.0,140.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,22,white,True,Ne2,-2,-106,False,False,104,Nd3,middlegame,14.0,107.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,22,black,False,d4,-106,-97,False,False,9,d4,middlegame,2.0,138.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,23,white,True,Qg3,-97,-126,False,False,29,Qd3,middlegame,7.0,100.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,23,black,False,Rf6,-126,-114,False,False,12,a5,middlegame,7.0,131.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,24,white,True,Rfc1,-114,-259,False,False,145,Qd3,middlegame,6.0,94.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,24,black,False,Rg6,-259,-139,False,False,120,Rbf8,middlegame,1.0,130.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,25,white,True,Qb3+,-139,-110,False,False,0,Qb3+,middlegame,42.0,52.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,25,black,False,Qe6,-110,-1,False,False,109,Bd5,middlegame,24.0,106.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,26,white,True,Qxe6+,-1,1,False,False,0,Qxe6+,middlegame,3.0,49.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,26,black,False,Rxe6,1,0,False,False,0,Rxe6,middlegame,1.0,105.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,27,white,True,Rc7,0,1,False,False,0,Ng3,middlegame,3.0,46.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,27,black,False,Rg6,1,26,False,False,25,Be4,middlegame,4.0,101.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,28,white,True,Ng3,26,24,False,False,2,Ng3,middlegame,3.0,43.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,28,black,False,Rd6,24,203,False,False,179,h5,middlegame,9.0,92.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,29,white,True,Nf5,203,224,False,False,0,Nf5,middlegame,3.0,40.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,29,black,False,Rg6,224,359,False,False,135,Rf6,middlegame,7.0,85.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,30,white,True,Ne7+,359,360,False,False,0,Ne7+,middlegame,1.0,39.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,30,black,False,Kf7,360,346,False,False,0,Kf7,middlegame,4.0,81.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,31,white,True,Nxg6+,346,355,False,False,0,f3,middlegame,0.0,39.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,31,black,False,Kxg6,355,357,False,False,2,Kxg6,endgame,0.0,81.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,32,white,True,b3,357,354,False,False,3,b3,endgame,1.0,38.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,32,black,False,Kf5,354,362,False,False,8,Kf5,endgame,2.0,79.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,33,white,True,Rxg7,362,386,False,False,0,Rxg7,endgame,2.0,36.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,33,black,False,Ke4,386,399,False,False,13,e4,endgame,1.0,78.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,34,white,True,Rxh7,399,365,False,False,34,Re1+,endgame,1.0,35.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,34,black,False,d3,365,529,False,False,164,Kd3,endgame,0.0,78.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,35,white,True,Rd1,529,475,False,False,54,Rd7,endgame,4.0,31.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,35,black,False,Bd5,475,542,False,False,67,Bc6,endgame,4.0,74.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,36,white,True,Rh4+,542,547,False,False,0,Rh4+,endgame,1.0,30.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,36,black,False,Kf5,547,554,False,False,7,Kf5,endgame,4.0,70.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,37,white,True,f3,554,484,False,False,70,Rxd3,endgame,1.0,29.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,37,black,False,e4,484,490,False,False,6,e4,endgame,5.0,65.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,38,white,True,fxe4+,490,493,False,False,0,fxe4+,endgame,2.0,27.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,38,black,False,Bxe4,493,484,False,False,0,Bxe4,endgame,0.0,65.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,39,white,True,Kf2,484,486,False,False,0,Kf2,endgame,1.0,26.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,39,black,False,Rc8,486,507,False,False,21,Re8,endgame,3.0,62.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,40,white,True,Ke3,507,514,False,False,0,Ke3,endgame,4.0,22.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,40,black,False,Re8,514,712,False,False,198,Bxg2,endgame,1.0,61.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,41,white,True,Rxd3,712,484,False,False,228,Rf4+,endgame,2.0,20.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,41,black,False,Bxd3+,484,470,False,False,0,Bxd3+,endgame,5.0,56.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,42,white,True,Kxd3,470,483,False,False,0,Kxd3,endgame,0.0,20.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,42,black,False,Rd8+,483,488,False,False,5,Re1,endgame,2.0,54.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,43,white,True,Ke3,488,490,False,False,0,Ke3,endgame,0.0,20.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,43,black,False,Kg5,490,505,False,False,15,a5,endgame,1.0,53.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,44,white,True,Rh3,505,462,False,False,43,Rd4,endgame,2.0,18.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,44,black,False,Rc8,462,464,False,False,2,Re8+,endgame,1.0,52.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,45,white,True,Kd3,464,453,False,False,11,Rf3,endgame,1.0,17.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,45,black,False,Rf8,453,481,False,False,28,a5,endgame,2.0,50.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,46,white,True,Kc3,481,454,False,False,27,Rg3+,endgame,0.0,17.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,46,black,False,Rf2,454,472,False,False,18,Rd8,endgame,2.0,48.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,47,white,True,Rg3+,472,466,False,False,6,a4,endgame,1.0,16.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,47,black,False,Kf4,466,538,False,False,72,Kh4,endgame,1.0,47.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,48,white,True,a4,538,483,False,False,55,Rf3+,endgame,0.0,16.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,48,black,False,Ra2,483,494,False,False,11,Re2,endgame,6.0,41.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,49,white,True,Kb4,494,482,False,False,12,Rg7,endgame,1.0,15.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,49,black,False,Ra1,482,503,False,False,21,Re2,endgame,3.0,38.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,50,white,True,Ka5,503,507,False,False,0,Ka5,endgame,0.0,15.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,50,black,False,Rh1,507,518,False,False,11,Rh1,endgame,4.0,34.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,51,white,True,b4,518,533,False,False,0,Kxa6,endgame,1.0,14.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,51,black,False,Rxh2,533,536,False,False,3,Rd1,endgame,1.0,33.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,52,white,True,Rb3,536,489,False,False,47,Rh3,endgame,1.0,13.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,52,black,False,Rxg2,489,519,False,False,30,Rh8,endgame,2.0,31.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,53,white,True,b5,519,437,False,False,82,Kxa6,endgame,0.0,13.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,53,black,False,axb5,437,469,False,False,32,axb5,endgame,2.0,29.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,54,white,True,axb5,469,466,False,False,3,axb5,endgame,0.0,13.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,54,black,False,Rg8,466,472,False,False,6,Ra2+,endgame,5.0,24.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,55,white,True,b6,472,448,False,False,24,b6,endgame,1.0,12.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,55,black,False,Ke5,448,418,False,False,0,Ke4,endgame,4.0,20.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,56,white,True,b7,418,418,False,False,0,b7,endgame,0.0,12.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,56,black,False,Rb8,418,427,False,False,9,Kd4,endgame,2.0,18.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,57,white,True,Ka6,427,465,False,False,0,Rb4,endgame,1.0,11.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,57,black,False,Kd6,465,915,False,False,450,Kd4,endgame,0.0,18.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,58,white,True,Ka7,915,676,False,False,239,Ka7,endgame,0.0,11.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,58,black,False,Kc7,676,10000,False,True,324,Rxb7+,endgame,1.0,17.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,59,white,True,Rc3+,10000,10000,True,True,0,Rc3+,endgame,2.0,9.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,59,black,False,Kd6,10000,10000,True,True,0,Kd6,endgame,1.0,16.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,60,white,True,Rc8,10000,5171,True,False,0,Kxb8,endgame,1.0,8.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,60,black,False,Rxb7+,5171,6422,False,False,0,Rxc8,endgame,1.0,15.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,61,white,True,Kxb7,6422,6080,False,False,0,Kxb7,endgame,1.0,7.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,61,black,False,Kd5,6080,8115,False,False,0,Kd5,endgame,1.0,14.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,62,white,True,Rc7,8115,5625,False,False,0,Re8,endgame,0.0,7.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,62,black,False,Kd4,5625,8115,False,False,0,Ke4,endgame,0.0,14.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,63,white,True,Rc6,8115,6194,False,False,0,Re7,endgame,0.0,7.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,63,black,False,Kd3,6194,10000,False,True,0,Ke4,endgame,0.0,14.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,64,white,True,Rb6,10000,8115,True,False,0,Re6,endgame,1.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,64,black,False,Ke4,8115,8115,False,False,0,Ke2,endgame,0.0,14.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,65,white,True,Rc6,8115,8115,False,False,0,Rf6,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,65,black,False,Ke3,8115,8115,False,False,0,Kf3,endgame,1.0,13.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,66,white,True,Kc7,8115,3426,False,False,0,Rf6,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,66,black,False,Ke4,3426,3264,False,False,0,Ke4,endgame,0.0,13.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,67,white,True,Rd6,3264,8115,False,False,0,Rf6,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,67,black,False,Kf4,8115,10000,False,True,0,Kf3,endgame,0.0,13.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,68,white,True,Rd7,10000,10000,True,True,0,Re6,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,68,black,False,Kf5,10000,10000,True,True,0,Ke5,endgame,1.0,12.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,69,white,True,Rd8,10000,10000,True,True,0,Kd6,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,69,black,False,Kf4,10000,10000,True,True,0,Ke6,endgame,0.0,12.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,70,white,True,Re8,10000,10000,True,True,0,Re8,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,70,black,False,Kg4,10000,10000,True,True,0,Kf3,endgame,0.0,12.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,71,white,True,Rc8,10000,10000,True,True,0,Rf8,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,71,black,False,Kg5,10000,10000,True,True,0,Kf3,endgame,0.0,12.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,72,white,True,Rb8,10000,10000,True,True,0,Rf8,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,72,black,False,Kf5,10000,10000,True,True,0,Kf4,endgame,0.0,12.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,73,white,True,Rb6,10000,10000,True,True,0,Rb4,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,73,black,False,Ke5,10000,10000,True,True,0,Kf4,endgame,1.0,11.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,74,white,True,Ra6,10000,7060,True,False,0,Rb4,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,74,black,False,Kd5,7060,4268,False,False,0,Ke4,endgame,1.0,10.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,75,white,True,Ra5+,4268,3700,False,False,0,Rd6+,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,75,black,False,Kd4,3700,10000,False,True,0,Kc4,endgame,0.0,10.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,76,white,True,Ra7,10000,10000,True,True,0,Kd6,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,76,black,False,Kc3,10000,6684,True,False,0,Kd5,endgame,0.0,10.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,77,white,True,Ra8,6684,8115,False,False,0,Kd6,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,77,black,False,Kb4,8115,10000,False,True,0,Kd4,endgame,1.0,9.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,78,white,True,Rb8+,10000,8115,True,False,0,Kc6,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,78,black,False,Kc4,8115,10000,False,True,0,Kc4,endgame,0.0,9.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,79,white,True,Kc8,10000,10000,True,True,0,Kc6,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,79,black,False,Kc5,10000,10000,True,True,0,Kd5,endgame,0.0,9.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,80,white,True,Kd8,10000,8115,True,False,0,Kc7,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,80,black,False,Kc4,8115,5879,False,False,0,Kc6,endgame,1.0,8.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,81,white,True,Rc8+,5879,8115,False,False,0,Kc7,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,81,black,False,Kd4,8115,8115,False,False,0,Kd5,endgame,0.0,8.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,82,white,True,Rc7,8115,6352,False,False,0,Rb8,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,82,black,False,Ke5,6352,7564,False,False,0,Kd5,endgame,0.0,8.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,83,white,True,Rd7,7564,5350,False,False,0,Re7+,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,83,black,False,Ke6,5350,8115,False,False,0,Kf4,endgame,1.0,7.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,84,white,True,Re7+,8115,8115,False,False,0,Kc7,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,84,black,False,Kf6,8115,10000,False,True,0,Kd6,endgame,0.0,7.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,85,white,True,Re8,10000,10000,True,True,0,Kd7,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,85,black,False,Kg6,10000,10000,True,True,0,Kf5,endgame,0.0,7.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,86,white,True,Re7,10000,10000,True,True,0,Re5,endgame,1.0,5.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,86,black,False,Kf6,10000,10000,True,True,0,Kf5,endgame,0.0,7.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,87,white,True,Rb7,10000,8115,True,False,0,Kd7,endgame,0.0,5.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,87,black,False,Kf5,8115,8115,False,False,0,Ke5,endgame,1.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,88,white,True,Rb6,8115,6821,False,False,0,Kd7,endgame,0.0,5.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,88,black,False,Ke5,6821,10000,False,True,0,Kf4,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,89,white,True,Rb7,10000,10000,True,True,0,Kd7,endgame,1.0,4.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,89,black,False,Kd4,10000,3888,True,False,0,Kd6,endgame,0.0,6.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,90,white,True,Rb8,3888,10000,False,True,0,Kc7,endgame,0.0,4.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,90,black,False,Kc5,10000,10000,True,True,0,Kd5,endgame,1.0,5.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,91,white,True,Rc8+,10000,10000,True,True,0,Kc7,endgame,0.0,4.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,91,black,False,Kd5,10000,10000,True,True,0,Kd6,endgame,0.0,5.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,92,white,True,Ke8,10000,10000,True,True,0,Kd7,endgame,0.0,4.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,92,black,False,Kd6,10000,10000,True,True,0,Kd4,endgame,1.0,4.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,93,white,True,Kf8,10000,10000,True,True,0,Rc1,endgame,0.0,4.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,93,black,False,Ke6,10000,10000,True,True,0,Kd5,endgame,0.0,4.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,94,white,True,Kg8,10000,1491,True,False,0,Rc5,endgame,0.0,4.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,94,black,False,Kf6,1491,850,False,False,0,Kd7,endgame,0.0,4.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,95,white,True,Rb8,850,3984,False,False,0,Re8,endgame,1.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,95,black,False,Kg6,3984,10000,False,True,0,Kf5,endgame,0.0,4.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,96,white,True,Ra8,10000,10000,True,True,0,Rb5,endgame,0.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,96,black,False,Kh6,10000,10000,True,True,0,Kf5,endgame,1.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,97,white,True,Ra6+,10000,10000,True,True,0,Re8,endgame,0.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,97,black,False,Kg5,10000,10000,True,True,0,Kg5,endgame,0.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,98,white,True,Ra5+,10000,184,True,False,816,Re6,endgame,0.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,98,black,False,Kg4,184,325,False,False,141,Kf4,endgame,0.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,99,white,True,Ra4+,325,144,False,False,181,Re5,endgame,0.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,99,black,False,Kf3,144,277,False,False,133,Kf3,endgame,1.0,2.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,100,white,True,Ra5,277,130,False,False,147,Kf7,endgame,0.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,100,black,False,Ke3,130,164,False,False,34,Ke3,endgame,0.0,2.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,101,white,True,Ra7,164,84,False,False,80,Kf7,endgame,0.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,101,black,False,Kd4,84,91,False,False,7,Ke4,endgame,0.0,2.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,102,white,True,Rb7,91,58,False,False,33,Kg7,endgame,0.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,102,black,False,Kd3,58,53,False,False,0,Kd3,endgame,1.0,1.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
+VeL05zD2,103,white,True,Rc7,53,31,False,False,22,Kf7,endgame,0.0,3.0,1,Sicilian Defense: Nyezhmetdinov-Rossolimo Attack,1-0
