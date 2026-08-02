@@ -1,0 +1,10 @@
+# Stockfish binary (~108 MiB) — fetched by setup.sh, not tracked
+engine/
+
+# Virtualenv
+.venv/
+__pycache__/
+*.pyc
+
+# Raw game export — regenerate with fetch.py
+games.pgn
