@@ -5,6 +5,3 @@ engine/
 .venv/
 __pycache__/
 *.pyc
-
-# Raw game export — regenerate with fetch.py
-games.pgn
