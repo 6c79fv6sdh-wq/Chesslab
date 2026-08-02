@@ -35,8 +35,9 @@ MATE_SCORE = 10000
 # Centipawn loss is computed on evaluations clamped to this range. Without a
 # clamp, "mate in 5" -> "mate in 3" would register as a huge swing, and a
 # position that is already lost by -2000 would generate meaningless four-digit
-# losses on every subsequent move.
-EVAL_CLAMP = 1500
+# losses on every subsequent move. The clamp is applied to *both* sides of the
+# subtraction, so no single move can ever be charged more than 2 * EVAL_CLAMP.
+EVAL_CLAMP = 1000
 
 # Non-pawn material remaining on the board, counted with the usual 3/3/5/9
 # weights over both sides. A full board is 62; these cutoffs split the game
@@ -65,6 +66,8 @@ FIELDNAMES = [
     "move",
     "eval_before",
     "eval_after",
+    "is_mate_before",
+    "is_mate_after",
     "cp_loss",
     "best_move",
     "phase",
@@ -85,6 +88,8 @@ class MoveRow:
     move: str
     eval_before: int
     eval_after: int
+    is_mate_before: bool
+    is_mate_after: bool
     cp_loss: int
     best_move: str
     phase: str
@@ -158,9 +163,19 @@ def game_datetime(game: chess.pgn.Game) -> datetime | None:
         return None
 
 
-def score_cp(score: chess.engine.PovScore) -> int:
-    """White-relative centipawn score, with mates folded to a finite number."""
-    return score.white().score(mate_score=MATE_SCORE)
+def score_cp(score: chess.engine.PovScore) -> tuple[int, bool]:
+    """White-relative centipawns, plus whether the score was a mate.
+
+    python-chess encodes the distance to mate into the folded score (mate in 3
+    becomes 9997, mate in 5 becomes 9995). That distance is not a centipawn
+    quantity and differencing it produces nonsense, so mates are pinned to
+    exactly +/-MATE_SCORE and flagged instead.
+    """
+    pov = score.white()
+    if pov.is_mate():
+        mate = pov.mate() or 0
+        return (MATE_SCORE if mate > 0 else -MATE_SCORE), True
+    return pov.score(mate_score=MATE_SCORE), False
 
 
 # --- worker ------------------------------------------------------------------
@@ -241,7 +256,7 @@ def analyse_game(job: tuple[int, str, int]) -> tuple[int, list[dict], str | None
     # freshly computed evaluation closes out the previous move and opens the
     # next one.
     info = _ENGINE.analyse(board, _LIMIT)
-    eval_before = score_cp(info["score"])
+    eval_before, mate_before = score_cp(info["score"])
     best = info.get("pv")
     best_move = board.san(best[0]) if best else ""
 
@@ -263,16 +278,26 @@ def analyse_game(job: tuple[int, str, int]) -> tuple[int, list[dict], str | None
             outcome = board.outcome()
             if outcome is not None and outcome.winner is not None:
                 eval_after = MATE_SCORE if outcome.winner == chess.WHITE else -MATE_SCORE
+                mate_after = True
             else:
                 eval_after = 0
+                mate_after = False
         else:
             info = _ENGINE.analyse(board, _LIMIT)
-            eval_after = score_cp(info["score"])
+            eval_after, mate_after = score_cp(info["score"])
 
-        # Convert to the mover's point of view before differencing, so a loss is
-        # always a non-negative number regardless of who moved.
-        sign = 1 if mover == chess.WHITE else -1
-        cp_loss = max(0, sign * clamp(eval_before) - sign * clamp(eval_after))
+        if mate_before and mate_after and (eval_before > 0) == (eval_after > 0):
+            # Mate before and mate for the same side afterwards: the move kept a
+            # forced win (or stayed lost). Differencing mate scores would invent
+            # a loss out of the change in mating distance, which is not an error.
+            cp_loss = 0
+        else:
+            # Convert to the mover's point of view before differencing, so a loss
+            # is always non-negative regardless of who moved. Both sides are
+            # clamped first, so an already-decided position cannot manufacture a
+            # four-digit loss on every subsequent move.
+            sign = 1 if mover == chess.WHITE else -1
+            cp_loss = max(0, sign * clamp(eval_before) - sign * clamp(eval_after))
 
         remaining = parse_clock(node.comment)
         spent: float | None = None
@@ -293,6 +318,8 @@ def analyse_game(job: tuple[int, str, int]) -> tuple[int, list[dict], str | None
                     move=san,
                     eval_before=eval_before,
                     eval_after=eval_after,
+                    is_mate_before=mate_before,
+                    is_mate_after=mate_after,
                     cp_loss=cp_loss,
                     best_move=best_move,
                     phase=phase,
@@ -307,7 +334,7 @@ def analyse_game(job: tuple[int, str, int]) -> tuple[int, list[dict], str | None
 
         # Roll forward: this position's evaluation is the next move's "before",
         # and its principal variation is the next move's engine recommendation.
-        eval_before = eval_after
+        eval_before, mate_before = eval_after, mate_after
         if not board.is_game_over():
             pv = info.get("pv")
             best_move = board.san(pv[0]) if pv else ""

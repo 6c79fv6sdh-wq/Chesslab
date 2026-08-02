@@ -60,7 +60,7 @@ Useful flags: `--movetime` (default 0.2s), `--workers` (default: cores - 1),
 
 ### moves.csv
 
-One row per ply, both players' moves. 15 columns:
+One row per ply, both players' moves. 17 columns:
 
 | column | meaning |
 |---|---|
@@ -71,6 +71,8 @@ One row per ply, both players' moves. 15 columns:
 | `move` | the move played, SAN |
 | `eval_before` | engine evaluation before the move, centipawns, **White's** point of view |
 | `eval_after` | evaluation after the move, same convention |
+| `is_mate_before` | `True` when the evaluation before the move was a mate score |
+| `is_mate_after` | `True` when the evaluation after the move was a mate score |
 | `cp_loss` | centipawns lost by the move, from the **mover's** point of view, never negative |
 | `best_move` | the engine's preferred move in that position, SAN |
 | `phase` | `opening` / `middlegame` / `endgame`, by material |
@@ -82,11 +84,16 @@ One row per ply, both players' moves. 15 columns:
 
 ## Conventions worth knowing
 
-**Mate scores.** Folded into ±10000 so the columns stay numeric.
+**Mate scores.** Pinned to exactly ±10000 and flagged with `is_mate_before` /
+`is_mate_after`. python-chess encodes the distance to mate into the score (mate
+in 3 → 9997, mate in 5 → 9995); that distance is not a centipawn quantity, so
+it is discarded rather than differenced.
 
-**Centipawn loss** is computed on evaluations clamped to ±1500. Without a clamp,
-"mate in 5" → "mate in 3" would score as a huge swing, and an already-lost
-position would generate meaningless four-digit losses on every later move.
+**Centipawn loss** is computed on evaluations clamped to ±1000 — both sides of
+the subtraction, so no move can be charged more than 2000. Without the clamp an
+already-lost position would generate four-digit losses on every later move. When
+the position was mate for the same side both before and after, the loss is 0:
+the move kept a forced win (or stayed lost), and only the mating distance moved.
 
 **Phase** is decided by non-pawn material only (3/3/5/9 over both sides, 62 on a
 full board): `opening` at 52+, `middlegame` from 24, `endgame` below that.
