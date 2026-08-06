@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chess-dossier"
+version = "0.2.0"
+description = "Telegram concierge for evidence-based chess diagnostics"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Proprietary" }
+authors = [{ name = "ScienceChess" }]
+dependencies = [
+  "aiogram>=3.30,<4",
+  "SQLAlchemy[asyncio]>=2.0.43,<3",
+  "aiosqlite>=0.21,<1",
+  "alembic>=1.16,<2",
+  "aiohttp>=3.12,<4",
+  "pydantic-settings>=2.10,<3",
+  "python-chess>=1.999,<2",
+  "redis>=6,<7",
+  "reportlab>=4.4,<5",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.17,<2",
+  "pytest>=8.4,<9",
+  "pytest-asyncio>=1.1,<2",
+  "pypdf>=6,<7",
+  "ruff>=0.12,<1",
+]
+
+[project.scripts]
+chess-dossier = "chess_dossier.main:run"
+chess-dossier-analyze = "chess_dossier.analysis.cli:run"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/chess_dossier"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "RUF"]
+ignore = ["E501", "RUF001"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["chess_dossier"]

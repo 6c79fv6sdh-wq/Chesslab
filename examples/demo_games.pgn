@@ -1,0 +1,21 @@
+[Event "Blitz demo 1"]
+[Site "https://example.invalid/game/white-demo"]
+[Date "2026.08.06"]
+[Round "1"]
+[White "DemoPlayer"]
+[Black "OpponentOne"]
+[Result "0-1"]
+[TimeControl "180+2"]
+
+1. f3 e5 2. g4 Qh4# 0-1
+
+[Event "Blitz demo 2"]
+[Site "https://example.invalid/game/black-demo"]
+[Date "2026.08.06"]
+[Round "2"]
+[White "OpponentTwo"]
+[Black "DemoPlayer"]
+[Result "1-0"]
+[TimeControl "180+2"]
+
+1. e4 f6 2. d4 g5 3. Qh5# 1-0
