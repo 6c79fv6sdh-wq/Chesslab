@@ -190,14 +190,8 @@ class AnalysisPipeline:
     def _is_candidate(self, decision: _Decision) -> bool:
         board_after = decision.board.copy(stack=False)
         board_after.push(decision.move)
-        missed_mate = bool(
-            decision.fast_best.mate_in is not None
-            and decision.fast_best.mate_in > 0
-            and decision.fast_played.mate_in != decision.fast_best.mate_in
-        )
-        allowed_mate = bool(
-            decision.fast_played.mate_in is not None and decision.fast_played.mate_in < 0
-        )
+        missed_mate = _forces_mate(decision.fast_best) and not _forces_mate(decision.fast_played)
+        allowed_mate = _allows_mate(decision.fast_played)
         conversion = (
             decision.fast_best.score_cp >= self._config.conversion_trigger_cp
             and decision.fast_played.score_cp < self._config.conversion_floor_cp
@@ -270,9 +264,7 @@ class AnalysisPipeline:
         board_after.push(decision.move)
         if board_after.is_stalemate() and best.score_cp >= self._config.conversion_trigger_cp:
             return ErrorTag.STALEMATE
-        if (best.mate_in is not None and best.mate_in > 0 and played.mate_in != best.mate_in) or (
-            played.mate_in is not None and played.mate_in < 0
-        ):
+        if (_forces_mate(best) and not _forces_mate(played)) or _allows_mate(played):
             return ErrorTag.MATE
 
         reply = _reply_after_played(played, decision.move)
@@ -490,6 +482,14 @@ class AnalysisPipeline:
             threshold_metrics=threshold_metrics,
             warnings=corpus.warnings,
         )
+
+
+def _forces_mate(evaluation: EngineEvaluation) -> bool:
+    return evaluation.mate_in is not None and evaluation.mate_in > 0
+
+
+def _allows_mate(evaluation: EngineEvaluation) -> bool:
+    return evaluation.mate_in is not None and evaluation.mate_in < 0
 
 
 def _phase(move_number: int) -> GamePhase:

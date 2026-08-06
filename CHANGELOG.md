@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- fixed a false positive that reported a slower forced mate as a missed mate;
+  a move that still mates by force is no longer a confirmed error;
+- added mate-classification regression tests and a real-engine order lifecycle
+  test that runs from payment to delivery and skips without a Stockfish binary.
+
 ## 0.2.0 — 2026-08-06
 
 - added deterministic two-pass Stockfish analysis from the player's point of view;

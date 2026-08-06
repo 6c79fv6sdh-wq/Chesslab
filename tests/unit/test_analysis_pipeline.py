@@ -79,6 +79,108 @@ class FakeEngineFactory:
         return self.session
 
 
+class ScriptedMateSession:
+    """Reports a fixed verdict for the best move and for the move actually played."""
+
+    def __init__(self, *, best: tuple[int, int | None], played: tuple[int, int | None]) -> None:
+        self._best = best
+        self._played = played
+
+    @property
+    def identity(self) -> EngineIdentity:
+        return EngineIdentity(name="ScriptedFish", author="tests", binary="fake")
+
+    def __enter__(self) -> ScriptedMateSession:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
+        return None
+
+    def clear_hash(self) -> None:
+        return None
+
+    def evaluate(
+        self,
+        board: chess.Board,
+        *,
+        player_color: chess.Color,
+        nodes: int,
+        root_move: chess.Move | None = None,
+    ) -> EngineEvaluation:
+        del board, player_color, nodes
+        score_cp, mate_in = self._played if root_move is not None else self._best
+        move_uci = root_move.uci() if root_move is not None else "d2d4"
+        return EngineEvaluation(
+            score_cp=score_cp,
+            mate_in=mate_in,
+            best_move_uci=move_uci,
+            pv_uci=(move_uci,),
+            depth=20,
+            nodes=1_000,
+        )
+
+
+class ScriptedMateFactory:
+    def __init__(self, session: ScriptedMateSession) -> None:
+        self._session = session
+
+    def __call__(self) -> ScriptedMateSession:
+        return self._session
+
+
+MATE_PGN = b"""[Event "Test"]
+[Site "Local"]
+[Date "2026.08.06"]
+[Round "1"]
+[White "A"]
+[Black "B"]
+[Result "1-0"]
+
+1. e4 e5 1-0
+"""
+
+
+def _mate_case(best: tuple[int, int | None], played: tuple[int, int | None]) -> tuple[int, str]:
+    pipeline = AnalysisPipeline(
+        engine_factory=ScriptedMateFactory(ScriptedMateSession(best=best, played=played)),
+        report_renderer=PdfReportRenderer(),
+        training_writer=PgnTrainingPackWriter(),
+        config=AnalysisConfig(fast_nodes=50, deep_nodes=200, candidate_loss_cp=120),
+    )
+    result = pipeline.run(
+        pgn_content=MATE_PGN,
+        player_name="A",
+        report_language=ReportLanguage.RU,
+        max_games=10,
+    ).result
+    confirmed = result.critical_decisions
+    return len(confirmed), confirmed[0].tag.value if confirmed else ""
+
+
+def test_slower_forced_mate_is_not_reported_as_an_error() -> None:
+    # Mate in 8 instead of mate in 2 still mates; the client must not be told
+    # they missed a mate when the move they played wins by force.
+    count, _ = _mate_case(best=(99_998, 2), played=(99_992, 8))
+    assert count == 0
+
+
+def test_missed_forced_mate_is_reported() -> None:
+    count, tag = _mate_case(best=(99_998, 2), played=(400, None))
+    assert count == 1
+    assert tag == "mate"
+
+
+def test_allowing_a_mate_is_reported() -> None:
+    count, tag = _mate_case(best=(120, None), played=(-99_999, -1))
+    assert count == 1
+    assert tag == "mate"
+
+
 def test_parser_filters_player_and_deduplicates(valid_pgn: bytes) -> None:
     duplicate = valid_pgn.replace(b'[Event "Test"]', b'[Event "Rapid Test"]')
     unrelated = valid_pgn.replace(b'[White "A"]', b'[White "C"]')
