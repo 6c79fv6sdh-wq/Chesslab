@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="index, follow">
+
+<title>Шахматный тренер — занятия очно в Москве и онлайн</title>
+<meta name="description" content="Профессиональный шахматный тренер. Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры. Очно в северной Москве и онлайн, занятия на английском.">
+
+<!-- DOMAIN: заменить во всех четырех строках ниже -->
+<link rel="canonical" href="https://DOMAIN/">
+<meta property="og:url" content="https://DOMAIN/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="Шахматный тренер — занятия очно в Москве и онлайн">
+<meta property="og:description" content="Профессиональный шахматный тренер. Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры. Очно в северной Москве и онлайн, занятия на английском.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Literata:wght@400;600&amp;display=swap" rel="stylesheet">
+
+<style>
+/* Палитра и типографика. Меняются только переменные */
+:root{
+  --bg:#f6f6f4;
+  --surface:#ffffff;
+  --ink:#171d25;
+  --ink-soft:#4a5560;
+  --line:#dcdcd6;
+  --accent:#2c5f7c;
+  --accent-dark:#204759;
+  --maxw:900px;
+  --pad:20px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-size:17px;
+  line-height:1.62;
+  overflow-wrap:break-word;
+}
+h1,h2,h3{font-family:"Literata",Georgia,"Times New Roman",serif;font-weight:600;line-height:1.22;margin:0}
+h1{font-size:clamp(28px,5.2vw,44px);letter-spacing:-.01em}
+h2{font-size:clamp(23px,3.6vw,31px)}
+h3{font-size:18px;font-family:"Inter",sans-serif;font-weight:600;letter-spacing:.01em}
+p{margin:0 0 18px}
+p:last-child{margin-bottom:0}
+a{color:var(--accent)}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--pad)}
+section{padding:56px 0;border-top:1px solid var(--line)}
+.sec-head{margin-bottom:26px}
+
+/* Фокус виден везде */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+}
+
+/* Шапка */
+.site-header{
+  position:sticky;top:0;z-index:20;
+  background:rgba(246,246,244,.94);
+  backdrop-filter:saturate(120%) blur(6px);
+  border-bottom:1px solid var(--line);
+}
+.header-in{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding-top:12px;padding-bottom:12px}
+.brand{display:flex;flex-direction:column;line-height:1.25;margin-right:auto}
+.brand-name{font-family:"Literata",serif;font-weight:600;font-size:18px}
+.brand-role{font-size:13px;color:var(--ink-soft)}
+.nav{display:flex;flex-wrap:wrap;gap:4px 18px}
+.nav a{
+  color:var(--ink-soft);text-decoration:none;font-size:15px;
+  display:inline-flex;align-items:center;min-height:44px;
+}
+.nav a:hover{color:var(--ink)}
+
+/* Кнопки, минимальная высота 44px */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:48px;padding:12px 24px;
+  border:1px solid var(--accent);border-radius:3px;
+  font:inherit;font-weight:500;text-decoration:none;cursor:pointer;
+  background:var(--accent);color:#fff;
+}
+.btn:hover{background:var(--accent-dark);border-color:var(--accent-dark)}
+.btn-ghost{background:transparent;color:var(--accent)}
+.btn-ghost:hover{background:rgba(44,95,124,.08);color:var(--accent-dark)}
+.btn-sm{min-height:44px;padding:8px 18px;font-size:15px}
+
+/* Первый экран */
+.hero{padding:72px 0 60px;border-top:0}
+.hero h1{max-width:20ch}
+.hero-sub{margin-top:20px;max-width:56ch;font-size:19px;color:var(--ink-soft)}
+.hero-cta{margin-top:30px}
+.facts{
+  list-style:none;display:flex;flex-wrap:wrap;gap:8px 28px;
+  margin:24px 0 0;padding:0;font-size:15px;color:var(--ink-soft);
+}
+.facts li{position:relative;padding-left:14px}
+.facts li::before{content:"";position:absolute;left:0;top:.72em;width:5px;height:5px;background:var(--accent)}
+
+.prose{max-width:64ch}
+.lead-note{
+  margin-top:26px;padding-left:18px;border-left:2px solid var(--accent);
+  font-family:"Literata",serif;font-size:19px;
+}
+
+/* Списки-регалии */
+.facts-list{list-style:none;margin:0;padding:0;max-width:64ch}
+.facts-list li{position:relative;padding:0 0 14px 18px}
+.facts-list li::before{content:"";position:absolute;left:0;top:.72em;width:6px;height:1px;background:var(--accent)}
+.facts-list li:last-child{padding-bottom:0}
+
+/* Колонки: формат и география */
+.cols{display:grid;gap:28px;grid-template-columns:1fr}
+@media(min-width:720px){.cols{grid-template-columns:1fr 1fr;gap:36px}}
+.col h3{margin-bottom:10px}
+
+/* Отзывы */
+.cards{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:720px){.cards{grid-template-columns:repeat(3,1fr)}}
+.card{
+  background:var(--surface);border:1px solid var(--line);
+  padding:22px;display:flex;flex-direction:column;gap:16px;
+}
+.card blockquote{margin:0;font-family:"Literata",serif}
+.card figcaption{font-size:14px;color:var(--ink-soft);margin-top:auto}
+
+/* Контакты */
+.contact-links{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:38px}
+.form{max-width:520px;display:grid;gap:16px}
+.field{display:grid;gap:6px}
+.field label{font-size:14px;color:var(--ink-soft)}
+.field input,.field textarea{
+  font:inherit;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line);border-radius:3px;
+  padding:12px 14px;min-height:48px;width:100%;
+}
+.field textarea{min-height:110px;resize:vertical}
+.form-note{font-size:15px;margin:0}
+.form-note[hidden]{display:none}
+.form-note.error{color:#8a2f22}
+
+.note-en{margin-top:26px}
+.site-footer{border-top:1px solid var(--line);padding:28px 0;font-size:14px;color:var(--ink-soft)}
+
+/* Появление блоков при скролле */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.reveal.is-visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  html{scroll-behavior:auto}
+}
+@media (prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-in">
+    <div class="brand">
+      <span class="brand-name" data-fill="name">ИМЯ_ТРЕНЕРА</span>
+      <span class="brand-role">Профессиональный шахматный тренер</span>
+    </div>
+    <nav class="nav" aria-label="Разделы страницы">
+      <a href="#how">Как я работаю</a>
+      <a href="#who">Кому подходит</a>
+      <a href="#about">О себе</a>
+    </nav>
+    <a class="btn btn-sm" href="#contacts">Написать</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1. Первый экран -->
+  <section class="hero">
+    <div class="wrap">
+      <h1>Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры</h1>
+      <p class="hero-sub">Ребенок на занятии не пассивный слушатель: он постоянно решает, спорит, проверяет идеи и учится объяснять свои решения.</p>
+      <div class="hero-cta"><a class="btn" href="#contacts">Написать</a></div>
+      <ul class="facts">
+        <li>Более 2500 проведенных занятий</li>
+        <li>Ученики от 3 до 77 лет</li>
+        <li>Преподаю шахматы на английском</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2. Как я работаю -->
+  <section id="how" class="reveal">
+    <div class="wrap">
+      <div class="sec-head"><h2>Как я работаю</h2></div>
+      <div class="prose">
+        <p>Сначала я смотрю, как ребенок думает: торопится ли с ответом, замечает ли угрозы, как реагирует на ошибку, может ли удержать задачу до конца.</p>
+        <p>В моих занятиях есть игра, азарт, спор, понятные метафоры, мемы. За счет этого дети не отсиживают час, как обычно, а включаются намного живее, чем на обычном уроке.</p>
+        <p>Мальчики, которые ненавидели думать, но обожали футбол, через футбол разобрали со мной половину позиционной игры, от которой даже у взрослых включается сонный рефлекс.</p>
+        <p>Основной акцент на глубоком понимании происходящего на шахматной доске и интересных упражнениях, прокачивающих логику и креативность.</p>
+        <p class="lead-note">Концептуально против зубрежки.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Кому подходит -->
+  <section id="who" class="reveal">
+    <div class="wrap">
+      <div class="sec-head"><h2>Кому подходит</h2></div>
+      <div class="prose">
+        <p>Ко мне так часто приводят детей, которым скучно на обычных занятиях и сложно усидеть на месте. Многие из них пришли с отвращением к шахматам, как к игре для ботанов и зануд, но эти дети занимаются у меня до сих пор.</p>
+        <p>Формат подойдет родителям, которые хотят для ребенка не просто очередной кружок с нейрослопом про разряд за три месяца, а индивидуальную интеллектуальную нагрузку с понятной обратной связью.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. О себе -->
+  <section id="about" class="reveal">
+    <div class="wrap">
+      <div class="sec-head"><h2>О себе</h2></div>
+      <ul class="facts-list">
+        <li>Профессиональный шахматный тренер, 2700 рейтинга (0.1% мира).</li>
+        <li>Более 2500 проведенных занятий, ученики от 3 до 77 лет.</li>
+        <li>Среди моих учеников — победители европейских турниров, предприниматели, IT-специалисты, модели, профессиональные бойцы и школьники с СДВГ, которые влюбились в шахматы.</li>
+        <li>Автор метода ScienceChess, участник научных конференций и форумов.</li>
+        <li>Победитель соревнований по ментальной арифметике и математике.</li>
+        <li>Занимался футболом, боксом и вокалом — это позволяет проще подобрать ключи к самым разным детям.</li>
+        <li>Использую уникальные ИИ-тренажеры, чтобы учеба была еще и приятной игрой.</li>
+        <li>Для своих учеников уже создал ряд бесплатных материалов.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 5. Формат и география -->
+  <section id="format" class="reveal">
+    <div class="wrap">
+      <div class="sec-head"><h2>Формат и география</h2></div>
+      <div class="cols">
+        <div class="col">
+          <h3>Очно</h3>
+          <p>Очно работаю в северной Москве: Речной вокзал, Беломорская, Ховрино, Водный стадион.</p>
+        </div>
+        <div class="col">
+          <h3>Онлайн</h3>
+          <p>Доступны занятия онлайн: за счет моих разработок, упражнений и ботов они могут быть даже более эффективными.</p>
+        </div>
+      </div>
+      <p class="note-en">Провожу занятия и на английском языке.</p>
+    </div>
+  </section>
+
+  <!-- 6. Отзывы. Текст подставляется из констант в начале скрипта -->
+  <section id="reviews" class="reveal">
+    <div class="wrap">
+      <div class="sec-head"><h2>Отзывы</h2></div>
+      <div class="cards">
+        <figure class="card">
+          <blockquote data-fill="review1">ОТЗЫВ_1</blockquote>
+          <figcaption data-fill="sign1">ПОДПИСЬ_1</figcaption>
+        </figure>
+        <figure class="card">
+          <blockquote data-fill="review2">ОТЗЫВ_2</blockquote>
+          <figcaption data-fill="sign2">ПОДПИСЬ_2</figcaption>
+        </figure>
+        <figure class="card">
+          <blockquote data-fill="review3">ОТЗЫВ_3</blockquote>
+          <figcaption data-fill="sign3">ПОДПИСЬ_3</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Контакты -->
+  <section id="contacts" class="reveal">
+    <div class="wrap">
+      <div class="sec-head"><h2>Контакты</h2></div>
+
+      <div class="contact-links">
+        <a class="btn" id="link-tg" href="#">Telegram</a>
+        <a class="btn btn-ghost" id="link-wa" href="#">WhatsApp</a>
+        <a class="btn btn-ghost" id="link-phone" href="#">Телефон</a>
+      </div>
+
+      <form class="form" id="form" novalidate>
+        <div class="field">
+          <label for="f-name">Имя</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="f-age">Возраст ребенка</label>
+          <input id="f-age" name="age" type="text" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="f-contact">Контакт для связи</label>
+          <input id="f-contact" name="contact" type="text" autocomplete="tel" required>
+        </div>
+        <div class="field">
+          <label for="f-comment">Комментарий</label>
+          <textarea id="f-comment" name="comment" rows="4"></textarea>
+        </div>
+        <div>
+          <button class="btn" type="submit" id="form-submit">Написать</button>
+        </div>
+        <p class="form-note" id="form-note" role="status" aria-live="polite" hidden></p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span data-fill="name">ИМЯ_ТРЕНЕРА</span> — профессиональный шахматный тренер
+  </div>
+</footer>
+
+<script>
+/* ------------------------------------------------------------------
+   ВСЕ ЗНАЧЕНИЯ ДЛЯ ЗАМЕНЫ — ЗДЕСЬ.
+   Отдельно: DOMAIN правится вручную в <head> (canonical и og:url).
+   Осталось подставить: NAME, FORM_ENDPOINT, отзывы и подписи.
+------------------------------------------------------------------- */
+const NAME           = "ИМЯ_ТРЕНЕРА";              // имя в шапке и подвале
+const TELEGRAM_URL   = "https://t.me/vLdm56";
+const WHATSAPP_URL   = "https://wa.me/79017002756";
+const PHONE          = "+7 901 700-27-56";
+const PHONE_TEL      = "+79017002756";             // то же самое для href="tel:"
+const FORM_ENDPOINT  = "ВСТАВИТЬ_ENDPOINT";        // URL приема формы
+
+const REVIEWS = [
+  { text: "ОТЗЫВ_1", sign: "ПОДПИСЬ_1" },
+  { text: "ОТЗЫВ_2", sign: "ПОДПИСЬ_2" },
+  { text: "ОТЗЫВ_3", sign: "ПОДПИСЬ_3" }
+];
+
+/* Подстановка значений в разметку */
+document.querySelectorAll('[data-fill="name"]').forEach(function (el) { el.textContent = NAME; });
+
+const tg = document.getElementById("link-tg");
+tg.href = TELEGRAM_URL;
+tg.rel = "noopener";
+tg.target = "_blank";
+
+const wa = document.getElementById("link-wa");
+wa.href = WHATSAPP_URL;
+wa.rel = "noopener";
+wa.target = "_blank";
+
+const phone = document.getElementById("link-phone");
+phone.href = "tel:" + PHONE_TEL;
+phone.textContent = PHONE;
+
+REVIEWS.forEach(function (r, i) {
+  const t = document.querySelector('[data-fill="review' + (i + 1) + '"]');
+  const s = document.querySelector('[data-fill="sign' + (i + 1) + '"]');
+  if (t) t.textContent = r.text;
+  if (s) s.textContent = r.sign;
+});
+
+/* Появление блоков при скролле. При prefers-reduced-motion не запускается */
+(function () {
+  const blocks = document.querySelectorAll(".reveal");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced || !("IntersectionObserver" in window)) {
+    blocks.forEach(function (b) { b.classList.add("is-visible"); });
+    return;
+  }
+  const io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); }
+    });
+  }, { rootMargin: "0px 0px -10% 0px", threshold: 0.05 });
+  blocks.forEach(function (b) { io.observe(b); });
+})();
+
+/* Отправка формы. Если endpoint не отвечает — показываем ссылку на Telegram */
+(function () {
+  const form = document.getElementById("form");
+  const note = document.getElementById("form-note");
+  const submit = document.getElementById("form-submit");
+
+  function show(html, isError) {
+    note.innerHTML = html;
+    note.classList.toggle("error", !!isError);
+    note.hidden = false;
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const f = form.elements;
+
+    if (!f.name.value.trim() || !f.contact.value.trim()) {
+      show("Заполните имя и контакт для связи.", true);
+      return;
+    }
+
+    submit.disabled = true;
+    note.hidden = true;
+
+    const data = {
+      name: f.name.value.trim(),
+      age: f.age.value.trim(),
+      contact: f.contact.value.trim(),
+      comment: f.comment.value.trim()
+    };
+
+    try {
+      const res = await fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error("bad status");
+      form.reset();
+      show("Сообщение отправлено.", false);
+    } catch (err) {
+      show('Не удалось отправить. Напишите в <a href="' + TELEGRAM_URL + '" target="_blank" rel="noopener">Telegram</a>.', true);
+    } finally {
+      submit.disabled = false;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
