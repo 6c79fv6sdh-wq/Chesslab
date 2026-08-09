@@ -81,6 +81,70 @@ export function uid(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+export interface StorageStatus {
+  /** Браузер пообещал не вычищать данные сам. */
+  persistent: boolean;
+  /** Поддерживает ли браузер запрос постоянного хранения. */
+  supported: boolean;
+  usageBytes: number | null;
+  quotaBytes: number | null;
+}
+
+/**
+ * Просит браузер держать данные постоянно.
+ *
+ * Зачем: Safari на iOS по умолчанию чистит IndexedDB сайта, если им
+ * не пользовались семь дней. Постоянное хранение снимает этот таймер.
+ * Установленное на Home Screen приложение под ограничение не попадает,
+ * но лишний запрос не мешает.
+ */
+export async function requestPersistentStorage(): Promise<StorageStatus> {
+  const s = navigator.storage;
+  if (!s || typeof s.persist !== 'function') {
+    return { persistent: false, supported: false, usageBytes: null, quotaBytes: null };
+  }
+  let persistent = false;
+  try {
+    persistent = (await s.persisted?.()) ?? false;
+    if (!persistent) persistent = await s.persist();
+  } catch {
+    persistent = false;
+  }
+  let usageBytes: number | null = null;
+  let quotaBytes: number | null = null;
+  try {
+    const est = await s.estimate?.();
+    usageBytes = est?.usage ?? null;
+    quotaBytes = est?.quota ?? null;
+  } catch {
+    // Оценка места необязательна: без неё всё работает.
+  }
+  return { persistent, supported: true, usageBytes, quotaBytes };
+}
+
+export async function storageStatus(): Promise<StorageStatus> {
+  const s = navigator.storage;
+  if (!s || typeof s.persist !== 'function') {
+    return { persistent: false, supported: false, usageBytes: null, quotaBytes: null };
+  }
+  let persistent = false;
+  try {
+    persistent = (await s.persisted?.()) ?? false;
+  } catch {
+    persistent = false;
+  }
+  let usageBytes: number | null = null;
+  let quotaBytes: number | null = null;
+  try {
+    const est = await s.estimate?.();
+    usageBytes = est?.usage ?? null;
+    quotaBytes = est?.quota ?? null;
+  } catch {
+    // Не критично.
+  }
+  return { persistent, supported: true, usageBytes, quotaBytes };
+}
+
 export async function loadCalibration(): Promise<Calibration> {
   const d = await db();
   const raw = await d.get('kv', 'calibration');

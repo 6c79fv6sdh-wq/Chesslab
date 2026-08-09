@@ -1,5 +1,5 @@
 import './styles.css';
-import { loadCalibration, saveCalibration } from './core/db';
+import { loadCalibration, requestPersistentStorage, saveCalibration } from './core/db';
 import { DEFAULT_CALIBRATION, type Calibration } from './core/settings';
 import { el } from './core/ui';
 
@@ -38,6 +38,10 @@ const TABS: Tab[] = [
 async function boot(): Promise<void> {
   const nav = document.getElementById('tabs') as HTMLElement;
   const view = document.getElementById('view') as HTMLElement;
+
+  // Просим постоянное хранение до первых замеров, чтобы браузер
+  // не вычистил базу через неделю простоя.
+  void requestPersistentStorage();
 
   let calibration: Calibration = { ...DEFAULT_CALIBRATION };
   try {

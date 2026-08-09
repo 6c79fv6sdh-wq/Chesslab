@@ -9,6 +9,8 @@ import {
   exportBundle,
   importBundle,
   parseBundle,
+  requestPersistentStorage,
+  storageStatus,
   type MeasurementRecord,
   type ModuleId,
   type OpeningNodeStat,
@@ -41,6 +43,7 @@ export function mountData(root: HTMLElement, _ctx: AppContext): Unmount {
   root.append(el('h1', {}, ['Данные']));
 
   const overviewHost = el('div', {});
+  const storageHost = el('div', {});
   const perModuleHost = el('div', {});
   const motoricsHost = el('div', {});
   const openingsHost = el('div', {});
@@ -57,10 +60,43 @@ export function mountData(root: HTMLElement, _ctx: AppContext): Unmount {
       allOpeningNodes(),
     ]);
     renderOverview(measurements);
+    void renderStorage();
     renderPerModule(measurements);
     renderMotorics(measurements);
     renderOpenings(nodes);
     renderSessions(sessions);
+  }
+
+  async function renderStorage(): Promise<void> {
+    const st = await storageStatus();
+    const mb = (v: number | null) => (v === null ? '—' : `${(v / 1024 / 1024).toFixed(1)} МБ`);
+    storageHost.innerHTML = '';
+    storageHost.append(
+      el('div', { class: 'stats' }, [
+        el('div', { class: 'stat' }, [
+          el('span', { class: 'stat-k' }, ['Постоянное хранение']),
+          el('span', { class: 'stat-v' }, [
+            !st.supported ? 'не поддерживается' : st.persistent ? 'включено' : 'выключено',
+          ]),
+        ]),
+        el('div', { class: 'stat' }, [
+          el('span', { class: 'stat-k' }, ['Занято']),
+          el('span', { class: 'stat-v' }, [mb(st.usageBytes)]),
+        ]),
+      ]),
+    );
+    if (st.supported && !st.persistent) {
+      const ask = el('button', { class: 'btn', type: 'button' }, ['Запросить постоянное хранение']);
+      ask.addEventListener('click', () => {
+        void requestPersistentStorage().then(() => renderStorage());
+      });
+      storageHost.append(
+        ask,
+        el('p', { class: 'hint' }, [
+          'Пока хранение не постоянное, браузер вправе удалить замеры сам — Safari на iOS делает это после семи дней без визитов. Установка на Home Screen снимает это ограничение.',
+        ]),
+      );
+    }
   }
 
   function renderOverview(measurements: MeasurementRecord[]): void {
@@ -230,6 +266,7 @@ export function mountData(root: HTMLElement, _ctx: AppContext): Unmount {
   });
 
   root.append(
+    panel('Хранение на этом устройстве', [storageHost]),
     panel('Сводка по модулям', [overviewHost]),
     panel('По режимам', [perModuleHost]),
     panel('Моторика в разрезах', [motoricsHost]),
