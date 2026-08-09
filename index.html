@@ -189,6 +189,65 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 @media(min-width:820px){.cols{grid-template-columns:1fr 1fr}}
 .col-title{color:var(--accent);margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)}
 
+/* ==== Демонстрация: задача и тренажер ==== */
+.demo{
+  display:grid;gap:1px;grid-template-columns:1fr;
+  background:var(--line);border:1px solid var(--line);
+  margin-top:clamp(44px,6vw,72px);
+}
+.demo-card{
+  background:var(--paper);padding:clamp(24px,3vw,34px);
+  display:grid;gap:clamp(20px,3vw,36px);grid-template-columns:1fr;
+}
+@media(min-width:820px){
+  /* задача: доска слева, вопрос справа. тренажер: снимок крупнее текста */
+  .demo-card--task{grid-template-columns:minmax(240px,330px) 1fr;align-items:start}
+  .demo-card--tool{grid-template-columns:1fr minmax(230px,300px);align-items:center}
+}
+.demo-body{display:flex;flex-direction:column;gap:14px}
+.demo-card h3{
+  font-family:"Playfair Display",Georgia,serif;font-size:clamp(20px,2.2vw,24px);font-weight:500;
+  line-height:1.25;letter-spacing:-.01em;text-transform:none;color:var(--text);
+}
+.demo-intro{margin:0;color:var(--muted);font-size:16px}
+.demo-cap{margin:0;color:var(--muted);font-size:14px}
+.demo-q{margin:4px 0 0;font-weight:500}
+.demo-opts{display:flex;flex-wrap:wrap;gap:10px}
+.demo-btn{
+  min-height:44px;padding:9px 18px;
+  border:1px solid var(--line);border-radius:2px;background:transparent;
+  font:inherit;font-size:15px;color:var(--text);cursor:pointer;
+  transition:border-color .18s ease,background .18s ease;
+}
+.demo-btn:hover{border-color:#cfc8bb;background:rgba(0,0,0,.03)}
+.demo-btn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.demo-out{margin:0;min-height:3em;color:var(--text)}
+.demo-out:empty{min-height:0}
+
+/* Доска в расцветке тренажера */
+.board-wrap{position:relative;width:100%;max-width:330px}
+.board{
+  position:relative;display:grid;grid-template-columns:repeat(8,1fr);
+  aspect-ratio:1/1;width:100%;border:1px solid #8d6b4d;
+}
+.sq{position:relative;display:flex;align-items:center;justify-content:center}
+.sq.light{background:#edd6b0}
+.sq.dark{background:#b58863}
+.piece{
+  font-size:min(9vw,42px);line-height:1;
+  font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2","DejaVu Sans",serif;
+}
+.piece.w{color:#fdfcf8;text-shadow:0 0 1px #3a2b1d,1px 0 0 #3a2b1d,-1px 0 0 #3a2b1d,0 1px 0 #3a2b1d,0 -1px 0 #3a2b1d}
+.piece.b{color:#2b2119}
+.sq .coord{position:absolute;font-size:9px;letter-spacing:.04em;color:#6b4f36;opacity:.9}
+.sq .coord.file{right:3px;bottom:1px}
+.sq .coord.rank{left:3px;top:1px}
+/* Стрелки поверх доски, показываются после ответа */
+.arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.arrow{opacity:0;transition:opacity .3s ease}
+.arrow.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.arrow{transition:none}}
+
 /* ==== Кому подходит: четыре сценария ==== */
 .cases{
   display:grid;gap:1px;grid-template-columns:1fr;
@@ -349,6 +408,37 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
       </div>
       <p class="pull">Концептуально против зубрежки.</p>
 
+      <div class="demo">
+        <!-- Задача. Позиция задается в BOARD_FEN, стрелки в BOARD_ARROWS -->
+        <div class="demo-card demo-card--task">
+          <div class="board-wrap">
+            <div class="board" id="board" role="img"
+                 aria-label="Позиция: у белых король g1, ферзь a4, ладья d1, слон c1, пешки a2, b2, c2, f2, g2, h2. У черных король g8, конь b5, слон c8, пешки a7, b7, f7, g7, h7. Ход белых."></div>
+          </div>
+          <div class="demo-body">
+            <h3>Правило Ласкера</h3>
+            <p class="demo-intro">Эмануил Ласкер, второй чемпион мира: увидел хороший ход — поищи лучше.</p>
+            <p class="demo-q">Белые могут забрать коня. Что делать?</p>
+            <div class="demo-opts">
+              <button class="demo-btn" type="button" data-answer="grab">Забрать коня</button>
+              <button class="demo-btn" type="button" data-answer="look">Поискать ход получше</button>
+            </div>
+            <p class="demo-out" id="demo-out" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <!-- Тренажер -->
+        <div class="demo-card demo-card--tool">
+          <button class="shot" type="button" aria-label="Открыть снимок тренажера крупнее">
+            <img src="images/trainer-1.jpg" width="1400" height="845" loading="lazy" decoding="async"
+                 alt="Экран тренажера, раздел «Моторика»: на доске подсвечены клетки, поверх нарисована траектория указателя, рядом счетчик повторов, медиана времени и доля попаданий без промахов.">
+          </button>
+          <div class="demo-body">
+            <h3>Мой тренажер</h3>
+            <p class="demo-intro">Собственная разработка: я программист и математик, поэтому упражнения пишу сам.</p>
+            <p class="demo-cap">Раздел «Моторика»: 30 повторов, время и точность считаются автоматически.</p>
+          </div>
+        </div>
     </div>
   </section>
 
@@ -549,6 +639,19 @@ const WHATSAPP_TEXT  = "Здравствуйте! Пишу по поводу з�
 // что происходит после заявки. Пустая строка — блок не показывается
 const NEXT_STEP      = "ТЕКСТ_ПРО_СЛЕДУЮЩИЙ_ШАГ";
 
+// позиция для задачи в блоке «Как я работаю», запись FEN
+const BOARD_FEN      = "2b3k1/pp3ppp/8/1n6/Q7/8/PPP2PPP/2BR2K1";
+// стрелки: откуда, куда, цвет. Первая — заманчивое взятие, вторая — мат
+const BOARD_ARROWS   = [
+  { id: "grab", from: "a4", to: "b5", color: "#3a2b1d" },
+  { id: "best", from: "d1", to: "d8", color: "#5f8f3e" }
+];
+// что показываем после каждого ответа
+const DEMO_ANSWERS = {
+  grab: "Ход хороший: конь достается бесплатно. Но партия продолжается.",
+  look: "Ладья идет на d8 — мат, партия закончена сразу. Конь никуда не убежал бы."
+};
+
 /* Подстановка значений в разметку */
 document.querySelectorAll('[data-fill="name"]').forEach(function (el) { el.textContent = NAME; });
 
@@ -576,6 +679,118 @@ phone.textContent = PHONE;
   if (!slot) return;
   if (NEXT_STEP) slot.querySelector("p").textContent = NEXT_STEP;
   else slot.remove();
+})();
+
+/* Доска для задачи: рисуется из BOARD_FEN, сверху слой со стрелками */
+(function () {
+  const board = document.getElementById("board");
+  if (!board) return;
+
+  const GLYPH = { k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" };
+  const FILES = "abcdefgh";
+
+  // FEN раскладывается в сетку 8x8, цифры означают пустые поля подряд
+  const grid = BOARD_FEN.split(" ")[0].split("/").map(function (row) {
+    const line = [];
+    row.split("").forEach(function (ch) {
+      if (/\d/.test(ch)) { for (let i = 0; i < parseInt(ch, 10); i++) line.push(null); }
+      else line.push(ch);
+    });
+    return line;
+  });
+
+  grid.forEach(function (line, r) {
+    const rank = 8 - r;
+    line.forEach(function (ch, f) {
+      const cell = document.createElement("div");
+      cell.className = "sq " + ((r + f) % 2 === 0 ? "light" : "dark");
+      cell.dataset.square = FILES[f] + rank;
+      if (ch) {
+        const piece = document.createElement("span");
+        piece.className = "piece " + (ch === ch.toUpperCase() ? "w" : "b");
+        piece.textContent = GLYPH[ch.toLowerCase()];
+        cell.appendChild(piece);
+      }
+      if (r === 7) cell.appendChild(coord("file", FILES[f]));
+      if (f === 0) cell.appendChild(coord("rank", String(rank)));
+      board.appendChild(cell);
+    });
+  });
+
+  function coord(kind, text) {
+    const el = document.createElement("span");
+    el.className = "coord " + kind;
+    el.textContent = text;
+    return el;
+  }
+
+  // центр поля в координатах доски 8x8
+  function center(square) {
+    return { x: FILES.indexOf(square[0]) + 0.5, y: 8 - parseInt(square[1], 10) + 0.5 };
+  }
+
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("class", "arrows");
+  svg.setAttribute("viewBox", "0 0 8 8");
+  svg.setAttribute("aria-hidden", "true");
+
+  const defs = document.createElementNS(NS, "defs");
+  svg.appendChild(defs);
+
+  BOARD_ARROWS.forEach(function (a) {
+    const from = center(a.from), to = center(a.to);
+    // наконечник для каждой стрелки своего цвета
+    const marker = document.createElementNS(NS, "marker");
+    marker.setAttribute("id", "head-" + a.id);
+    marker.setAttribute("viewBox", "0 0 10 10");
+    marker.setAttribute("refX", "7");
+    marker.setAttribute("refY", "5");
+    marker.setAttribute("markerWidth", "4");
+    marker.setAttribute("markerHeight", "4");
+    marker.setAttribute("orient", "auto-start-reverse");
+    const path = document.createElementNS(NS, "path");
+    path.setAttribute("d", "M0,1 L10,5 L0,9 z");
+    path.setAttribute("fill", a.color);
+    marker.appendChild(path);
+    defs.appendChild(marker);
+
+    const line = document.createElementNS(NS, "line");
+    line.setAttribute("class", "arrow");
+    line.dataset.arrow = a.id;
+    line.setAttribute("x1", from.x); line.setAttribute("y1", from.y);
+    line.setAttribute("x2", to.x);   line.setAttribute("y2", to.y);
+    line.setAttribute("stroke", a.color);
+    line.setAttribute("stroke-width", "0.13");
+    line.setAttribute("stroke-linecap", "round");
+    line.setAttribute("marker-end", "url(#head-" + a.id + ")");
+    svg.appendChild(line);
+  });
+
+  board.appendChild(svg);
+})();
+
+/* Ответ на задачу: подсвечивается своя стрелка и появляется объяснение */
+(function () {
+  const buttons = Array.prototype.slice.call(document.querySelectorAll(".demo-btn"));
+  const out = document.getElementById("demo-out");
+  if (!buttons.length || !out) return;
+
+  buttons.forEach(function (btn) {
+    btn.setAttribute("aria-pressed", "false");
+    btn.addEventListener("click", function () {
+      const answer = btn.dataset.answer;
+      buttons.forEach(function (b) {
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+      out.textContent = DEMO_ANSWERS[answer] || "";
+      // «забрать» показывает только взятие, «поискать» показывает обе стрелки
+      document.querySelectorAll(".arrow").forEach(function (line) {
+        const show = answer === "look" ? true : line.dataset.arrow === "grab";
+        line.classList.toggle("on", show);
+      });
+    });
+  });
 })();
 
 /* Скриншоты отзывов открываются крупнее. Esc и клик по фону закрывают */
