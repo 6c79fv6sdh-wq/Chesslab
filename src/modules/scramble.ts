@@ -6,13 +6,20 @@ import { fmtMs, median, p90 } from '../core/stats';
 import {
   BOT_LABELS,
   Clocks,
+  ENGINE_LEVELS,
+  OPPONENT_LABELS,
   OUTCOME_LABELS,
   botDelay,
   chooseMove,
+  eloOfLevel,
   formatClock,
+  levelLabel,
   type BotProfile,
+  type EngineLevel,
+  type OpponentKind,
   type Outcome,
 } from './scramble-logic';
+import { ENGINE_NAME, engineSupported, sharedEngine } from '../core/engine';
 import {
   INITIAL_FEN,
   checkedColor,
@@ -20,6 +27,7 @@ import {
   fenOf,
   keyOf,
   moveFromKeys,
+  moveFromUci,
   opposite,
   posFromFen,
   type Chess,
@@ -39,6 +47,8 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   let clockSetting: ClockSetting = '15';
   let profile: BotProfile = 'fast';
   let userColor: Color = 'white';
+  let opponent: OpponentKind = engineSupported() ? 'engine' : 'simple';
+  let level: EngineLevel = 2200;
 
   root.append(el('h1', {}, ['Скрэмбл']));
 
@@ -53,7 +63,8 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
   const userClockEl = el('div', { class: 'clock' }, ['—']);
   const botClockEl = el('div', { class: 'clock' }, ['—']);
-  const promptEl = el('div', { class: 'prompt' }, ['Выбери часы и бота, потом «Старт».']);
+  const promptEl = el('div', { class: 'prompt' }, ['Выбери часы и соперника, потом «Старт».']);
+  const engineStatusEl = el('div', { class: 'hint' }, ['']);
   const liveStats = el('div', {});
 
   let session: Session | null = null;
@@ -175,8 +186,36 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     promptEl.textContent = 'Ход соперника.';
     const delay = botDelay(profile, Math.random);
     later(() => {
+      void playBotMove();
+    }, delay);
+  }
+
+  /** Ход соперника: движком либо простым ботом. */
+  async function playBotMove(): Promise<void> {
+    if (!running || !clocks || pos.turn !== botColor()) return;
+    let move = null as ReturnType<typeof chooseMove>;
+
+    if (opponent === 'engine') {
+      try {
+        const engine = sharedEngine();
+        await engine.setStrength(eloOfLevel(level));
+        // Времени на счёт даём не больше, чем осталось у бота на часах.
+        const budget = Math.max(40, Math.min(300, clocks.get(botColor()) * 0.15));
+        const uci = await engine.bestMove(fenOf(pos), { movetimeMs: Math.round(budget) });
+        if (!running || pos.turn !== botColor()) return;
+        if (uci) {
+          const parsed = moveFromUci(uci);
+          if (pos.isLegal(parsed)) move = parsed;
+        }
+      } catch (e) {
+        engineStatusEl.textContent = `Движок недоступен, играю простым ботом: ${(e as Error).message}`;
+        move = chooseMove(pos, profile, Math.random);
+      }
+    }
+    if (!move) move = chooseMove(pos, profile, Math.random);
+
+    {
       if (!running || !clocks || pos.turn !== botColor()) return;
-      const move = chooseMove(pos, profile, Math.random);
       if (!move) {
         checkGameEnd();
         return;
@@ -197,7 +236,7 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
       later(() => {
         if (running && pos.turn === userColor) board.playPremove();
       }, 20);
-    }, delay);
+    }
   }
 
   function renderLive(): void {
@@ -223,6 +262,8 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     await session?.finish({
       outcome,
       outcomeLabel: OUTCOME_LABELS[outcome],
+      opponent,
+      engineElo: opponent === 'engine' ? (eloOfLevel(level) ?? 'max') : '',
       bot: profile,
       clockMs: Number(clockSetting) * 1000,
       userColor,
@@ -242,6 +283,46 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
       if (!running) clockSetting = v;
     },
   );
+
+  const opponentSeg = segmented<OpponentKind>(
+    (Object.keys(OPPONENT_LABELS) as OpponentKind[]).map((k) => ({ value: k, label: OPPONENT_LABELS[k] })),
+    opponent,
+    (v) => {
+      if (running) return;
+      opponent = v;
+      levelRow.style.display = v === 'engine' ? '' : 'none';
+      updateEngineHint();
+    },
+  );
+
+  const parseLevel = (v: string): EngineLevel => (v === 'max' ? 'max' : (Number(v) as EngineLevel));
+
+  const levelSeg = segmented<string>(
+    [
+      ...ENGINE_LEVELS.map((e) => ({ value: String(e), label: levelLabel(e) })),
+      { value: 'max', label: levelLabel('max') },
+    ],
+    String(level),
+    (v) => {
+      if (running) return;
+      level = parseLevel(v);
+      updateEngineHint();
+    },
+  );
+
+  const levelRow = el('div', { class: 'row' }, [el('label', {}, ['Сила движка']), levelSeg.root]);
+
+  function updateEngineHint(): void {
+    if (opponent !== 'engine') {
+      engineStatusEl.textContent =
+        'Простой бот считает на один полуход. Быстрый, но слабый.';
+      return;
+    }
+    const elo = eloOfLevel(level);
+    engineStatusEl.textContent =
+      `${ENGINE_NAME}, ${elo === null ? 'без ограничения силы' : `UCI_Elo ${elo}`}. ` +
+      'Первый запуск подтянет 7 МБ, дальше движок работает офлайн.';
+  }
 
   const botSeg = segmented<BotProfile>(
     (Object.keys(BOT_LABELS) as BotProfile[]).map((k) => ({ value: k, label: BOT_LABELS[k] })),
@@ -275,7 +356,9 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     pos = posFromFen(INITIAL_FEN);
     clocks = new Clocks(Number(clockSetting) * 1000);
     running = true;
-    session = new Session('scramble', `${profile}:${clockSetting}s`, cal);
+    const mode =
+      opponent === 'engine' ? `sf${eloOfLevel(level) ?? 'max'}:${clockSetting}s` : `${profile}:${clockSetting}s`;
+    session = new Session('scramble', mode, cal);
     startBtn.disabled = true;
     resignBtn.disabled = false;
     board.cancelPremove();
@@ -301,9 +384,15 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   root.append(
     panel('Настройки партии', [
       el('div', { class: 'row' }, [el('label', {}, ['Часы']), clockSeg.root]),
-      el('div', { class: 'row' }, [el('label', {}, ['Бот']), botSeg.root]),
+      el('div', { class: 'row' }, [el('label', {}, ['Соперник']), opponentSeg.root]),
+      levelRow,
+      el('div', { class: 'row' }, [el('label', {}, ['Темп хода']), botSeg.root]),
       el('div', { class: 'row' }, [el('label', {}, ['Играю']), colorSeg.root]),
-      el('p', { class: 'hint' }, ['Без добавления времени, обеим сторонам поровну.']),
+      engineStatusEl,
+      el('p', { class: 'hint' }, [
+        'Темп задаёт только задержку хода соперника, силу игры — движок.',
+        ' Без добавления времени, обеим сторонам поровну.',
+      ]),
     ]),
     panel('Партия', [
       el('div', { class: 'board-area' }, [
@@ -326,6 +415,10 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
   paint();
   renderLive();
+  levelRow.style.display = opponent === 'engine' ? '' : 'none';
+  updateEngineHint();
+  // Прогреваем движок заранее, чтобы первый ход не ждал загрузки 7 МБ.
+  if (opponent === 'engine') void sharedEngine().start().catch(() => undefined);
 
   return () => {
     stopTicking();

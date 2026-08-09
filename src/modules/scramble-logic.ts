@@ -6,9 +6,32 @@ export type BotProfile = 'fast' | 'dirty-flag' | 'human2200' | 'machinegun';
 export const BOT_LABELS: Record<BotProfile, string> = {
   fast: 'Быстрый',
   'dirty-flag': 'Грязный флаг',
-  human2200: 'Человек 2200',
+  human2200: 'Человек',
   machinegun: 'Пулемёт',
 };
+
+/** Кто считает ходы за соперника. */
+export type OpponentKind = 'simple' | 'engine';
+
+export const OPPONENT_LABELS: Record<OpponentKind, string> = {
+  simple: 'Простой бот',
+  engine: 'Stockfish',
+};
+
+/**
+ * Уровни силы движка. Значения идут прямо в UCI_Elo, поэтому
+ * «2200» означает ровно то, что написано, а не название профиля.
+ */
+export const ENGINE_LEVELS = [1400, 1800, 2200, 2600] as const;
+export type EngineLevel = (typeof ENGINE_LEVELS)[number] | 'max';
+
+export function eloOfLevel(level: EngineLevel): number | null {
+  return level === 'max' ? null : level;
+}
+
+export function levelLabel(level: EngineLevel): string {
+  return level === 'max' ? 'Максимум' : `Эло ${level}`;
+}
 
 export interface BotConfig {
   /** Границы задержки хода, мс. */

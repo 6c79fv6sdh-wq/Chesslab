@@ -27,8 +27,23 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        // Движок весит 7 МБ: в предзагрузку не кладём, иначе первое открытие
+        // сайта стало бы неприлично тяжёлым. Кешируется при первом использовании.
+        globIgnores: ['**/engine/**'],
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/engine\//],
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.includes('/engine/'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'stockfish-engine',
+              expiration: { maxEntries: 8 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
       },
       devOptions: { enabled: false },
     }),
