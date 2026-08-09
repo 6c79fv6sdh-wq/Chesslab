@@ -210,7 +210,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   line-height:1.25;letter-spacing:-.01em;text-transform:none;color:var(--text);
 }
 .demo-intro{margin:0;color:var(--muted);font-size:16px}
-.demo-cap{margin:0;color:var(--muted);font-size:14px}
 .demo-q{margin:4px 0 0;font-weight:500}
 .demo-opts{display:flex;flex-wrap:wrap;gap:10px}
 .demo-btn{
@@ -232,6 +231,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .arrow{opacity:0;transition:opacity .3s ease}
 .arrow.on{opacity:1}
 @media (prefers-reduced-motion:reduce){.arrow{transition:none}}
+
+.mid-cta{margin:clamp(36px,5vw,52px) 0 0}
 
 /* ==== Кому подходит: четыре сценария ==== */
 .cases{
@@ -394,14 +395,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
       <p class="pull">Концептуально против зубрежки.</p>
 
       <div class="demo">
-        <!-- Задача. Позиция задается в BOARD_FEN, стрелки в BOARD_ARROWS -->
+        <!-- Задача. Диаграмма — images/task-board.jpg, стрелки задаются в BOARD_ARROWS -->
         <div class="demo-card demo-card--task">
           <div class="board-wrap">
             <img class="board-img" src="images/task-board.jpg" width="900" height="899" decoding="async"
                  alt="Позиция: у белых ферзь a4, ладья d1, слон c1, король g1 и пешки a2, b2, c2, f2, g2, h2. У черных ферзь g6, конь b5, слон c8, король g8 и пешки a7, b7, f7, g7, h7. Ход белых.">
           </div>
-
-          <p class="demo-q">Белые могут забрать коня. Что делать?</p>
+          <div class="demo-body">
+            <h3>Правило Ласкера</h3>
+            <p class="demo-intro">Эмануил Ласкер, второй чемпион мира: увидел хороший ход — поищи лучше.</p>
+            <p class="demo-q">Белые могут забрать коня. Забираем?</p>
             <div class="demo-opts">
               <button class="demo-btn" type="button" data-answer="grab">Забрать коня</button>
               <button class="demo-btn" type="button" data-answer="look">Поискать ход получше</button>
@@ -414,14 +417,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
         <div class="demo-card demo-card--tool">
           <button class="shot" type="button" aria-label="Открыть снимок тренажера крупнее">
             <img src="images/trainer-1.jpg" width="1400" height="845" loading="lazy" decoding="async"
-                 alt="Экран тренажера, раздел «Моторика»: на доске подсвечены клетки, поверх нарисована траектория указателя, рядом счетчик повторов, медиана времени и доля попаданий без промахов.">
+                 alt="Экран моего тренажера: на доске подсвечены клетки, поверх нарисована траектория указателя, рядом счетчик повторов и время.">
           </button>
           <div class="demo-body">
             <h3>Мой тренажер</h3>
             <p class="demo-intro">Я программист и математик, поэтому у меня много собственных разработок, которые ускоряют обучение.</p>
-            <p class="demo-cap">Раздел «Моторика»: 30 повторов, время и точность считаются автоматически.</p>
           </div>
         </div>
+      </div>
+
+      <p class="mid-cta"><a class="btn" id="mid-cta" href="#contacts"></a></p>
     </div>
   </section>
 
@@ -619,6 +624,9 @@ const FORM_ENDPOINT  = "ВСТАВИТЬ_ENDPOINT";        // пока не за
 // заготовка сообщения, которое подставится в WhatsApp при нажатии на кнопку
 const WHATSAPP_TEXT  = "Здравствуйте! Пишу по поводу занятий шахматами.";
 
+// надпись на кнопке в середине страницы, сразу после разбора позиции
+const MID_CTA_TEXT   = "Разобрать позицию вместе";
+
 // что происходит после заявки. Пустая строка — блок не показывается
 const NEXT_STEP      = "ТЕКСТ_ПРО_СЛЕДУЮЩИЙ_ШАГ";
 
@@ -630,8 +638,8 @@ const BOARD_ARROWS   = [
 ];
 // что показываем после каждого ответа
 const DEMO_ANSWERS = {
-  grab: "Ход хороший: конь достается бесплатно. Но партия продолжается.",
-  look: "Ладья идет на d8 — мат, партия закончена сразу. Конь никуда не убежал бы."
+  grab: "Конь достается бесплатно, ход правда хороший. Но по правилу Ласкера хороший ход — это повод поискать лучше, а не повод остановиться.",
+  look: "Ладья идет на d8 — мат. Партия заканчивается сразу, и конь уже не нужен. Это и есть правило Ласкера в работе."
 };
 
 /* Подстановка значений в разметку */
@@ -661,6 +669,12 @@ phone.textContent = PHONE;
   if (!slot) return;
   if (NEXT_STEP) slot.querySelector("p").textContent = NEXT_STEP;
   else slot.remove();
+})();
+
+/* Надпись на средней кнопке задается константой */
+(function () {
+  const btn = document.getElementById("mid-cta");
+  if (btn) btn.textContent = MID_CTA_TEXT;
 })();
 
 /* Стрелки поверх готовой диаграммы. Слой лежит в тех же координатах 8x8,
