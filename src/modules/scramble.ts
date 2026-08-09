@@ -80,11 +80,13 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
   function paint(lastMove?: Key[]): void {
     const userToMove = running && pos.turn === userColor;
+    // Цвет задаём всегда, иначе premove на часах соперника не поставить:
+    // Chessground проверяет movable.color при выборе фигуры для премува.
     board.setPosition({
       fen: fenOf(pos),
       orientation: userColor,
       turnColor: pos.turn,
-      movableColor: userToMove ? userColor : undefined,
+      movableColor: running ? userColor : undefined,
       dests: userToMove ? dests(pos) : new Map(),
       lastMove,
       check: checkedColor(pos),

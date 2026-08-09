@@ -89,14 +89,16 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   }
 
   function paint(p: Chess, position: PremovePosition, lastMove?: Key[]): void {
-    // Пока ход соперника, пользователь ходить не может: movableColor не задан,
-    // но premove разрешён — в этом весь смысл упражнения.
     const userToMove = p.turn === position.userColor;
+    // movableColor задаём ВСЕГДА, даже когда ходит соперник: Chessground
+    // разрешает premove только если movable.color совпадает с цветом фигуры.
+    // Обычный ход при этом всё равно заблокирован, потому что isMovable
+    // дополнительно требует turnColor === цвет фигуры.
     board.setPosition({
       fen: fenOf(p),
       orientation: position.userColor,
       turnColor: p.turn,
-      movableColor: userToMove ? position.userColor : undefined,
+      movableColor: position.userColor,
       dests: userToMove ? dests(p) : new Map(),
       lastMove,
       check: checkedColor(p),
