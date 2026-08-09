@@ -9,9 +9,9 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['icon-192.png', 'icon-512.png'],
       manifest: {
-        name: 'ScienceChess HyperLab',
-        short_name: 'HyperLab',
-        description: 'Локальный тренажер моторики и скорости для ultrabullet',
+        name: 'Science Chess Speed Lab',
+        short_name: 'Speed Lab',
+        description: 'Тренажёр моторики и скорости для ultrabullet. Автор: Vladislav Dmitrovskiy',
         lang: 'ru',
         start_url: './index.html',
         scope: './',

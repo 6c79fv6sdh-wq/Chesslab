@@ -32,6 +32,87 @@ body {
   padding: env(safe-area-inset-top) 12px 40px;
 }
 
+/* Подпись автора: шапка над вкладками и сноска внизу.
+   Обе живут в оболочке приложения, поэтому видны на всех вкладках. */
+#brand {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 16px 2px 12px;
+}
+
+.brand-name {
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+  color: var(--fg-strong);
+  white-space: nowrap;
+}
+
+.brand-accent {
+  font-weight: 650;
+  color: var(--accent);
+}
+
+/* Тонкая черта отделяет имя автора от названия, но только когда
+   они уместились в одну строку. */
+.brand-by {
+  position: relative;
+  padding-left: 15px;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--fg);
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
+.brand-by::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 11px;
+  background: var(--border);
+}
+
+@media (max-width: 520px) {
+  #brand {
+    gap: 2px;
+  }
+  .brand-by {
+    padding-left: 0;
+  }
+  .brand-by::before {
+    display: none;
+  }
+}
+
+#credit {
+  margin-top: 32px;
+  padding: 14px 2px 8px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--fg);
+  opacity: 0.45;
+}
+
+.credit-name {
+  color: var(--fg-strong);
+}
+
+.credit-sep {
+  opacity: 0.6;
+}
+
 #tabs {
   display: flex;
   flex-wrap: wrap;
