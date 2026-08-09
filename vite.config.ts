@@ -11,7 +11,7 @@ export default defineConfig({
       manifest: {
         name: 'Science Chess Speed Lab',
         short_name: 'Speed Lab',
-        description: 'Тренажёр моторики и скорости для ultrabullet. Автор: Vladislav Dmitrovskiy',
+        description: 'Тренажёр моторики и скорости для ultrabullet. Автор: Vladislav Dmitrovsky',
         lang: 'ru',
         start_url: './index.html',
         scope: './',

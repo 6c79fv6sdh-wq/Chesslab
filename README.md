@@ -1,6 +1,6 @@
 # Science Chess Speed Lab
 
-_by Vladislav Dmitrovskiy_
+_by Vladislav Dmitrovsky_
 
 Локальный тренажёр моторики и скорости для ultrabullet. Работает целиком в браузере,
 без сервера, аккаунтов и внешних запросов. Все данные лежат в IndexedDB на устройстве.
