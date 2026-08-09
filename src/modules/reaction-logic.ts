@@ -12,7 +12,10 @@ import {
   keyOf,
   kingsAdjacent,
   opponentKingInCheck,
+  posFromFen as posFromFenStrict,
 } from '../core/chess';
+
+import { HANGING_PUZZLES, type HangingPuzzle } from '../data/puzzles-hanging';
 
 export type Rng = () => number;
 
@@ -245,4 +248,41 @@ export function generateDeltaTask(rnd: Rng, tries = 400): DeltaTask | null {
     };
   }
   return null;
+}
+
+/** Задание из реальной задачи Lichess. */
+export interface PuzzleTask extends ReactionTask {
+  puzzleId: string;
+  san: string;
+  victim: string;
+}
+
+/** Превращает задачу в задание упражнения. Решение ровно одно, авторское. */
+export function taskFromPuzzle(p: HangingPuzzle): PuzzleTask {
+  const pos = posFromFenStrict(p.fen);
+  const from = p.uci.slice(0, 2);
+  const to = p.uci.slice(2, 4);
+  return {
+    fen: p.fen,
+    pos,
+    userColor: pos.turn,
+    solutions: [{ uci: `${from}${to}`, from, to }],
+    puzzleId: p.id,
+    san: p.san,
+    victim: p.victim,
+  };
+}
+
+/** Очередь задач на сессию: перемешана, без повторов. */
+export function puzzleQueue(rnd: Rng, count: number): HangingPuzzle[] {
+  const pool = [...HANGING_PUZZLES];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, Math.min(count, pool.length));
+}
+
+export function puzzleCount(): number {
+  return HANGING_PUZZLES.length;
 }

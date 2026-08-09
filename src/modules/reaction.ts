@@ -6,8 +6,10 @@ import { fmtMs, fmtPct, median, p90 } from '../core/stats';
 import { checkedColor, dests, fenOf, moveFromUci, posFromFen } from '../core/chess';
 import {
   generateDeltaTask,
-  generateFreeCaptureTask,
   generateSafeCheckTask,
+  puzzleCount,
+  puzzleQueue,
+  taskFromPuzzle,
   type DeltaTask,
   type ReactionTask,
 } from './reaction-logic';
@@ -44,6 +46,8 @@ interface Attempt {
   answer: string;
   expected: string;
   fen: string;
+  /** Идентификатор задачи Lichess, если упражнение идёт по набору. */
+  puzzleId?: string;
 }
 
 export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
@@ -67,6 +71,9 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
 
   let session: Session | null = null;
   let taskCount = 0;
+  // Очередь задач «висящая фигура» на текущую сессию, без повторов.
+  let puzzles: ReturnType<typeof puzzleQueue> = [];
+  let currentPuzzleId = '';
   let current: ReactionTask | null = null;
   let delta: DeltaTask | null = null;
   let shownAt = 0;
@@ -142,10 +149,19 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
       return;
     }
 
-    const t = exercise === 'free-capture' ? generateFreeCaptureTask(rnd) : generateSafeCheckTask(rnd);
+    let t: ReactionTask | null;
+    if (exercise === 'free-capture') {
+      // Реальные задачи Lichess вместо случайной расстановки.
+      const puzzle = puzzles.shift();
+      t = puzzle ? taskFromPuzzle(puzzle) : null;
+      currentPuzzleId = puzzle?.id ?? '';
+    } else {
+      t = generateSafeCheckTask(rnd);
+      currentPuzzleId = '';
+    }
     if (!t) {
-      promptEl.textContent = 'Не удалось собрать позицию, пробую ещё раз.';
-      later(nextTask, 50);
+      promptEl.textContent = 'Задачи в наборе кончились.';
+      void finish();
       return;
     }
     current = t;
@@ -159,7 +175,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     });
     promptEl.textContent =
       exercise === 'free-capture'
-        ? 'Найди взятие фигуры не ниже коня, которую нельзя отбить.'
+        ? 'Забери висящую фигуру. Отбить её нельзя.'
         : 'Найди шах, при котором шахующую фигуру нельзя взять.';
     shownAt = performance.now();
     accepting = true;
@@ -208,6 +224,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
       answer: uci,
       expected: current.solutions.map((s) => s.uci).join(' '),
       fen: current.fen,
+      puzzleId: currentPuzzleId,
     });
   }
 
@@ -312,6 +329,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   startBtn.addEventListener('click', () => {
     attempts.length = 0;
     taskCount = 0;
+    puzzles = exercise === 'free-capture' ? puzzleQueue(rnd, TASKS_PER_SESSION) : [];
     session = new Session('reaction', `${exercise}:${exposure}`, cal);
     startBtn.disabled = true;
     stopBtn.disabled = false;
@@ -332,6 +350,10 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
       el('div', { class: 'row' }, [el('label', {}, ['Экспозиция']), exposureSeg.root]),
       el('p', { class: 'hint' }, [
         'После лимита экспозиции фигуры скрываются, решение идёт по памяти.',
+      ]),
+      el('p', { class: 'hint' }, [
+        `«Бесплатное взятие» идёт по ${puzzleCount()} реальным задачам Lichess. `,
+        'Остальные два упражнения пока на случайных позициях.',
       ]),
     ]),
     panel('Тренировка', [
