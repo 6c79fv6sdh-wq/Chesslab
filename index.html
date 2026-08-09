@@ -6,7 +6,7 @@
 <meta name="robots" content="index, follow">
 
 <title>Владислав Дмитровский — шахматный тренер. Занятия очно в Москве и онлайн</title>
-<meta name="description" content="Профессиональный шахматный тренер. Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры. Очно в северной Москве и онлайн, занятия на английском.">
+<meta name="description" content="Профессиональный шахматный тренер. Шахматы как тренировка мышления, а не кружок по запоминанию ходов. Очно в северной Москве и онлайн, занятия на английском.">
 
 <!-- DOMAIN: заменить в canonical, og:url и og:image ниже -->
 <link rel="canonical" href="https://DOMAIN/">
@@ -14,7 +14,7 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:title" content="Владислав Дмитровский — шахматный тренер. Занятия очно в Москве и онлайн">
-<meta property="og:description" content="Профессиональный шахматный тренер. Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры. Очно в северной Москве и онлайн, занятия на английском.">
+<meta property="og:description" content="Профессиональный шахматный тренер. Шахматы как тренировка мышления, а не кружок по запоминанию ходов. Очно в северной Москве и онлайн, занятия на английском.">
 <meta property="og:image" content="https://DOMAIN/images/og.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -155,7 +155,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     background:linear-gradient(180deg,rgba(16,20,24,.28) 0%,rgba(16,20,24,.5) 55%,rgba(16,20,24,.9) 88%,var(--ink) 100%);
   }
 }
-.hero h1{max-width:17ch}
+.hero h1{max-width:19ch}
 .hero-sub{margin-top:26px;max-width:52ch;font-size:clamp(17px,2vw,20px);color:var(--muted-dark)}
 .hero-cta{margin-top:38px}
 /* Полоса фактов внизу первого экрана */
@@ -188,6 +188,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .cols{display:grid;gap:clamp(30px,4vw,56px);grid-template-columns:1fr}
 @media(min-width:820px){.cols{grid-template-columns:1fr 1fr}}
 .col-title{color:var(--accent);margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+
+/* ==== Кому подходит: четыре сценария ==== */
+.cases{
+  display:grid;gap:1px;grid-template-columns:1fr;
+  background:var(--line);border:1px solid var(--line);margin-top:clamp(30px,4vw,44px);
+}
+@media(min-width:720px){.cases{grid-template-columns:1fr 1fr}}
+.case{background:var(--paper);padding:clamp(24px,3vw,34px);display:flex;flex-direction:column;gap:12px}
+.case h3{
+  font-family:"Playfair Display",Georgia,serif;font-size:clamp(19px,2.1vw,23px);font-weight:500;
+  line-height:1.25;letter-spacing:-.01em;text-transform:none;color:var(--text);
+}
+.case p{margin:0;color:var(--muted)}
+.cases-note{margin-top:clamp(28px,3.5vw,40px);max-width:62ch}
 
 /* ==== О себе: строки с волосяными линиями ==== */
 .facts-list{list-style:none;margin:0;padding:0;max-width:72ch}
@@ -302,7 +316,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="hero-photo" aria-hidden="true"></div>
     <div class="hero-scrim" aria-hidden="true"></div>
     <div class="wrap">
-      <h1>Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры</h1>
+      <h1>Шахматы как тренировка мышления, а не кружок по запоминанию ходов</h1>
       <p class="hero-sub">Ребенок на занятии не пассивный слушатель: он постоянно решает, спорит, проверяет идеи и учится объяснять свои решения.</p>
       <div class="hero-cta"><a class="btn" href="#contacts">Написать</a></div>
       <ul class="facts">
@@ -337,10 +351,28 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
         <p class="eyebrow">02</p>
         <h2>Кому подходит</h2>
       </div>
-      <div class="cols">
-        <p>Ко мне так часто приводят детей, которым скучно на обычных занятиях и сложно усидеть на месте. Многие из них пришли с отвращением к шахматам, как к игре для ботанов и зануд, но эти дети занимаются у меня до сих пор.</p>
-        <p>Формат подойдет родителям, которые хотят для ребенка не просто очередной кружок с нейрослопом про разряд за три месяца, а индивидуальную интеллектуальную нагрузку с понятной обратной связью.</p>
+      <p class="lead">Ко мне так часто приводят детей, которым скучно на обычных занятиях и сложно усидеть на месте. Многие из них пришли с отвращением к шахматам, как к игре для ботанов и зануд, но эти дети занимаются у меня до сих пор.</p>
+
+      <div class="cases">
+        <div class="case">
+          <h3>Ребенку скучно на обычных шахматах</h3>
+          <p>Правила знает, но монотонные задания быстро убивают интерес.</p>
+        </div>
+        <div class="case">
+          <h3>Умный, но торопится</h3>
+          <p>Видит идеи, но отвечает раньше, чем успевает проверить решение.</p>
+        </div>
+        <div class="case">
+          <h3>Трудно удерживать внимание</h3>
+          <p>Нужен диалоговый и динамичный формат вместо часа пассивного слушания.</p>
+        </div>
+        <div class="case">
+          <h3>Хочется не только шахматного результата</h3>
+          <p>Родителям важны мышление, самостоятельность и отношение к ошибкам.</p>
+        </div>
       </div>
+
+      <p class="cases-note">Формат подойдет родителям, которые хотят для ребенка не просто очередной кружок с нейрослопом про разряд за три месяца, а индивидуальную интеллектуальную нагрузку с понятной обратной связью.</p>
     </div>
   </section>
 
