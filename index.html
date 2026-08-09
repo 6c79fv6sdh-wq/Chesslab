@@ -106,13 +106,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   display:flex;align-items:center;gap:12px 28px;flex-wrap:nowrap;
   padding:12px 0;min-height:56px;
 }
-.brand{display:flex;flex-direction:column;line-height:1.25;margin-right:auto;min-width:0}
-.brand-top{display:flex;align-items:baseline;gap:clamp(9px,2.4vw,14px)}
+.brand{display:flex;align-items:baseline;margin-right:auto;min-width:0}
+.brand-top{display:flex;align-items:baseline;gap:clamp(10px,2.6vw,16px)}
 .brand-name{font-family:"Playfair Display",serif;font-size:clamp(17px,4.4vw,20px);letter-spacing:.01em;white-space:nowrap}
-.brand-role{
-  font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-dark);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
 /* название системы стоит рядом с именем и отделено волосяной линией */
 .brand-system{
   font-family:"Playfair Display",Georgia,serif;
@@ -120,15 +116,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   white-space:nowrap;padding-left:clamp(9px,2.4vw,14px);
   border-left:1px solid rgba(255,255,255,.22);
 }
-/* на узких экранах подпись не влезает целиком, убираем длинное слово */
-.role-long{display:none}
-@media(min-width:400px){.role-long{display:inline}}
 .nav{display:none}
 .header-cta{display:none}
 @media(min-width:760px){
   .site-header{position:sticky;top:0;z-index:20}
   .header-in{padding:14px 0}
-  .brand-role{font-size:11px}
   .header-cta{display:inline-flex}
 }
 @media(min-width:900px){
@@ -388,7 +380,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
         <span class="brand-name" data-fill="name">Владислав Дмитровский</span>
         <span class="brand-system">ScienceChess</span>
       </span>
-      <span class="brand-role"><span class="role-long">Профессиональный </span>шахматный тренер</span>
     </div>
     <nav class="nav" aria-label="Разделы страницы">
       <a href="#how">Метод</a>
@@ -544,7 +535,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
       <ul class="creds">
         <li>
           <span class="creds-value">2700</span>
-          <span class="creds-label">рейтинг, 0.1% мира</span>
+          <span class="creds-label">рейтинг на Lichess, 0.1% мира</span>
         </li>
         <li>
           <span class="creds-value">2500+</span>
