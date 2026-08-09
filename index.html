@@ -107,12 +107,19 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   padding:12px 0;min-height:56px;
 }
 .brand{display:flex;flex-direction:column;line-height:1.25;margin-right:auto;min-width:0}
+.brand-top{display:flex;align-items:baseline;gap:clamp(9px,2.4vw,14px)}
 .brand-name{font-family:"Playfair Display",serif;font-size:clamp(17px,4.4vw,20px);letter-spacing:.01em;white-space:nowrap}
 .brand-role{
   font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-dark);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.brand-system{color:var(--accent-light);letter-spacing:.16em}
+/* название системы стоит рядом с именем и отделено волосяной линией */
+.brand-system{
+  font-family:"Playfair Display",Georgia,serif;
+  font-size:clamp(12px,3vw,14px);letter-spacing:.03em;color:var(--accent-light);
+  white-space:nowrap;padding-left:clamp(9px,2.4vw,14px);
+  border-left:1px solid rgba(255,255,255,.22);
+}
 /* на узких экранах подпись не влезает целиком, убираем длинное слово */
 .role-long{display:none}
 @media(min-width:400px){.role-long{display:inline}}
@@ -316,30 +323,18 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 /* ==== Контакты ==== */
 .contacts{background:var(--ink);color:var(--paper);padding:var(--sp) 0}
 .contacts .eyebrow{color:var(--accent-light)}
-.contacts-grid{display:grid;gap:clamp(34px,5vw,72px);grid-template-columns:1fr}
-@media(min-width:880px){.contacts-grid{grid-template-columns:minmax(240px,320px) 1fr;align-items:start}}
-.contact-side{display:flex;flex-direction:column;gap:32px}
-.contact-links{display:flex;flex-direction:column;gap:12px}
+.contacts-grid{display:grid;gap:clamp(32px,5vw,72px);grid-template-columns:1fr;align-items:start}
+@media(min-width:760px){.contacts-grid{grid-template-columns:minmax(260px,340px) 1fr}}
+.contact-links{display:flex;flex-direction:column;gap:12px;max-width:420px}
 .contact-links .btn{width:100%}
+/* кнопка SMS имеет смысл только там, где есть телефон */
+.only-touch{display:none}
+@media (hover:none) and (pointer:coarse){.only-touch{display:inline-flex}}
+[hidden]{display:none !important}
 /* Что происходит после заявки */
-.next-step{border-top:1px solid var(--line-dark);padding-top:22px}
+.next-step{border-top:1px solid var(--line-dark);padding-top:24px;max-width:52ch}
 .next-step h3{color:var(--accent-light);margin-bottom:10px}
-.next-step p{margin:0;color:var(--muted-dark)}
-.form-hint{margin:0;font-size:14px;color:var(--muted-dark)}
-.form-hint[hidden]{display:none}
-.form{display:grid;gap:18px;max-width:560px}
-.field{display:grid;gap:8px}
-.field label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-dark)}
-.field input,.field textarea{
-  font:inherit;color:var(--paper);background:rgba(255,255,255,.05);
-  border:1px solid var(--line-dark);border-radius:2px;
-  padding:13px 16px;min-height:50px;width:100%;
-}
-.field textarea{min-height:112px;resize:vertical}
-.form-note{font-size:15px;margin:0;color:var(--muted-dark)}
-.form-note[hidden]{display:none}
-.form-note.error{color:#e9b6a6}
-.form-note a{color:var(--accent-light)}
+.next-step p{margin:0;color:var(--muted-dark);font-size:clamp(17px,1.9vw,19px);line-height:1.6}
 
 .site-footer{padding:30px 0;font-size:13px;letter-spacing:.03em;color:var(--muted);border-top:1px solid var(--line)}
 
@@ -370,7 +365,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   .nav a:hover{color:var(--paper)}
   .demo-btn:hover{border-color:#cfc8bb;background:rgba(0,0,0,.03)}
   .shot:hover{border-color:#c9c3b8}
-  .field input:hover,.field textarea:hover{border-color:rgba(255,255,255,.34)}
   .lightbox-close:hover{background:var(--ink)}
 }
 
@@ -390,8 +384,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 <header class="site-header on-dark">
   <div class="wrap header-in">
     <div class="brand">
-      <span class="brand-name" data-fill="name">Владислав Дмитровский</span>
-      <span class="brand-role"><span class="brand-system">ScienceChess</span> · <span class="role-long">Профессиональный </span>шахматный тренер</span>
+      <span class="brand-top">
+        <span class="brand-name" data-fill="name">Владислав Дмитровский</span>
+        <span class="brand-system">ScienceChess</span>
+      </span>
+      <span class="brand-role"><span class="role-long">Профессиональный </span>шахматный тренер</span>
     </div>
     <nav class="nav" aria-label="Разделы страницы">
       <a href="#how">Метод</a>
@@ -600,43 +597,18 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
         <h2>Контакты</h2>
       </div>
       <div class="contacts-grid">
-
-        <div class="contact-side">
-          <div class="contact-links">
-            <a class="btn" id="link-wa" href="#">Написать в WhatsApp</a>
-            <a class="btn btn-line" id="link-tg" href="#">Telegram</a>
-            <a class="btn btn-line" id="link-phone" href="#">Телефон</a>
-          </div>
-          <div class="next-step" id="next-step">
-            <h3>Что дальше</h3>
-            <p></p>
-          </div>
+        <div class="contact-links">
+          <a class="btn" id="link-wa" href="#">Написать в WhatsApp</a>
+          <a class="btn btn-line" id="link-tg" href="#">Telegram</a>
+          <a class="btn btn-line" id="link-mail" href="#" hidden>Написать на почту</a>
+          <a class="btn btn-line only-touch" id="link-sms" href="#">Отправить сообщение</a>
+          <a class="btn btn-line" id="link-phone" href="#">Телефон</a>
         </div>
 
-        <form class="form" id="form" novalidate>
-          <div class="field">
-            <label for="f-name">Имя</label>
-            <input id="f-name" name="name" type="text" autocomplete="name" required>
-          </div>
-          <div class="field">
-            <label for="f-age">Возраст ребенка</label>
-            <input id="f-age" name="age" type="text" inputmode="numeric">
-          </div>
-          <div class="field">
-            <label for="f-contact">Контакт для связи</label>
-            <input id="f-contact" name="contact" type="text" autocomplete="tel" required>
-          </div>
-          <div class="field">
-            <label for="f-comment">Комментарий</label>
-            <textarea id="f-comment" name="comment" rows="4"></textarea>
-          </div>
-          <div>
-            <button class="btn" type="submit" id="form-submit">Отправить</button>
-          </div>
-          <p class="form-hint" id="form-hint" hidden></p>
-          <p class="form-note" id="form-note" role="status" aria-live="polite" hidden></p>
-        </form>
-
+        <div class="next-step" id="next-step">
+          <h3>Что дальше</h3>
+          <p></p>
+        </div>
       </div>
     </div>
   </section>
@@ -667,9 +639,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 /* ------------------------------------------------------------------
    ВСЕ ЗНАЧЕНИЯ ДЛЯ ЗАМЕНЫ — ЗДЕСЬ.
    Отзывы — это картинки в папке images, они правятся прямо в разметке.
-   Ждут заполнения: SITE_URL и FORM_ENDPOINT. Пока они пустые,
-   сайт работает: адрес страницы просто не прописывается в мета-теги,
-   а форма уходит в WhatsApp вместо несуществующего сервера.
+   Ждут заполнения: SITE_URL и EMAIL. Пока они пустые, сайт работает:
+   адрес страницы не прописывается в мета-теги, а кнопка почты не выводится.
 ------------------------------------------------------------------- */
 
 // адрес сайта после публикации, например "https://sciencechess.ru"
@@ -680,13 +651,18 @@ const TELEGRAM_URL   = "https://t.me/vLdm56";
 const WHATSAPP_URL   = "https://wa.me/79017002756";
 const PHONE          = "+7 901 700-27-56";
 const PHONE_TEL      = "+79017002756";             // то же самое для href="tel:"
-const FORM_ENDPOINT  = "";                         // пока пустой, форма уходит в WhatsApp
+const EMAIL          = "";                         // почта для кнопки «Написать на почту»
 
-// заготовка сообщения, которое подставится в WhatsApp при нажатии на кнопку
-const WHATSAPP_TEXT  = "Здравствуйте! Пишу по поводу занятий шахматами.";
+// Заготовка сообщения. Подставляется в WhatsApp, SMS и письмо, чтобы человеку
+// не пришлось придумывать первую фразу, а нужные данные пришли сразу
+const MESSAGE_SUBJECT = "Занятия шахматами";
+const MESSAGE_TEXT    = "Здравствуйте! Пишу по поводу занятий шахматами.\n\n"
+                      + "Возраст ученика: \n"
+                      + "Примерный уровень: \n"
+                      + "Что хотелось бы от занятий: ";
 
 // надпись на кнопке в середине страницы, сразу после разбора позиции
-const MID_CTA_TEXT   = "Разобрать позицию вместе";
+const MID_CTA_TEXT   = "Разобрать вместе";
 
 // что происходит после заявки. Пустая строка — блок не показывается
 const NEXT_STEP      = "Напишите возраст ученика, примерный уровень и что хотелось бы получить от занятий. Я отвечу и предложу подходящий формат.";
@@ -726,19 +702,37 @@ const DEMO_ANSWERS = {
 /* Подстановка значений в разметку */
 document.querySelectorAll('[data-fill="name"]').forEach(function (el) { el.textContent = NAME; });
 
-/* ссылка на WhatsApp с уже набранным сообщением */
+/* Ссылки на каналы. Везде, где можно, подставляется готовый текст сообщения */
 function waLink(text) {
   return WHATSAPP_URL + "?text=" + encodeURIComponent(text);
 }
 
-[["link-tg", TELEGRAM_URL], ["link-tg-mobile", TELEGRAM_URL],
- ["link-wa", waLink(WHATSAPP_TEXT)], ["link-wa-mobile", waLink(WHATSAPP_TEXT)]].forEach(function (pair) {
-  const el = document.getElementById(pair[0]);
+const CHANNELS = [
+  ["link-wa", waLink(MESSAGE_TEXT), true],
+  ["link-wa-mobile", waLink(MESSAGE_TEXT), true],
+  ["link-tg", TELEGRAM_URL, true],
+  ["link-tg-mobile", TELEGRAM_URL, true],
+  // в iOS текст сообщения идет после "&", в остальных системах это тоже работает
+  ["link-sms", "sms:" + PHONE_TEL + "?&body=" + encodeURIComponent(MESSAGE_TEXT), false]
+];
+
+CHANNELS.forEach(function (item) {
+  const el = document.getElementById(item[0]);
   if (!el) return;
-  el.href = pair[1];
-  el.target = "_blank";
-  el.rel = "noopener";
+  el.href = item[1];
+  if (item[2]) { el.target = "_blank"; el.rel = "noopener"; }
 });
+
+/* Почта появляется, только если адрес указан */
+(function () {
+  const el = document.getElementById("link-mail");
+  if (!el) return;
+  if (!EMAIL) { el.remove(); return; }
+  el.href = "mailto:" + EMAIL
+          + "?subject=" + encodeURIComponent(MESSAGE_SUBJECT)
+          + "&body=" + encodeURIComponent(MESSAGE_TEXT);
+  el.hidden = false;
+})();
 
 const phone = document.getElementById("link-phone");
 phone.href = "tel:" + PHONE_TEL;
@@ -904,71 +898,6 @@ phone.textContent = PHONE;
   apply();
 })();
 
-/* Отправка формы. Если endpoint не отвечает — показываем ссылку на Telegram */
-(function () {
-  const form = document.getElementById("form");
-  const note = document.getElementById("form-note");
-  const hint = document.getElementById("form-hint");
-  const submit = document.getElementById("form-submit");
-  // пока endpoint не подключен, форма собирает сообщение и открывает WhatsApp
-  const noBackend = !FORM_ENDPOINT;
-
-  if (noBackend) {
-    submit.textContent = "Отправить в WhatsApp";
-    hint.textContent = "Откроется WhatsApp с уже набранным сообщением.";
-    hint.hidden = false;
-  }
-
-  function show(html, isError) {
-    note.innerHTML = html;
-    note.classList.toggle("error", !!isError);
-    note.hidden = false;
-  }
-
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const f = form.elements;
-
-    if (!f.name.value.trim() || !f.contact.value.trim()) {
-      show("Заполните имя и контакт для связи.", true);
-      return;
-    }
-
-    const data = {
-      name: f.name.value.trim(),
-      age: f.age.value.trim(),
-      contact: f.contact.value.trim(),
-      comment: f.comment.value.trim()
-    };
-
-    if (noBackend) {
-      const lines = ["Здравствуйте! Заявка с сайта.", "Имя: " + data.name];
-      if (data.age) lines.push("Возраст ребенка: " + data.age);
-      lines.push("Контакт: " + data.contact);
-      if (data.comment) lines.push("Комментарий: " + data.comment);
-      window.open(waLink(lines.join("\n")), "_blank", "noopener");
-      return;
-    }
-
-    submit.disabled = true;
-    note.hidden = true;
-
-    try {
-      const res = await fetch(FORM_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) throw new Error("bad status");
-      form.reset();
-      show("Сообщение отправлено.", false);
-    } catch (err) {
-      show('Не удалось отправить. Напишите в <a href="' + TELEGRAM_URL + '" target="_blank" rel="noopener">Telegram</a>.', true);
-    } finally {
-      submit.disabled = false;
-    }
-  });
-})();
 </script>
 
 </body>
