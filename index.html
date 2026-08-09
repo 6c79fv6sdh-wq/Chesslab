@@ -13,6 +13,22 @@
 <meta property="og:title" content="Владислав Дмитровский — шахматный тренер. Метод ScienceChess, очно в Москве и онлайн">
 <meta property="og:description" content="Профессиональный шахматный тренер. Шахматы как тренировка мышления, а не кружок по запоминанию ходов. Очно в северной Москве и онлайн, занятия на английском.">
 
+<!-- ДОМЕН: единственное место для подстановки после публикации.
+     Раскомментируйте три строки и замените ВАШ-ДОМЕН.RU на настоящий адрес без слэша на конце.
+     Canonical и og-теги должны быть статичными в HTML — часть поисковых роботов
+     и превью-краулеров (включая некоторые мессенджеры) не выполняет JavaScript.
+<link rel="canonical" href="https://ВАШ-ДОМЕН.RU/">
+<meta property="og:url" content="https://ВАШ-ДОМЕН.RU/">
+<meta property="og:image" content="https://ВАШ-ДОМЕН.RU/images/og.jpg">
+-->
+
+<!-- АНАЛИТИКА: сюда вставляется готовый код выбранного сервиса
+     (например Google Analytics 4 / gtag.js, Plausible или Umami — что решите использовать).
+     Ничего вставлять не обязательно: сайт работает и без счетчика. Как только сниппет
+     появится здесь, события из <script> внизу страницы (см. раздел АНАЛИТИКА) начнут
+     доходить до него сами — их код менять не нужно. Свой Measurement ID/токен
+     мы не придумываем, его нужно взять в личном кабинете выбранного сервиса. -->
+
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101418'/%3E%3Crect x='6' y='6' width='10' height='10' fill='%23c9a86c'/%3E%3Crect x='16' y='16' width='10' height='10' fill='%23c9a86c'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,8 +77,10 @@ a{color:inherit}
 ::selection{background:var(--accent);color:#fff}
 
 .wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(20px,5vw,40px)}
-.section{padding:var(--sp) 0;scroll-margin-top:16px}
-@media(min-width:900px){.section,.contacts{scroll-margin-top:86px}}
+.section,.contacts{scroll-margin-top:16px}
+.section{padding:var(--sp) 0}
+/* якорь должен всплывать ниже sticky-шапки на всех ширинах, где она sticky (с 760px) */
+@media(min-width:760px){.section,.contacts{scroll-margin-top:92px}}
 .section + .section{border-top:1px solid var(--line)}
 .prose{max-width:62ch}
 
@@ -123,7 +141,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   .header-in{padding:14px 0}
   .header-cta{display:inline-flex}
 }
-@media(min-width:900px){
+@media(min-width:940px){
   .nav{display:flex;gap:2px 26px;flex-wrap:nowrap}
 }
 .nav a{
@@ -283,12 +301,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   font-size:clamp(28px,3.6vw,38px);line-height:1.05;letter-spacing:-.02em;
 }
 .creds-value.is-word{font-size:clamp(21px,2.4vw,26px);letter-spacing:-.01em}
-/* знак площадки рядом с цифрой рейтинга. Цвет зашит в сам файл:
-   CSS-маска надежно работает не во всех мобильных браузерах */
-.creds-mark{
-  display:inline-block;vertical-align:-.06em;
-  width:.7em;height:.7em;margin-left:.32em;
+/* «Lichess» рядом с рейтингом: набрана обычным шрифтом мельче цифр,
+   поэтому размер задан в em относительно родителя — масштабируется вместе с числом */
+.creds-platform{
+  display:inline-flex;align-items:center;gap:.24em;
+  font-family:"Inter",sans-serif;font-weight:500;
+  font-size:.36em;letter-spacing:.01em;color:var(--accent);
+  vertical-align:.4em;margin-left:.3em;
 }
+.creds-mark{width:1em;height:1em}
 .creds-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .about-more{margin-top:clamp(30px,4vw,44px);max-width:64ch;color:var(--muted)}
 .about-more p{margin:0 0 12px}
@@ -320,7 +341,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .lightbox-in{min-height:100%;display:flex;align-items:center;justify-content:center;padding:clamp(16px,4vw,48px)}
 .lightbox img{max-width:min(940px,100%);width:100%;height:auto;border-radius:2px}
 .lightbox-close{
-  position:fixed;top:12px;right:12px;
+  position:fixed;
+  top:calc(12px + env(safe-area-inset-top,0px));
+  right:calc(12px + env(safe-area-inset-right,0px));
   min-height:44px;min-width:44px;padding:10px 18px;
   border:1px solid rgba(255,255,255,.4);border-radius:2px;
   background:rgba(16,20,24,.7);color:var(--paper);font:inherit;font-size:15px;cursor:pointer;
@@ -361,7 +384,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .mobile-cta[data-hidden="false"]{transform:translateY(0)}
 .mobile-cta .btn{flex:1;min-width:0}
 @media(min-width:760px){.mobile-cta{display:none}}
-@media(max-width:759px){body{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}}
+@media(max-width:759px){
+  body{padding-bottom:0;transition:padding-bottom .28s ease}
+  body.has-mobile-cta{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:759px) and (prefers-reduced-motion:reduce){body{transition:none}}
 
 /* Наведение имеет смысл только для мыши, на тач-устройствах не применяется */
 @media (hover:hover) and (pointer:fine){
@@ -385,6 +412,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 }
 @media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 </style>
+
+<!-- Если JS не выполнится, секции с классом .reveal останутся невидимыми
+     (в обычном режиме их проявляет скролл-анимация через JS) -->
+<noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
 </head>
 <body>
 
@@ -392,7 +423,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   <div class="wrap header-in">
     <div class="brand">
       <span class="brand-top">
-        <span class="brand-name" data-fill="name">Владислав Дмитровский</span>
+        <span class="brand-name">Владислав Дмитровский</span>
         <span class="brand-system">ScienceChess</span>
       </span>
     </div>
@@ -472,7 +503,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
         </div>
       </div>
 
-      <p class="mid-cta"><a class="btn" id="mid-cta" href="#contacts"></a></p>
+      <p class="mid-cta"><a class="btn" id="mid-cta" href="#contacts">Разобрать вместе</a></p>
     </div>
   </section>
 
@@ -550,8 +581,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
       </div>
       <ul class="creds">
         <li>
-          <span class="creds-value">2700<img class="creds-mark" src="images/lichess.png" width="96" height="96" alt="Lichess" title="Lichess" decoding="async"></span>
-          <span class="creds-label">рейтинг, 0.1% мира</span>
+          <span class="creds-value">2700<span class="creds-platform"><img class="creds-mark" src="images/lichess.png" width="96" height="96" alt="" decoding="async">Lichess</span></span>
+          <span class="creds-label">рейтинг</span>
         </li>
         <li>
           <span class="creds-value">2500+</span>
@@ -605,16 +636,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
       </div>
       <div class="contacts-grid">
         <div class="contact-links">
-          <a class="btn" id="link-wa" href="#">Написать в WhatsApp</a>
-          <a class="btn btn-line" id="link-tg" href="#">Telegram</a>
+          <a class="btn" id="link-wa" href="https://wa.me/79017002756" target="_blank" rel="noopener">Написать в WhatsApp</a>
+          <a class="btn btn-line" id="link-tg" href="https://t.me/vLdm56" target="_blank" rel="noopener">Telegram</a>
           <a class="btn btn-line" id="link-mail" href="#" hidden>Написать на почту</a>
-          <a class="btn btn-line only-touch" id="link-sms" href="#">Отправить сообщение</a>
-          <a class="btn btn-line" id="link-phone" href="#">Телефон</a>
+          <a class="btn btn-line only-touch" id="link-sms" href="sms:+79017002756">Отправить сообщение</a>
+          <a class="btn btn-line" id="link-phone" href="tel:+79017002756">+7 901 700-27-56</a>
         </div>
 
-        <div class="next-step" id="next-step">
+        <div class="next-step">
           <h3>Что дальше</h3>
-          <p></p>
+          <p>Напишите возраст ученика, примерный уровень и что хотелось бы получить от занятий. Я отвечу и предложу подходящий формат.</p>
         </div>
       </div>
     </div>
@@ -624,7 +655,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 
 <footer class="site-footer">
   <div class="wrap">
-    <span data-fill="name">Владислав Дмитровский</span> — профессиональный шахматный тренер, метод ScienceChess
+    Владислав Дмитровский — профессиональный шахматный тренер, метод ScienceChess
   </div>
 </footer>
 
@@ -638,41 +669,34 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 
 <!-- Нижняя панель, только на телефоне -->
 <div class="mobile-cta" id="mobile-cta">
-  <a class="btn btn-sm" id="link-wa-mobile" href="#">WhatsApp</a>
-  <a class="btn btn-sm btn-outline" id="link-tg-mobile" href="#">Telegram</a>
+  <a class="btn btn-sm" id="link-wa-mobile" href="https://wa.me/79017002756" target="_blank" rel="noopener">WhatsApp</a>
+  <a class="btn btn-sm btn-outline" id="link-tg-mobile" href="https://t.me/vLdm56" target="_blank" rel="noopener">Telegram</a>
 </div>
 
 <script>
 /* ------------------------------------------------------------------
-   ВСЕ ЗНАЧЕНИЯ ДЛЯ ЗАМЕНЫ — ЗДЕСЬ.
-   Отзывы — это картинки в папке images, они правятся прямо в разметке.
-   Ждут заполнения: SITE_URL и EMAIL. Пока они пустые, сайт работает:
-   адрес страницы не прописывается в мета-теги, а кнопка почты не выводится.
+   Базовый контент (текст, телефон, Telegram, WhatsApp, «Что дальше»)
+   уже прописан прямо в HTML и работает без JavaScript.
+   Скрипт ниже только ДОБАВЛЯЕТ поведение:
+   — дописывает готовый текст сообщения к WhatsApp/SMS-ссылкам;
+   — показывает кнопку почты, если ниже указан EMAIL;
+   — рисует стрелки на диаграмме и переключает ответы задачи;
+   — открывает lightbox, анимирует появление блоков;
+   — управляет нижней mobile-панелью;
+   — отправляет события в аналитику (см. раздел АНАЛИТИКА в конце).
+   Домен сайта (canonical, og:url, og:image) — статичный комментарий
+   в <head>, см. пометку "ДОМЕН" в начале файла.
 ------------------------------------------------------------------- */
 
-// адрес сайта после публикации, например "https://sciencechess.ru"
-// пустая строка — canonical, og:url и og:image не выводятся вовсе
-const SITE_URL       = "";
-const NAME           = "Владислав Дмитровский";   // имя в шапке и подвале
-const TELEGRAM_URL   = "https://t.me/vLdm56";
-const WHATSAPP_URL   = "https://wa.me/79017002756";
-const PHONE          = "+7 901 700-27-56";
-const PHONE_TEL      = "+79017002756";             // то же самое для href="tel:"
-const EMAIL          = "";                         // почта для кнопки «Написать на почту»
+const EMAIL          = "";   // почта для кнопки «Написать на почту». Пока пусто — кнопки нет
 
-// Заготовка сообщения. Подставляется в WhatsApp, SMS и письмо, чтобы человеку
-// не пришлось придумывать первую фразу, а нужные данные пришли сразу
+// Заготовка сообщения. Дописывается к ссылкам WhatsApp/SMS/почты, чтобы
+// человеку не пришлось придумывать первую фразу, а нужные данные пришли сразу
 const MESSAGE_SUBJECT = "Занятия шахматами";
 const MESSAGE_TEXT    = "Здравствуйте! Пишу по поводу занятий шахматами.\n\n"
                       + "Возраст ученика: \n"
                       + "Примерный уровень: \n"
                       + "Что хотелось бы от занятий: ";
-
-// надпись на кнопке в середине страницы, сразу после разбора позиции
-const MID_CTA_TEXT   = "Разобрать вместе";
-
-// что происходит после заявки. Пустая строка — блок не показывается
-const NEXT_STEP      = "Напишите возраст ученика, примерный уровень и что хотелось бы получить от занятий. Я отвечу и предложу подходящий формат.";
 
 // диаграмма лежит в images/task-board.jpg
 // стрелки: откуда, куда, цвет. Первая — заманчивое взятие, вторая — мат
@@ -686,51 +710,21 @@ const DEMO_ANSWERS = {
   look: "Ладья идет на d8 — мат. Партия заканчивается сразу, и конь уже не нужен. Это и есть правило Ласкера в работе."
 };
 
-/* Адрес сайта в мета-теги. Пока SITE_URL пуст, теги не создаются,
-   поэтому в разметку физически не может попасть заглушка */
+/* WhatsApp и SMS дописываются готовым текстом сообщения — это единственное,
+   ради чего им нужен JS. Базовые href уже рабочие и прописаны в HTML:
+   если этот блок не выполнится, кнопки все равно открывают чат/приложение,
+   просто без предзаполненного текста */
 (function () {
-  if (!SITE_URL) return;
-  const base = SITE_URL.replace(/\/+$/, "");
-  const head = document.head;
-
-  const link = document.createElement("link");
-  link.rel = "canonical";
-  link.href = base + "/";
-  head.appendChild(link);
-
-  [["og:url", base + "/"], ["og:image", base + "/images/og.jpg"]].forEach(function (pair) {
-    const meta = document.createElement("meta");
-    meta.setAttribute("property", pair[0]);
-    meta.content = pair[1];
-    head.appendChild(meta);
+  const text = encodeURIComponent(MESSAGE_TEXT);
+  ["link-wa", "link-wa-mobile"].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.href += "?text=" + text;
   });
+  const sms = document.getElementById("link-sms");
+  if (sms) sms.href += (sms.href.indexOf("?") > -1 ? "&" : "?") + "body=" + text;
 })();
 
-/* Подстановка значений в разметку */
-document.querySelectorAll('[data-fill="name"]').forEach(function (el) { el.textContent = NAME; });
-
-/* Ссылки на каналы. Везде, где можно, подставляется готовый текст сообщения */
-function waLink(text) {
-  return WHATSAPP_URL + "?text=" + encodeURIComponent(text);
-}
-
-const CHANNELS = [
-  ["link-wa", waLink(MESSAGE_TEXT), true],
-  ["link-wa-mobile", waLink(MESSAGE_TEXT), true],
-  ["link-tg", TELEGRAM_URL, true],
-  ["link-tg-mobile", TELEGRAM_URL, true],
-  // в iOS текст сообщения идет после "&", в остальных системах это тоже работает
-  ["link-sms", "sms:" + PHONE_TEL + "?&body=" + encodeURIComponent(MESSAGE_TEXT), false]
-];
-
-CHANNELS.forEach(function (item) {
-  const el = document.getElementById(item[0]);
-  if (!el) return;
-  el.href = item[1];
-  if (item[2]) { el.target = "_blank"; el.rel = "noopener"; }
-});
-
-/* Почта появляется, только если адрес указан */
+/* Почта появляется, только если адрес указан — придумывать его нельзя */
 (function () {
   const el = document.getElementById("link-mail");
   if (!el) return;
@@ -739,24 +733,6 @@ CHANNELS.forEach(function (item) {
           + "?subject=" + encodeURIComponent(MESSAGE_SUBJECT)
           + "&body=" + encodeURIComponent(MESSAGE_TEXT);
   el.hidden = false;
-})();
-
-const phone = document.getElementById("link-phone");
-phone.href = "tel:" + PHONE_TEL;
-phone.textContent = PHONE;
-
-/* Что происходит после заявки. Показывается, только если текст задан */
-(function () {
-  const slot = document.getElementById("next-step");
-  if (!slot) return;
-  if (NEXT_STEP) slot.querySelector("p").textContent = NEXT_STEP;
-  else slot.remove();
-})();
-
-/* Надпись на средней кнопке задается константой */
-(function () {
-  const btn = document.getElementById("mid-cta");
-  if (btn) btn.textContent = MID_CTA_TEXT;
 })();
 
 /* Стрелки поверх готовой диаграммы. Слой лежит в тех же координатах 8x8,
@@ -829,6 +805,7 @@ phone.textContent = PHONE;
         const show = answer === "look" ? true : line.dataset.arrow === "grab";
         line.classList.toggle("on", show);
       });
+      track("demo_answer_" + answer);
     });
   });
 })();
@@ -839,7 +816,16 @@ phone.textContent = PHONE;
   const big = document.getElementById("lightbox-img");
   if (!box || !big || typeof box.showModal !== "function") return;
 
-  document.querySelectorAll(".shot").forEach(function (btn) {
+  document.querySelectorAll("#reviews .shot").forEach(function (btn, i) {
+    btn.addEventListener("click", function () {
+      const img = btn.querySelector("img");
+      big.src = img.currentSrc || img.src;
+      big.alt = img.alt;
+      box.showModal();
+      track("review_open", { review: "review_" + (i + 1) });
+    });
+  });
+  document.querySelectorAll(".demo-card--tool .shot").forEach(function (btn) {
     btn.addEventListener("click", function () {
       const img = btn.querySelector("img");
       big.src = img.currentSrc || img.src;
@@ -855,7 +841,8 @@ phone.textContent = PHONE;
   box.addEventListener("close", function () { big.src = ""; });
 })();
 
-/* Появление блоков при скролле. При prefers-reduced-motion не запускается */
+/* Появление блоков при скролле. При prefers-reduced-motion не запускается.
+   Пока JS не выполнился, блоки видны сразу — см. <noscript> в <head>/<body> */
 (function () {
   const blocks = document.querySelectorAll(".reveal");
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -872,19 +859,25 @@ phone.textContent = PHONE;
 })();
 
 /* Нижняя панель появляется, только когда кнопка первого экрана ушла с экрана,
-   и снова прячется у блока контактов, чтобы не закрывать форму */
+   и снова прячется у блока контактов, чтобы не закрывать форму. Отдельный
+   класс на body включает нижний отступ ТОЛЬКО пока панель реально видна —
+   иначе после того как панель прячется у контактов, под футером оставался
+   бы пустой хвост высотой с панель */
 (function () {
   const bar = document.getElementById("mobile-cta");
   const heroCta = document.getElementById("hero-cta");
   const contacts = document.getElementById("contacts");
   if (!bar) return;
 
-  if (!("IntersectionObserver" in window)) { bar.dataset.hidden = "false"; return; }
+  function setHidden(hidden) {
+    bar.dataset.hidden = hidden ? "true" : "false";
+    document.body.classList.toggle("has-mobile-cta", !hidden);
+  }
+
+  if (!("IntersectionObserver" in window)) { setHidden(false); return; }
 
   const visible = { hero: true, contacts: false };
-  function apply() {
-    bar.dataset.hidden = (visible.hero || visible.contacts) ? "true" : "false";
-  }
+  function apply() { setHidden(visible.hero || visible.contacts); }
 
   if (heroCta) {
     new IntersectionObserver(function (entries) {
@@ -903,6 +896,88 @@ phone.textContent = PHONE;
   }
 
   apply();
+})();
+
+/* ==== АНАЛИТИКА ====
+   Независимый от провайдера слой событий. Сам по себе ничего никуда не
+   отправляет и не ставит ни одной куки — только складывает события во
+   внутреннюю очередь (window.__scEvents, видно в консоли для отладки)
+   и, если на странице уже загружен счетчик, передает их дальше:
+   — window.gtag       (Google Analytics 4 / Google Tag Manager);
+   — window.plausible   (Plausible);
+   — window.umami.track (Umami).
+   Никакой Measurement ID, ключ или аккаунт здесь не прописаны и не
+   выдуманы. Чтобы данные реально начали собираться, вставьте готовый
+   код выбранного сервиса в <head> (см. пометку "АНАЛИТИКА" в начале
+   файла) — события начнут доходить до него без единой правки здесь.
+   Персональные данные (текст сообщений, телефон, email) в события не
+   попадают: собираются только клики и факт прокрутки. */
+window.__scEvents = window.__scEvents || [];
+
+function track(name, params) {
+  const payload = params || {};
+  window.__scEvents.push({ name: name, params: payload, t: Date.now() });
+  if (typeof window.gtag === "function") window.gtag("event", name, payload);
+  if (typeof window.plausible === "function") window.plausible(name, { props: payload });
+  if (window.umami && typeof window.umami.track === "function") window.umami.track(name, payload);
+}
+
+/* просмотр страницы + источник перехода: реферер и utm-метки из адреса */
+(function () {
+  const params = new URLSearchParams(location.search);
+  const utm = {};
+  ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"].forEach(function (key) {
+    const v = params.get(key);
+    if (v) utm[key] = v;
+  });
+  track("page_view", Object.assign({ path: location.pathname, referrer: document.referrer || "" }, utm));
+})();
+
+/* клики по всем CTA и каналам связи */
+[
+  ["hero-cta", "hero_cta_click"],
+  ["mid-cta", "mid_cta_click"],
+  ["link-wa", "whatsapp_click"],
+  ["link-wa-mobile", "mobile_whatsapp_click"],
+  ["link-tg", "telegram_click"],
+  ["link-tg-mobile", "mobile_telegram_click"],
+  ["link-phone", "phone_click"],
+  ["link-sms", "sms_click"],
+  ["link-mail", "email_click"]
+].forEach(function (pair) {
+  const el = document.getElementById(pair[0]);
+  if (el) el.addEventListener("click", function () { track(pair[1]); });
+});
+document.querySelectorAll(".header-cta").forEach(function (el) {
+  el.addEventListener("click", function () { track("header_cta_click"); });
+});
+
+/* глубина прокрутки: только 4 отметки, не на каждый пиксель */
+(function () {
+  const marks = [25, 50, 75, 90];
+  const fired = new Set();
+  let ticking = false;
+
+  function check() {
+    ticking = false;
+    const doc = document.documentElement;
+    const scrolled = doc.scrollTop + window.innerHeight;
+    const percent = Math.min(100, Math.round((scrolled / doc.scrollHeight) * 100));
+    marks.forEach(function (m) {
+      if (percent >= m && !fired.has(m)) {
+        fired.add(m);
+        track("scroll_depth", { percent: m });
+      }
+    });
+    if (fired.size === marks.length) window.removeEventListener("scroll", onScroll);
+  }
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(check);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  check();
 })();
 
 </script>
