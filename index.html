@@ -189,47 +189,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 @media(min-width:820px){.cols{grid-template-columns:1fr 1fr}}
 .col-title{color:var(--accent);margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)}
 
-/* ==== Разбор позиции ==== */
-.study{
-  display:grid;gap:clamp(26px,4vw,48px);grid-template-columns:1fr;
-  margin-top:clamp(44px,6vw,72px);align-items:start;
-}
-@media(min-width:860px){.study{grid-template-columns:minmax(280px,420px) 1fr}}
-.board-wrap{max-width:420px;width:100%}
-.board{
-  display:grid;grid-template-columns:repeat(8,1fr);
-  aspect-ratio:1/1;width:100%;
-  border:1px solid var(--line);
-}
-.sq{position:relative;display:flex;align-items:center;justify-content:center}
-.sq.light{background:#ece7dd}
-.sq.dark{background:#b9b0a0}
-/* поля хода подсвечиваются на шаге «Решение» */
-.sq.mark{box-shadow:inset 0 0 0 3px var(--accent)}
-.piece{
-  font-size:min(7.2vw,38px);line-height:1;
-  font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2","DejaVu Sans",serif;
-}
-.piece.w{color:#fbfaf7;text-shadow:0 0 1px #23282e,1px 0 0 #23282e,-1px 0 0 #23282e,0 1px 0 #23282e,0 -1px 0 #23282e}
-.piece.b{color:#23282e}
-.sq .coord{
-  position:absolute;font-size:9px;letter-spacing:.06em;color:#6d6455;opacity:.85;
-}
-.sq .coord.file{right:3px;bottom:1px}
-.sq .coord.rank{left:3px;top:1px}
-
-.steps-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
-.step-tab{
-  min-height:44px;padding:9px 18px;
-  border:1px solid var(--line);border-radius:2px;background:transparent;
-  font:inherit;font-size:15px;color:var(--muted);cursor:pointer;
-  transition:color .18s ease,border-color .18s ease,background .18s ease;
-}
-.step-tab:hover{color:var(--text);border-color:#cfc8bb}
-.step-tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
-.step-panel{max-width:52ch;font-size:clamp(17px,1.9vw,19px)}
-.step-panel[hidden]{display:none}
-
 /* ==== Кому подходит: четыре сценария ==== */
 .cases{
   display:grid;gap:1px;grid-template-columns:1fr;
@@ -390,35 +349,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
       </div>
       <p class="pull">Концептуально против зубрежки.</p>
 
-      <!-- Разбор позиции. Саму позицию менять в BOARD_FEN, тексты шагов — прямо здесь -->
-      <div class="study">
-        <div class="board-wrap">
-          <div class="board" id="board" role="img"
-               aria-label="Шахматная позиция: белые ладья a1, король g1, пешки f2, g2, h2; черные король g8, пешки f7, g7, h7. Ход белых."></div>
-        </div>
-
-        <div class="steps">
-          <div class="steps-tabs" role="tablist" aria-label="Шаги разбора">
-            <button class="step-tab" type="button" role="tab" id="tab-1" aria-controls="panel-1" aria-selected="true">Позиция</button>
-            <button class="step-tab" type="button" role="tab" id="tab-2" aria-controls="panel-2" aria-selected="false" tabindex="-1">Вопрос</button>
-            <button class="step-tab" type="button" role="tab" id="tab-3" aria-controls="panel-3" aria-selected="false" tabindex="-1">Объяснение</button>
-            <button class="step-tab" type="button" role="tab" id="tab-4" aria-controls="panel-4" aria-selected="false" tabindex="-1">Решение</button>
-          </div>
-
-          <div class="step-panel" role="tabpanel" id="panel-1" aria-labelledby="tab-1" tabindex="0">
-            <p>Ход белых. У черных только король и три пешки, у белых ладья.</p>
-          </div>
-          <div class="step-panel" role="tabpanel" id="panel-2" aria-labelledby="tab-2" tabindex="0" hidden>
-            <p>Куда уйдет черный король, если дать шах по восьмой горизонтали?</p>
-          </div>
-          <div class="step-panel" role="tabpanel" id="panel-3" aria-labelledby="tab-3" tabindex="0" hidden>
-            <p>Полей для отхода нет: f8 и h8 держит ладья по восьмой горизонтали, а f7, g7 и h7 заняты собственными пешками. Закрыться нечем.</p>
-          </div>
-          <div class="step-panel" role="tabpanel" id="panel-4" aria-labelledby="tab-4" tabindex="0" hidden>
-            <p>Ла8 — мат в один ход.</p>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -619,10 +549,6 @@ const WHATSAPP_TEXT  = "Здравствуйте! Пишу по поводу з�
 // что происходит после заявки. Пустая строка — блок не показывается
 const NEXT_STEP      = "ТЕКСТ_ПРО_СЛЕДУЮЩИЙ_ШАГ";
 
-// позиция для разбора в блоке «Как я работаю», запись FEN
-const BOARD_FEN      = "6k1/5ppp/8/8/8/8/5PPP/R5K1";
-const BOARD_MARKS    = ["a1", "a8"];               // поля, подсвеченные на шаге «Решение»
-
 /* Подстановка значений в разметку */
 document.querySelectorAll('[data-fill="name"]').forEach(function (el) { el.textContent = NAME; });
 
@@ -650,87 +576,6 @@ phone.textContent = PHONE;
   if (!slot) return;
   if (NEXT_STEP) slot.querySelector("p").textContent = NEXT_STEP;
   else slot.remove();
-})();
-
-/* Доска для разбора позиции: рисуется из BOARD_FEN */
-(function () {
-  const board = document.getElementById("board");
-  if (!board) return;
-
-  const GLYPH = { k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" };
-  const FILES = "abcdefgh";
-
-  // FEN раскладывается в сетку 8x8, цифры означают пустые поля подряд
-  const grid = BOARD_FEN.split(" ")[0].split("/").map(function (row) {
-    const line = [];
-    row.split("").forEach(function (ch) {
-      if (/\d/.test(ch)) { for (let i = 0; i < parseInt(ch, 10); i++) line.push(null); }
-      else line.push(ch);
-    });
-    return line;
-  });
-
-  grid.forEach(function (line, r) {
-    const rank = 8 - r;
-    line.forEach(function (ch, f) {
-      const cell = document.createElement("div");
-      const name = FILES[f] + rank;
-      cell.className = "sq " + ((r + f) % 2 === 0 ? "light" : "dark");
-      cell.dataset.square = name;
-      if (ch) {
-        const piece = document.createElement("span");
-        piece.className = "piece " + (ch === ch.toUpperCase() ? "w" : "b");
-        piece.textContent = GLYPH[ch.toLowerCase()];
-        cell.appendChild(piece);
-      }
-      if (r === 7) cell.appendChild(coord("file", FILES[f]));
-      if (f === 0) cell.appendChild(coord("rank", String(rank)));
-      board.appendChild(cell);
-    });
-  });
-
-  function coord(kind, text) {
-    const el = document.createElement("span");
-    el.className = "coord " + kind;
-    el.textContent = text;
-    return el;
-  }
-})();
-
-/* Шаги разбора: вкладки с клавиатурой, на «Решении» подсвечиваются поля */
-(function () {
-  const tabs = Array.prototype.slice.call(document.querySelectorAll(".step-tab"));
-  if (!tabs.length) return;
-
-  function select(i) {
-    tabs.forEach(function (tab, n) {
-      const on = n === i;
-      tab.setAttribute("aria-selected", on ? "true" : "false");
-      tab.tabIndex = on ? 0 : -1;
-      document.getElementById(tab.getAttribute("aria-controls")).hidden = !on;
-    });
-    // подсветка полей только на последнем шаге
-    document.querySelectorAll(".sq.mark").forEach(function (el) { el.classList.remove("mark"); });
-    if (i === tabs.length - 1) {
-      BOARD_MARKS.forEach(function (name) {
-        const cell = document.querySelector('.sq[data-square="' + name + '"]');
-        if (cell) cell.classList.add("mark");
-      });
-    }
-  }
-
-  tabs.forEach(function (tab, i) {
-    tab.addEventListener("click", function () { select(i); });
-    tab.addEventListener("keydown", function (e) {
-      let next = null;
-      if (e.key === "ArrowRight") next = (i + 1) % tabs.length;
-      if (e.key === "ArrowLeft") next = (i - 1 + tabs.length) % tabs.length;
-      if (next === null) return;
-      e.preventDefault();
-      select(next);
-      tabs[next].focus();
-    });
-  });
 })();
 
 /* Скриншоты отзывов открываются крупнее. Esc и клик по фону закрывают */
