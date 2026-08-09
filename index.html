@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="index, follow">
+
+<title>Владислав Дмитровский — шахматный тренер. Занятия очно в Москве и онлайн</title>
+<meta name="description" content="Профессиональный шахматный тренер. Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры. Очно в северной Москве и онлайн, занятия на английском.">
+
+<!-- DOMAIN: заменить в двух строках ниже -->
+<link rel="canonical" href="https://DOMAIN/">
+<meta property="og:url" content="https://DOMAIN/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="Владислав Дмитровский — шахматный тренер. Занятия очно в Москве и онлайн">
+<meta property="og:description" content="Профессиональный шахматный тренер. Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры. Очно в северной Москве и онлайн, занятия на английском.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Playfair+Display:wght@500&amp;display=swap" rel="stylesheet">
+
+<style>
+/* ==== Палитра и размеры. Для смены оформления правится только этот блок ==== */
+:root{
+  --ink:#101418;                    /* темные секции: первый экран и контакты */
+  --ink-soft:#20272f;
+  --paper:#faf9f7;                  /* основной светлый фон */
+  --text:#1b2128;
+  --muted:#5b6570;
+  --line:#e4e0d9;                   /* волосяные линии на светлом */
+  --line-dark:rgba(255,255,255,.16);
+  --muted-dark:rgba(255,255,255,.68);
+  --accent:#7d5f31;                 /* сдержанная латунь, только мелкие акценты */
+  --accent-light:#c9a86c;           /* та же латунь для темного фона */
+  --wrap:1080px;
+  --sp:clamp(64px,8.5vw,116px);     /* вертикальные отступы секций */
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--text);
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-size:17px;
+  line-height:1.65;
+  overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2{
+  font-family:"Playfair Display",Georgia,"Times New Roman",serif;
+  font-weight:500;line-height:1.14;letter-spacing:-.015em;margin:0;
+}
+h1{font-size:clamp(35px,5.8vw,58px)}
+h2{font-size:clamp(26px,3.8vw,40px)}
+h3{font-size:12px;font-weight:500;margin:0;letter-spacing:.16em;text-transform:uppercase}
+p{margin:0 0 20px}
+p:last-child{margin-bottom:0}
+a{color:inherit}
+::selection{background:var(--accent);color:#fff}
+
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(20px,5vw,40px)}
+.section{padding:var(--sp) 0;scroll-margin-top:76px}
+.section + .section{border-top:1px solid var(--line)}
+.prose{max-width:62ch}
+
+/* Номер секции над заголовком */
+.eyebrow{
+  display:flex;align-items:center;gap:14px;
+  font-size:12px;letter-spacing:.18em;color:var(--accent);
+  margin:0 0 16px;
+}
+.eyebrow::after{content:"";width:34px;height:1px;background:currentColor}
+.sec-head{margin-bottom:38px}
+
+/* Фокус виден на всех интерактивных элементах */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
+  outline:2px solid var(--accent);outline-offset:3px;border-radius:2px;
+}
+.on-dark a:focus-visible,.on-dark button:focus-visible,
+.on-dark input:focus-visible,.on-dark textarea:focus-visible{outline-color:var(--accent-light)}
+
+/* ==== Кнопки. Высота не меньше 44px ==== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:52px;padding:14px 30px;
+  border:1px solid var(--ink);border-radius:2px;
+  background:var(--ink);color:var(--paper);
+  font:inherit;font-weight:500;letter-spacing:.01em;
+  text-decoration:none;cursor:pointer;
+  transition:background .18s ease,color .18s ease,border-color .18s ease;
+}
+.btn:hover{background:var(--ink-soft);border-color:var(--ink-soft)}
+.btn-sm{min-height:46px;padding:10px 20px;font-size:15px}
+.btn-outline{background:transparent;color:var(--ink);border-color:var(--ink)}
+.btn-outline:hover{background:var(--ink);color:var(--paper)}
+/* Те же кнопки на темном фоне */
+.on-dark .btn{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.on-dark .btn:hover{background:#fff;border-color:#fff}
+.on-dark .btn-line{background:transparent;color:var(--paper);border-color:var(--line-dark)}
+.on-dark .btn-line:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.45)}
+
+/* ==== Шапка ==== */
+.site-header{background:var(--ink);color:var(--paper)}
+@media(min-width:760px){.site-header{position:sticky;top:0;z-index:20}}
+.header-in{display:flex;align-items:center;gap:14px 28px;padding:16px 0;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;line-height:1.3;margin-right:auto}
+.brand-name{font-family:"Playfair Display",serif;font-size:19px;letter-spacing:.01em}
+.brand-role{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-dark)}
+.nav{display:flex;gap:2px 26px;flex-wrap:wrap;order:3;width:100%}
+@media(min-width:760px){.nav{order:0;width:auto}}
+.nav a{
+  display:inline-flex;align-items:center;min-height:44px;
+  color:var(--muted-dark);text-decoration:none;font-size:14px;
+  transition:color .18s ease;
+}
+.nav a:hover{color:var(--paper)}
+
+/* ==== Первый экран ==== */
+.hero{background:var(--ink);color:var(--paper);padding:clamp(54px,9vw,108px) 0 0}
+.hero .eyebrow{color:var(--accent-light);letter-spacing:.16em;text-transform:uppercase}
+.hero h1{max-width:17ch}
+.hero-sub{margin-top:26px;max-width:52ch;font-size:clamp(17px,2vw,20px);color:var(--muted-dark)}
+.hero-cta{margin-top:38px}
+/* Полоса фактов внизу первого экрана */
+.facts{
+  list-style:none;margin:clamp(48px,7vw,86px) 0 0;padding:0;
+  display:grid;grid-template-columns:1fr;
+  border-top:1px solid var(--line-dark);
+}
+@media(min-width:760px){.facts{grid-template-columns:repeat(3,1fr)}}
+.facts li{
+  padding:20px 0;font-size:13px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted-dark);border-bottom:1px solid var(--line-dark);
+}
+@media(min-width:760px){
+  .facts li{padding:28px 30px;border-bottom:0;border-left:1px solid var(--line-dark)}
+  .facts li:first-child{padding-left:0;border-left:0}
+}
+
+/* ==== Текстовые акценты ==== */
+.lead{font-size:clamp(19px,2.1vw,22px);line-height:1.5;max-width:55ch;margin-bottom:30px}
+.pull{
+  margin:clamp(38px,5vw,58px) 0 0;
+  font-family:"Playfair Display",serif;font-weight:500;
+  font-size:clamp(23px,3.2vw,32px);line-height:1.26;letter-spacing:-.01em;
+  max-width:26ch;
+}
+.pull::before{content:"";display:block;width:38px;height:1px;background:var(--accent);margin-bottom:26px}
+
+/* ==== Две колонки ==== */
+.cols{display:grid;gap:clamp(30px,4vw,56px);grid-template-columns:1fr}
+@media(min-width:820px){.cols{grid-template-columns:1fr 1fr}}
+.col-title{color:var(--accent);margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+
+/* ==== О себе: строки с волосяными линиями ==== */
+.facts-list{list-style:none;margin:0;padding:0;max-width:72ch}
+.facts-list li{padding:18px 0;border-bottom:1px solid var(--line)}
+.facts-list li:first-child{padding-top:0}
+.facts-list li:last-child{border-bottom:0;padding-bottom:0}
+
+/* ==== Отзывы ==== */
+.cards{display:grid;gap:1px;grid-template-columns:1fr;background:var(--line);border:1px solid var(--line)}
+@media(min-width:820px){.cards{grid-template-columns:repeat(3,1fr)}}
+.card{
+  background:var(--paper);margin:0;padding:clamp(26px,3.4vw,38px);
+  display:flex;flex-direction:column;gap:24px;min-height:200px;
+}
+.card blockquote{margin:0;font-family:"Playfair Display",serif;font-size:19px;line-height:1.45}
+.card figcaption{margin-top:auto;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* ==== Контакты ==== */
+.contacts{background:var(--ink);color:var(--paper);padding:var(--sp) 0}
+.contacts .eyebrow{color:var(--accent-light)}
+.contacts-grid{display:grid;gap:clamp(34px,5vw,72px);grid-template-columns:1fr}
+@media(min-width:880px){.contacts-grid{grid-template-columns:minmax(240px,320px) 1fr;align-items:start}}
+.contact-links{display:flex;flex-direction:column;gap:12px}
+.contact-links .btn{width:100%}
+.form{display:grid;gap:18px;max-width:560px}
+.field{display:grid;gap:8px}
+.field label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-dark)}
+.field input,.field textarea{
+  font:inherit;color:var(--paper);background:rgba(255,255,255,.05);
+  border:1px solid var(--line-dark);border-radius:2px;
+  padding:13px 16px;min-height:50px;width:100%;
+}
+.field input:hover,.field textarea:hover{border-color:rgba(255,255,255,.34)}
+.field textarea{min-height:112px;resize:vertical}
+.form-note{font-size:15px;margin:0;color:var(--muted-dark)}
+.form-note[hidden]{display:none}
+.form-note.error{color:#e9b6a6}
+.form-note a{color:var(--accent-light)}
+
+.site-footer{padding:30px 0;font-size:13px;letter-spacing:.03em;color:var(--muted);border-top:1px solid var(--line)}
+
+/* ==== Нижняя панель на телефоне: кнопка всегда под рукой ==== */
+.mobile-cta{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;
+  display:flex;gap:10px;
+  padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));
+  background:rgba(250,249,247,.94);border-top:1px solid var(--line);
+  backdrop-filter:blur(10px);
+  transition:transform .25s ease;
+}
+.mobile-cta[data-hidden="true"]{transform:translateY(130%)}
+.mobile-cta .btn{flex:1}
+@media(min-width:760px){.mobile-cta{display:none}}
+@media(max-width:759px){body{padding-bottom:86px}}
+
+/* ==== Появление блоков при скролле ==== */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+.reveal.is-visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  .mobile-cta{transition:none}
+  html{scroll-behavior:auto}
+}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+</head>
+<body>
+
+<header class="site-header on-dark">
+  <div class="wrap header-in">
+    <div class="brand">
+      <span class="brand-name" data-fill="name">ИМЯ_ТРЕНЕРА</span>
+      <span class="brand-role">Профессиональный шахматный тренер</span>
+    </div>
+    <nav class="nav" aria-label="Разделы страницы">
+      <a href="#how">Как я работаю</a>
+      <a href="#who">Кому подходит</a>
+      <a href="#about">О себе</a>
+    </nav>
+    <a class="btn btn-sm" href="#contacts">Написать</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1. Первый экран -->
+  <section class="hero on-dark">
+    <div class="wrap">
+      <p class="eyebrow">Профессиональный шахматный тренер</p>
+      <h1>Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры</h1>
+      <p class="hero-sub">Ребенок на занятии не пассивный слушатель: он постоянно решает, спорит, проверяет идеи и учится объяснять свои решения.</p>
+      <div class="hero-cta"><a class="btn" href="#contacts">Написать</a></div>
+      <ul class="facts">
+        <li>Более 2500 проведенных занятий</li>
+        <li>Ученики от 3 до 77 лет</li>
+        <li>Преподаю шахматы на английском</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2. Как я работаю -->
+  <section id="how" class="section reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">01</p>
+        <h2>Как я работаю</h2>
+      </div>
+      <div class="prose">
+        <p class="lead">Сначала я смотрю, как ребенок думает: торопится ли с ответом, замечает ли угрозы, как реагирует на ошибку, может ли удержать задачу до конца.</p>
+        <p>В моих занятиях есть игра, азарт, спор, понятные метафоры, мемы. За счет этого дети не отсиживают час, как обычно, а включаются намного живее, чем на обычном уроке.</p>
+        <p>Мальчики, которые ненавидели думать, но обожали футбол, через футбол разобрали со мной половину позиционной игры, от которой даже у взрослых включается сонный рефлекс.</p>
+        <p>Основной акцент на глубоком понимании происходящего на шахматной доске и интересных упражнениях, прокачивающих логику и креативность.</p>
+      </div>
+      <p class="pull">Концептуально против зубрежки.</p>
+    </div>
+  </section>
+
+  <!-- 3. Кому подходит -->
+  <section id="who" class="section reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">02</p>
+        <h2>Кому подходит</h2>
+      </div>
+      <div class="cols">
+        <p>Ко мне так часто приводят детей, которым скучно на обычных занятиях и сложно усидеть на месте. Многие из них пришли с отвращением к шахматам, как к игре для ботанов и зануд, но эти дети занимаются у меня до сих пор.</p>
+        <p>Формат подойдет родителям, которые хотят для ребенка не просто очередной кружок с нейрослопом про разряд за три месяца, а индивидуальную интеллектуальную нагрузку с понятной обратной связью.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. О себе -->
+  <section id="about" class="section reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">03</p>
+        <h2>О себе</h2>
+      </div>
+      <ul class="facts-list">
+        <li>Профессиональный шахматный тренер, 2700 рейтинга (0.1% мира).</li>
+        <li>Более 2500 проведенных занятий, ученики от 3 до 77 лет.</li>
+        <li>Среди моих учеников — победители европейских турниров, предприниматели, IT-специалисты, модели, профессиональные бойцы и школьники с СДВГ, которые влюбились в шахматы.</li>
+        <li>Автор метода ScienceChess, участник научных конференций и форумов.</li>
+        <li>Победитель соревнований по ментальной арифметике и математике.</li>
+        <li>Занимался футболом, боксом и вокалом — это позволяет проще подобрать ключи к самым разным детям.</li>
+        <li>Использую уникальные ИИ-тренажеры, чтобы учеба была еще и приятной игрой.</li>
+        <li>Для своих учеников уже создал ряд бесплатных материалов.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 5. Формат и география -->
+  <section id="format" class="section reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">04</p>
+        <h2>Формат и география</h2>
+      </div>
+      <div class="cols">
+        <div>
+          <h3 class="col-title">Очно</h3>
+          <p>Очно работаю в северной Москве: Речной вокзал, Беломорская, Ховрино, Водный стадион.</p>
+        </div>
+        <div>
+          <h3 class="col-title">Онлайн</h3>
+          <p>Доступны занятия онлайн: за счет моих разработок, упражнений и ботов они могут быть даже более эффективными.</p>
+        </div>
+      </div>
+      <p class="pull">Провожу занятия и на английском языке.</p>
+    </div>
+  </section>
+
+  <!-- 6. Отзывы. Тексты подставляются из констант в начале скрипта -->
+  <section id="reviews" class="section reveal">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">05</p>
+        <h2>Отзывы</h2>
+      </div>
+      <div class="cards">
+        <figure class="card">
+          <blockquote data-fill="review1">ОТЗЫВ_1</blockquote>
+          <figcaption data-fill="sign1">ПОДПИСЬ_1</figcaption>
+        </figure>
+        <figure class="card">
+          <blockquote data-fill="review2">ОТЗЫВ_2</blockquote>
+          <figcaption data-fill="sign2">ПОДПИСЬ_2</figcaption>
+        </figure>
+        <figure class="card">
+          <blockquote data-fill="review3">ОТЗЫВ_3</blockquote>
+          <figcaption data-fill="sign3">ПОДПИСЬ_3</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Контакты -->
+  <section id="contacts" class="contacts on-dark">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">06</p>
+        <h2>Контакты</h2>
+      </div>
+      <div class="contacts-grid">
+
+        <div class="contact-links">
+          <a class="btn" id="link-tg" href="#">Telegram</a>
+          <a class="btn btn-line" id="link-wa" href="#">WhatsApp</a>
+          <a class="btn btn-line" id="link-phone" href="#">Телефон</a>
+        </div>
+
+        <form class="form" id="form" novalidate>
+          <div class="field">
+            <label for="f-name">Имя</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="f-age">Возраст ребенка</label>
+            <input id="f-age" name="age" type="text" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="f-contact">Контакт для связи</label>
+            <input id="f-contact" name="contact" type="text" autocomplete="tel" required>
+          </div>
+          <div class="field">
+            <label for="f-comment">Комментарий</label>
+            <textarea id="f-comment" name="comment" rows="4"></textarea>
+          </div>
+          <div>
+            <button class="btn" type="submit" id="form-submit">Написать</button>
+          </div>
+          <p class="form-note" id="form-note" role="status" aria-live="polite" hidden></p>
+        </form>
+
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span data-fill="name">ИМЯ_ТРЕНЕРА</span> — профессиональный шахматный тренер
+  </div>
+</footer>
+
+<!-- Нижняя панель, только на телефоне -->
+<div class="mobile-cta" id="mobile-cta">
+  <a class="btn btn-sm" href="#contacts">Написать</a>
+  <a class="btn btn-sm btn-outline" id="link-tg-mobile" href="#">Telegram</a>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   ВСЕ ЗНАЧЕНИЯ ДЛЯ ЗАМЕНЫ — ЗДЕСЬ.
+   Отдельно: DOMAIN правится вручную в <head> (canonical и og:url).
+   Осталось подставить: NAME, FORM_ENDPOINT, отзывы и подписи.
+------------------------------------------------------------------- */
+const NAME           = "Владислав Дмитровский";   // имя в шапке и подвале
+const TELEGRAM_URL   = "https://t.me/vLdm56";
+const WHATSAPP_URL   = "https://wa.me/79017002756";
+const PHONE          = "+7 901 700-27-56";
+const PHONE_TEL      = "+79017002756";             // то же самое для href="tel:"
+const FORM_ENDPOINT  = "ВСТАВИТЬ_ENDPOINT";        // URL приема формы
+
+const REVIEWS = [
+  { text: "ОТЗЫВ_1", sign: "ПОДПИСЬ_1" },
+  { text: "ОТЗЫВ_2", sign: "ПОДПИСЬ_2" },
+  { text: "ОТЗЫВ_3", sign: "ПОДПИСЬ_3" }
+];
+
+/* Подстановка значений в разметку */
+document.querySelectorAll('[data-fill="name"]').forEach(function (el) { el.textContent = NAME; });
+
+[["link-tg", TELEGRAM_URL], ["link-tg-mobile", TELEGRAM_URL], ["link-wa", WHATSAPP_URL]].forEach(function (pair) {
+  const el = document.getElementById(pair[0]);
+  if (!el) return;
+  el.href = pair[1];
+  el.target = "_blank";
+  el.rel = "noopener";
+});
+
+const phone = document.getElementById("link-phone");
+phone.href = "tel:" + PHONE_TEL;
+phone.textContent = PHONE;
+
+REVIEWS.forEach(function (r, i) {
+  const t = document.querySelector('[data-fill="review' + (i + 1) + '"]');
+  const s = document.querySelector('[data-fill="sign' + (i + 1) + '"]');
+  if (t) t.textContent = r.text;
+  if (s) s.textContent = r.sign;
+});
+
+/* Появление блоков при скролле. При prefers-reduced-motion не запускается */
+(function () {
+  const blocks = document.querySelectorAll(".reveal");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduced || !("IntersectionObserver" in window)) {
+    blocks.forEach(function (b) { b.classList.add("is-visible"); });
+    return;
+  }
+  const io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); }
+    });
+  }, { rootMargin: "0px 0px -8% 0px", threshold: 0.04 });
+  blocks.forEach(function (b) { io.observe(b); });
+})();
+
+/* Нижняя панель прячется, когда блок контактов на экране */
+(function () {
+  const bar = document.getElementById("mobile-cta");
+  const target = document.getElementById("contacts");
+  if (!bar || !target || !("IntersectionObserver" in window)) return;
+  const io = new IntersectionObserver(function (entries) {
+    bar.dataset.hidden = entries[0].isIntersecting ? "true" : "false";
+  }, { threshold: 0.08 });
+  io.observe(target);
+})();
+
+/* Отправка формы. Если endpoint не отвечает — показываем ссылку на Telegram */
+(function () {
+  const form = document.getElementById("form");
+  const note = document.getElementById("form-note");
+  const submit = document.getElementById("form-submit");
+
+  function show(html, isError) {
+    note.innerHTML = html;
+    note.classList.toggle("error", !!isError);
+    note.hidden = false;
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const f = form.elements;
+
+    if (!f.name.value.trim() || !f.contact.value.trim()) {
+      show("Заполните имя и контакт для связи.", true);
+      return;
+    }
+
+    submit.disabled = true;
+    note.hidden = true;
+
+    const data = {
+      name: f.name.value.trim(),
+      age: f.age.value.trim(),
+      contact: f.contact.value.trim(),
+      comment: f.comment.value.trim()
+    };
+
+    try {
+      const res = await fetch(FORM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error("bad status");
+      form.reset();
+      show("Сообщение отправлено.", false);
+    } catch (err) {
+      show('Не удалось отправить. Напишите в <a href="' + TELEGRAM_URL + '" target="_blank" rel="noopener">Telegram</a>.', true);
+    } finally {
+      submit.disabled = false;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
