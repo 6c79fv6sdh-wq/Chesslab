@@ -1,7 +1,10 @@
-name: Публикация на GitHub Pages
+name: Сборка сайта в ветку gh-pages
 
-# Собирает приложение и выкладывает его как статический сайт.
-# Ничего серверного: GitHub Pages отдаёт только файлы из dist.
+# Собирает приложение и кладёт результат в ветку gh-pages,
+# которую раздаёт GitHub Pages. Ничего серверного: только статика.
+#
+# Настройка Pages делается один раз вручную:
+#   Settings -> Pages -> Source: Deploy from a branch -> gh-pages -> /(root)
 
 on:
   push:
@@ -9,17 +12,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
-# Параллельные публикации не нужны: важна последняя.
 concurrency:
-  group: pages
+  group: gh-pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,18 +38,17 @@ jobs:
       - name: Сборка
         run: npm run build
 
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Публикация в ветку gh-pages
+        run: |
+          # .nojekyll нужен, чтобы Pages отдавал файлы как есть.
+          touch dist/.nojekyll
+          cd dist
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}"
+          git add -A
+          git commit -q -m "Сборка из ${GITHUB_SHA}"
+          git push -f origin gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

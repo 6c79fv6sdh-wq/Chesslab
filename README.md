@@ -76,16 +76,18 @@ gh codespace ports visibility 4173:public -c $CODESPACE_NAME
 Тренажёр — статический сайт, поэтому его раздаёт бесплатный GitHub Pages.
 Сервера и платного хостинга по-прежнему нет.
 
-Разово, в веб-интерфейсе GitHub:
+Собранный сайт уже лежит в ветке `gh-pages`. Осталось два переключателя
+в веб-интерфейсе GitHub, их может сделать только владелец аккаунта:
 
 1. **Settings → General → Danger Zone → Change visibility → Public.**
    Бесплатный Pages работает только на публичном репозитории. После этого
    код виден всем — это плата за бесплатный хостинг.
-2. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
-3. Влей ветку `claude/sciencechess-hyperlab-n3ng4f` в `main`.
+2. **Settings → Pages → Build and deployment → Source: Deploy from a branch →
+   Branch: `gh-pages`, папка `/(root)` → Save.**
 
-Дальше всё само: workflow `.github/workflows/pages.yml` на каждый push в `main`
-прогоняет тесты, собирает и публикует. Если тесты падают, публикации не будет.
+Через минуту-две сайт поднимется. Дальше он обновляется сам: workflow
+`.github/workflows/pages.yml` на каждый push в `main` прогоняет тесты,
+собирает и перезаписывает ветку `gh-pages`. Если тесты падают, публикации не будет.
 
 Адрес получится такой:
 
