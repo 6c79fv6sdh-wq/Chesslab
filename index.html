@@ -8,13 +8,14 @@
 <title>Владислав Дмитровский — шахматный тренер. Занятия очно в Москве и онлайн</title>
 <meta name="description" content="Профессиональный шахматный тренер. Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры. Очно в северной Москве и онлайн, занятия на английском.">
 
-<!-- DOMAIN: заменить в двух строках ниже -->
+<!-- DOMAIN: заменить в canonical, og:url и og:image ниже -->
 <link rel="canonical" href="https://DOMAIN/">
 <meta property="og:url" content="https://DOMAIN/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:title" content="Владислав Дмитровский — шахматный тренер. Занятия очно в Москве и онлайн">
 <meta property="og:description" content="Профессиональный шахматный тренер. Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры. Очно в северной Москве и онлайн, занятия на английском.">
+<meta property="og:image" content="https://DOMAIN/images/og.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -119,7 +120,41 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .nav a:hover{color:var(--paper)}
 
 /* ==== Первый экран ==== */
-.hero{background:var(--ink);color:var(--paper);padding:clamp(62px,10vw,124px) 0 0}
+.hero{position:relative;overflow:hidden;background:var(--ink);color:var(--paper);padding:clamp(62px,10vw,124px) 0 0}
+.hero > .wrap{position:relative;z-index:2}
+/* Фотография на первом экране: файл меняется в .hero-photo */
+.hero-photo{
+  position:absolute;top:0;right:0;bottom:0;left:34%;z-index:0;pointer-events:none;
+  background:url("images/vladislav.jpg") no-repeat 46% 22%/cover;
+  filter:grayscale(.35) contrast(1.05) brightness(1.06);
+  /* левый край растворяется, чтобы фото не читалось как вставленный прямоугольник */
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.45) 26%,#000 58%);
+  mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.45) 26%,#000 58%);
+}
+/* Затемнение, чтобы текст оставался читаемым поверх фото */
+.hero-scrim{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(180deg,transparent 52%,rgba(16,20,24,.55) 76%,rgba(16,20,24,.92) 100%),
+    linear-gradient(90deg,var(--ink) 0%,rgba(16,20,24,.96) 30%,rgba(16,20,24,.78) 44%,rgba(16,20,24,.4) 64%,rgba(16,20,24,.18) 100%);
+}
+@media(max-width:759px){
+  /* на телефоне фото занимает полосу сверху и растворяется вниз, текст под ним */
+  .hero{padding-top:clamp(300px,80vw,400px)}
+  .hero-photo{
+    left:0;bottom:auto;height:clamp(300px,82vw,410px);
+    /* кадр плотнее, чтобы лицо не терялось на маленьком экране */
+    background-position:46% 46%;
+    background-size:150% auto;
+    filter:grayscale(.3) contrast(1.04) brightness(1.12);
+    -webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.9) 52%,transparent 100%);
+    mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.9) 52%,transparent 100%);
+  }
+  .hero-scrim{
+    bottom:auto;height:clamp(300px,82vw,410px);
+    background:linear-gradient(180deg,rgba(16,20,24,.28) 0%,rgba(16,20,24,.5) 55%,rgba(16,20,24,.9) 88%,var(--ink) 100%);
+  }
+}
 .hero h1{max-width:17ch}
 .hero-sub{margin-top:26px;max-width:52ch;font-size:clamp(17px,2vw,20px);color:var(--muted-dark)}
 .hero-cta{margin-top:38px}
@@ -164,11 +199,35 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .cards{display:grid;gap:1px;grid-template-columns:1fr;background:var(--line);border:1px solid var(--line)}
 @media(min-width:820px){.cards{grid-template-columns:repeat(3,1fr)}}
 .card{
-  background:var(--paper);margin:0;padding:clamp(26px,3.4vw,38px);
-  display:flex;flex-direction:column;gap:24px;min-height:200px;
+  background:var(--paper);margin:0;padding:clamp(20px,2.4vw,26px);
+  display:flex;flex-direction:column;gap:18px;
 }
-.card blockquote{margin:0;font-family:"Playfair Display",serif;font-size:19px;line-height:1.45}
+/* Скриншот отзыва, по клику открывается крупнее */
+.shot{
+  display:block;width:100%;padding:0;margin:0;border:1px solid var(--line);
+  background:none;cursor:zoom-in;border-radius:2px;overflow:hidden;
+  transition:border-color .18s ease;
+}
+.shot:hover{border-color:#c9c3b8}
+.shot img{display:block;width:100%;height:auto}
 .card figcaption{margin-top:auto;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* Просмотр скриншота во весь экран */
+.lightbox{
+  border:0;padding:0;background:transparent;max-width:100vw;max-height:100vh;
+  width:100%;height:100%;overflow:auto;
+}
+.lightbox::backdrop{background:rgba(16,20,24,.97)}
+.lightbox-in{min-height:100%;display:flex;align-items:center;justify-content:center;padding:clamp(16px,4vw,48px)}
+.lightbox img{max-width:min(940px,100%);width:100%;height:auto;border-radius:2px}
+.lightbox-close{
+  position:fixed;top:12px;right:12px;
+  min-height:44px;min-width:44px;padding:10px 18px;
+  border:1px solid rgba(255,255,255,.4);border-radius:2px;
+  background:rgba(16,20,24,.7);color:var(--paper);font:inherit;font-size:15px;cursor:pointer;
+}
+.lightbox-close:hover{background:var(--ink)}
+.lightbox-close:focus-visible{outline:2px solid var(--accent-light);outline-offset:3px}
 
 /* ==== Контакты ==== */
 .contacts{background:var(--ink);color:var(--paper);padding:var(--sp) 0}
@@ -224,7 +283,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 <header class="site-header on-dark">
   <div class="wrap header-in">
     <div class="brand">
-      <span class="brand-name" data-fill="name">ИМЯ_ТРЕНЕРА</span>
+      <span class="brand-name" data-fill="name">Владислав Дмитровский</span>
       <span class="brand-role">Профессиональный шахматный тренер</span>
     </div>
     <nav class="nav" aria-label="Разделы страницы">
@@ -240,6 +299,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 
   <!-- 1. Первый экран -->
   <section class="hero on-dark">
+    <div class="hero-photo" aria-hidden="true"></div>
+    <div class="hero-scrim" aria-hidden="true"></div>
     <div class="wrap">
       <h1>Моя цель не в том, чтобы ребенок просто выучил, как ходят фигуры</h1>
       <p class="hero-sub">Ребенок на занятии не пассивный слушатель: он постоянно решает, спорит, проверяет идеи и учится объяснять свои решения.</p>
@@ -333,16 +394,25 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
       </div>
       <div class="cards">
         <figure class="card">
-          <blockquote data-fill="review1">ОТЗЫВ_1</blockquote>
-          <figcaption data-fill="sign1">ПОДПИСЬ_1</figcaption>
+          <button class="shot" type="button" aria-label="Открыть отзыв крупнее">
+            <img src="images/review-1.jpg" width="1000" height="690" loading="lazy" decoding="async"
+                 alt="Сообщение от Натальи, мамы Толи: Толя сегодня занял 1 место на школьных соревнованиях по шахматам, очень ощутимый результат за 3 месяца занятий. И Толик в восторге, каждый раз с горящими глазами бежит к вам на занятия.">
+          </button>
+          <figcaption>Наталья, мама Толи</figcaption>
         </figure>
         <figure class="card">
-          <blockquote data-fill="review2">ОТЗЫВ_2</blockquote>
-          <figcaption data-fill="sign2">ПОДПИСЬ_2</figcaption>
+          <button class="shot" type="button" aria-label="Открыть отзыв крупнее">
+            <img src="images/review-2.jpg" width="1000" height="658" loading="lazy" decoding="async"
+                 alt="Сообщение от папы Жени: он прям растет на глазах в шахматах, меня вообще выносит на раз-два, хотя я и не игрок. Спасибо вам за результат.">
+          </button>
+          <figcaption>Папа Жени</figcaption>
         </figure>
         <figure class="card">
-          <blockquote data-fill="review3">ОТЗЫВ_3</blockquote>
-          <figcaption data-fill="sign3">ПОДПИСЬ_3</figcaption>
+          <button class="shot" type="button" aria-label="Открыть отзыв крупнее">
+            <img src="images/review-3.jpg" width="1000" height="614" loading="lazy" decoding="async"
+                 alt="Сообщение от бабушки Гоши: Владислав, если у вас есть время и желание заниматься с Герой, то можем обговорить визиты. Георгий от вас в восторге.">
+          </button>
+          <figcaption>Бабушка Гоши</figcaption>
         </figure>
       </div>
     </div>
@@ -394,9 +464,17 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 
 <footer class="site-footer">
   <div class="wrap">
-    <span data-fill="name">ИМЯ_ТРЕНЕРА</span> — профессиональный шахматный тренер
+    <span data-fill="name">Владислав Дмитровский</span> — профессиональный шахматный тренер
   </div>
 </footer>
+
+<!-- Просмотр скриншота отзыва во весь экран -->
+<dialog class="lightbox" id="lightbox">
+  <div class="lightbox-in">
+    <img id="lightbox-img" src="" alt="">
+  </div>
+  <button class="lightbox-close" type="button" id="lightbox-close">Закрыть</button>
+</dialog>
 
 <!-- Нижняя панель, только на телефоне -->
 <div class="mobile-cta" id="mobile-cta">
@@ -407,8 +485,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 /* ------------------------------------------------------------------
    ВСЕ ЗНАЧЕНИЯ ДЛЯ ЗАМЕНЫ — ЗДЕСЬ.
-   Отдельно: DOMAIN правится вручную в <head> (canonical и og:url).
-   Осталось подставить: NAME, FORM_ENDPOINT, отзывы и подписи.
+   Отдельно: DOMAIN правится вручную в <head> (canonical, og:url, og:image).
+   Отзывы — это картинки в папке images, они правятся прямо в разметке.
+   Осталось подставить: FORM_ENDPOINT.
 ------------------------------------------------------------------- */
 const NAME           = "Владислав Дмитровский";   // имя в шапке и подвале
 const TELEGRAM_URL   = "https://t.me/vLdm56";
@@ -416,12 +495,6 @@ const WHATSAPP_URL   = "https://wa.me/79017002756";
 const PHONE          = "+7 901 700-27-56";
 const PHONE_TEL      = "+79017002756";             // то же самое для href="tel:"
 const FORM_ENDPOINT  = "ВСТАВИТЬ_ENDPOINT";        // URL приема формы
-
-const REVIEWS = [
-  { text: "ОТЗЫВ_1", sign: "ПОДПИСЬ_1" },
-  { text: "ОТЗЫВ_2", sign: "ПОДПИСЬ_2" },
-  { text: "ОТЗЫВ_3", sign: "ПОДПИСЬ_3" }
-];
 
 /* Подстановка значений в разметку */
 document.querySelectorAll('[data-fill="name"]').forEach(function (el) { el.textContent = NAME; });
@@ -438,12 +511,27 @@ const phone = document.getElementById("link-phone");
 phone.href = "tel:" + PHONE_TEL;
 phone.textContent = PHONE;
 
-REVIEWS.forEach(function (r, i) {
-  const t = document.querySelector('[data-fill="review' + (i + 1) + '"]');
-  const s = document.querySelector('[data-fill="sign' + (i + 1) + '"]');
-  if (t) t.textContent = r.text;
-  if (s) s.textContent = r.sign;
-});
+/* Скриншоты отзывов открываются крупнее. Esc и клик по фону закрывают */
+(function () {
+  const box = document.getElementById("lightbox");
+  const big = document.getElementById("lightbox-img");
+  if (!box || !big || typeof box.showModal !== "function") return;
+
+  document.querySelectorAll(".shot").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const img = btn.querySelector("img");
+      big.src = img.currentSrc || img.src;
+      big.alt = img.alt;
+      box.showModal();
+    });
+  });
+
+  document.getElementById("lightbox-close").addEventListener("click", function () { box.close(); });
+  box.addEventListener("click", function (e) {
+    if (e.target === box || e.target.classList.contains("lightbox-in")) box.close();
+  });
+  box.addEventListener("close", function () { big.src = ""; });
+})();
 
 /* Появление блоков при скролле. При prefers-reduced-motion не запускается */
 (function () {
