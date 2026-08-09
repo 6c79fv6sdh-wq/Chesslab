@@ -2,20 +2,18 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="index, follow">
 
-<title>Владислав Дмитровский — шахматный тренер. Занятия очно в Москве и онлайн</title>
+<title>Владислав Дмитровский — шахматный тренер. Метод ScienceChess, очно в Москве и онлайн</title>
 <meta name="description" content="Профессиональный шахматный тренер. Шахматы как тренировка мышления, а не кружок по запоминанию ходов. Очно в северной Москве и онлайн, занятия на английском.">
 
-<!-- DOMAIN: заменить в canonical, og:url и og:image ниже -->
-<link rel="canonical" href="https://DOMAIN/">
-<meta property="og:url" content="https://DOMAIN/">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ru_RU">
-<meta property="og:title" content="Владислав Дмитровский — шахматный тренер. Занятия очно в Москве и онлайн">
+<meta property="og:title" content="Владислав Дмитровский — шахматный тренер. Метод ScienceChess, очно в Москве и онлайн">
 <meta property="og:description" content="Профессиональный шахматный тренер. Шахматы как тренировка мышления, а не кружок по запоминанию ходов. Очно в северной Москве и онлайн, занятия на английском.">
-<meta property="og:image" content="https://DOMAIN/images/og.jpg">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23101418'/%3E%3Crect x='6' y='6' width='10' height='10' fill='%23c9a86c'/%3E%3Crect x='16' y='16' width='10' height='10' fill='%23c9a86c'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -63,7 +61,8 @@ a{color:inherit}
 ::selection{background:var(--accent);color:#fff}
 
 .wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(20px,5vw,40px)}
-.section{padding:var(--sp) 0;scroll-margin-top:76px}
+.section{padding:var(--sp) 0;scroll-margin-top:16px}
+@media(min-width:900px){.section,.contacts{scroll-margin-top:86px}}
 .section + .section{border-top:1px solid var(--line)}
 .prose{max-width:62ch}
 
@@ -93,31 +92,46 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   text-decoration:none;cursor:pointer;
   transition:background .18s ease,color .18s ease,border-color .18s ease;
 }
-.btn:hover{background:var(--ink-soft);border-color:var(--ink-soft)}
 .btn-sm{min-height:46px;padding:10px 20px;font-size:15px}
 .btn-outline{background:transparent;color:var(--ink);border-color:var(--ink)}
-.btn-outline:hover{background:var(--ink);color:var(--paper)}
 /* Те же кнопки на темном фоне */
 .on-dark .btn{background:var(--paper);color:var(--ink);border-color:var(--paper)}
-.on-dark .btn:hover{background:#fff;border-color:#fff}
 .on-dark .btn-line{background:transparent;color:var(--paper);border-color:var(--line-dark)}
-.on-dark .btn-line:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.45)}
 
-/* ==== Шапка ==== */
+/* ==== Шапка ====
+   Полное меню появляется только с 900px: на меньшей ширине оно не влезает
+   в одну строку рядом с именем и кнопкой. До 760px шапка совсем компактная */
 .site-header{background:var(--ink);color:var(--paper)}
-@media(min-width:760px){.site-header{position:sticky;top:0;z-index:20}}
-.header-in{display:flex;align-items:center;gap:14px 28px;padding:16px 0;flex-wrap:wrap}
-.brand{display:flex;flex-direction:column;line-height:1.3;margin-right:auto}
-.brand-name{font-family:"Playfair Display",serif;font-size:19px;letter-spacing:.01em}
-.brand-role{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-dark)}
-.nav{display:flex;gap:2px 26px;flex-wrap:wrap;order:3;width:100%}
-@media(min-width:760px){.nav{order:0;width:auto}}
+.header-in{
+  display:flex;align-items:center;gap:12px 28px;flex-wrap:nowrap;
+  padding:12px 0;min-height:56px;
+}
+.brand{display:flex;flex-direction:column;line-height:1.25;margin-right:auto;min-width:0}
+.brand-name{font-family:"Playfair Display",serif;font-size:clamp(17px,4.4vw,20px);letter-spacing:.01em;white-space:nowrap}
+.brand-role{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-dark);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.brand-system{color:var(--accent-light);letter-spacing:.16em}
+/* на узких экранах подпись не влезает целиком, убираем длинное слово */
+.role-long{display:none}
+@media(min-width:400px){.role-long{display:inline}}
+.nav{display:none}
+.header-cta{display:none}
+@media(min-width:760px){
+  .site-header{position:sticky;top:0;z-index:20}
+  .header-in{padding:14px 0}
+  .brand-role{font-size:11px}
+  .header-cta{display:inline-flex}
+}
+@media(min-width:900px){
+  .nav{display:flex;gap:2px 26px;flex-wrap:nowrap}
+}
 .nav a{
-  display:inline-flex;align-items:center;min-height:44px;
+  display:inline-flex;align-items:center;min-height:44px;white-space:nowrap;
   color:var(--muted-dark);text-decoration:none;font-size:14px;
   transition:color .18s ease;
 }
-.nav a:hover{color:var(--paper)}
 
 /* ==== Первый экран ==== */
 .hero{position:relative;overflow:hidden;background:var(--ink);color:var(--paper);padding:clamp(62px,10vw,124px) 0 0}
@@ -218,7 +232,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   font:inherit;font-size:15px;color:var(--text);cursor:pointer;
   transition:border-color .18s ease,background .18s ease;
 }
-.demo-btn:hover{border-color:#cfc8bb;background:rgba(0,0,0,.03)}
 .demo-btn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 .demo-out{margin:0;min-height:3em;color:var(--text)}
 .demo-out:empty{min-height:0}
@@ -248,11 +261,24 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .case p{margin:0;color:var(--muted)}
 .cases-note{margin-top:clamp(28px,3.5vw,40px);max-width:62ch}
 
-/* ==== О себе: строки с волосяными линиями ==== */
-.facts-list{list-style:none;margin:0;padding:0;max-width:72ch}
-.facts-list li{padding:18px 0;border-bottom:1px solid var(--line)}
-.facts-list li:first-child{padding-top:0}
-.facts-list li:last-child{border-bottom:0;padding-bottom:0}
+/* ==== О себе: сначала четыре главных факта, потом биография мелким ==== */
+.creds{
+  list-style:none;margin:0;padding:0;
+  display:grid;gap:1px;grid-template-columns:1fr;
+  background:var(--line);border:1px solid var(--line);
+}
+@media(min-width:560px){.creds{grid-template-columns:1fr 1fr}}
+@media(min-width:900px){.creds{grid-template-columns:repeat(4,1fr)}}
+.creds li{background:var(--paper);padding:clamp(20px,2.6vw,28px);display:flex;flex-direction:column;gap:8px}
+.creds-value{
+  font-family:"Playfair Display",Georgia,serif;font-weight:500;
+  font-size:clamp(28px,3.6vw,38px);line-height:1.05;letter-spacing:-.02em;
+}
+.creds-value.is-word{font-size:clamp(21px,2.4vw,26px);letter-spacing:-.01em}
+.creds-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.about-more{margin-top:clamp(30px,4vw,44px);max-width:64ch;color:var(--muted)}
+.about-more p{margin:0 0 12px}
+.about-more p:last-child{margin-bottom:0}
 
 /* ==== Отзывы ==== */
 .cards{display:grid;gap:1px;grid-template-columns:1fr;background:var(--line);border:1px solid var(--line)}
@@ -267,13 +293,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   background:none;cursor:zoom-in;border-radius:2px;overflow:hidden;
   transition:border-color .18s ease;
 }
-.shot:hover{border-color:#c9c3b8}
 .shot img{display:block;width:100%;height:auto}
 .card figcaption{margin-top:auto;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 
 /* Просмотр скриншота во весь экран */
 .lightbox{
-  border:0;padding:0;background:transparent;max-width:100vw;max-height:100vh;
+  border:0;padding:0;background:transparent;
+  max-width:100vw;max-height:100vh;max-height:100dvh;
   width:100%;height:100%;overflow:auto;
 }
 .lightbox::backdrop{background:rgba(16,20,24,.97)}
@@ -285,7 +311,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   border:1px solid rgba(255,255,255,.4);border-radius:2px;
   background:rgba(16,20,24,.7);color:var(--paper);font:inherit;font-size:15px;cursor:pointer;
 }
-.lightbox-close:hover{background:var(--ink)}
 .lightbox-close:focus-visible{outline:2px solid var(--accent-light);outline-offset:3px}
 
 /* ==== Контакты ==== */
@@ -310,7 +335,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   border:1px solid var(--line-dark);border-radius:2px;
   padding:13px 16px;min-height:50px;width:100%;
 }
-.field input:hover,.field textarea:hover{border-color:rgba(255,255,255,.34)}
 .field textarea{min-height:112px;resize:vertical}
 .form-note{font-size:15px;margin:0;color:var(--muted-dark)}
 .form-note[hidden]{display:none}
@@ -323,15 +347,32 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .mobile-cta{
   position:fixed;left:0;right:0;bottom:0;z-index:30;
   display:flex;gap:10px;
-  padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));
+  padding:10px calc(16px + env(safe-area-inset-right,0px))
+          calc(10px + env(safe-area-inset-bottom,0px))
+          calc(16px + env(safe-area-inset-left,0px));
   background:rgba(250,249,247,.94);border-top:1px solid var(--line);
   backdrop-filter:blur(10px);
-  transition:transform .25s ease;
+  transition:transform .28s ease;
+  /* по умолчанию спрятана: пока кнопка на первом экране видна, панель не нужна */
+  transform:translateY(130%);
 }
-.mobile-cta[data-hidden="true"]{transform:translateY(130%)}
-.mobile-cta .btn{flex:1}
+.mobile-cta[data-hidden="false"]{transform:translateY(0)}
+.mobile-cta .btn{flex:1;min-width:0}
 @media(min-width:760px){.mobile-cta{display:none}}
-@media(max-width:759px){body{padding-bottom:86px}}
+@media(max-width:759px){body{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))}}
+
+/* Наведение имеет смысл только для мыши, на тач-устройствах не применяется */
+@media (hover:hover) and (pointer:fine){
+  .btn:hover{background:var(--ink-soft);border-color:var(--ink-soft)}
+  .btn-outline:hover{background:var(--ink);color:var(--paper)}
+  .on-dark .btn:hover{background:#fff;border-color:#fff}
+  .on-dark .btn-line:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.45)}
+  .nav a:hover{color:var(--paper)}
+  .demo-btn:hover{border-color:#cfc8bb;background:rgba(0,0,0,.03)}
+  .shot:hover{border-color:#c9c3b8}
+  .field input:hover,.field textarea:hover{border-color:rgba(255,255,255,.34)}
+  .lightbox-close:hover{background:var(--ink)}
+}
 
 /* ==== Появление блоков при скролле ==== */
 .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
@@ -350,14 +391,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
   <div class="wrap header-in">
     <div class="brand">
       <span class="brand-name" data-fill="name">Владислав Дмитровский</span>
-      <span class="brand-role">Профессиональный шахматный тренер</span>
+      <span class="brand-role"><span class="brand-system">ScienceChess</span> · <span class="role-long">Профессиональный </span>шахматный тренер</span>
     </div>
     <nav class="nav" aria-label="Разделы страницы">
-      <a href="#how">Как я работаю</a>
+      <a href="#how">Метод</a>
       <a href="#who">Кому подходит</a>
-      <a href="#about">О себе</a>
+      <a href="#reviews">Отзывы</a>
+      <a href="#format">Формат</a>
     </nav>
-    <a class="btn btn-sm" href="#contacts">Написать</a>
+    <a class="btn btn-sm header-cta" href="#contacts">Обсудить занятие</a>
   </div>
 </header>
 
@@ -370,7 +412,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
     <div class="wrap">
       <h1>Шахматы как тренировка мышления, а не кружок по запоминанию ходов</h1>
       <p class="hero-sub">Ребенок на занятии не пассивный слушатель: он постоянно решает, спорит, проверяет идеи и учится объяснять свои решения.</p>
-      <div class="hero-cta"><a class="btn" href="#contacts">Написать</a></div>
+      <div class="hero-cta"><a class="btn" id="hero-cta" href="#contacts">Обсудить занятие</a></div>
       <ul class="facts">
         <li>Более 2500 проведенных занятий</li>
         <li>Ученики от 3 до 77 лет</li>
@@ -398,7 +440,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
         <!-- Задача. Диаграмма — images/task-board.jpg, стрелки задаются в BOARD_ARROWS -->
         <div class="demo-card demo-card--task">
           <div class="board-wrap">
-            <img class="board-img" src="images/task-board.jpg" width="900" height="899" decoding="async"
+            <img class="board-img" src="images/task-board.jpg" width="900" height="899" loading="lazy" decoding="async"
                  alt="Позиция: у белых ферзь a4, ладья d1, слон c1, король g1 и пешки a2, b2, c2, f2, g2, h2. У черных ферзь g6, конь b5, слон c8, король g8 и пешки a7, b7, f7, g7, h7. Ход белых.">
           </div>
           <div class="demo-body">
@@ -420,8 +462,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
                  alt="Экран моего тренажера: на доске подсвечены клетки, поверх нарисована траектория указателя, рядом счетчик повторов и время.">
           </button>
           <div class="demo-body">
-            <h3>Мой тренажер</h3>
-            <p class="demo-intro">Я программист и математик, поэтому у меня много собственных разработок, которые ускоряют обучение.</p>
+            <h3>Инструменты ScienceChess</h3>
+            <p class="demo-intro">Я разрабатываю собственные шахматные тренажеры, которые тренируют внимание, принятие решений и скорость. Использую их на занятиях.</p>
           </div>
         </div>
       </div>
@@ -437,7 +479,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
         <p class="eyebrow">02</p>
         <h2>Кому подходит</h2>
       </div>
-      <p class="lead">Ко мне так часто приводят детей, которым скучно на обычных занятиях и сложно усидеть на месте. Многие из них пришли с отвращением к шахматам, как к игре для ботанов и зануд, но эти дети занимаются у меня до сих пор.</p>
+      <p class="lead">Ко мне часто приводят детей, которым скучно на обычных занятиях и трудно сидеть в роли пассивного слушателя. Некоторые приходят уже уверенными, что шахматы просто не для них, — но после смены формата начинают заниматься с интересом и остаются надолго.</p>
 
       <div class="cases">
         <div class="case">
@@ -502,16 +544,30 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
         <p class="eyebrow">04</p>
         <h2>О себе</h2>
       </div>
-      <ul class="facts-list">
-        <li>Профессиональный шахматный тренер, 2700 рейтинга (0.1% мира).</li>
-        <li>Более 2500 проведенных занятий, ученики от 3 до 77 лет.</li>
-        <li>Среди моих учеников — победители европейских турниров, предприниматели, IT-специалисты, модели, профессиональные бойцы и школьники с СДВГ, которые влюбились в шахматы.</li>
-        <li>Автор метода ScienceChess, участник научных конференций и форумов.</li>
-        <li>Победитель соревнований по ментальной арифметике и математике.</li>
-        <li>Занимался футболом, боксом и вокалом — это позволяет проще подобрать ключи к самым разным детям.</li>
-        <li>Использую уникальные ИИ-тренажеры, чтобы учеба была еще и приятной игрой.</li>
-        <li>Для своих учеников уже создал ряд бесплатных материалов.</li>
+      <ul class="creds">
+        <li>
+          <span class="creds-value">2700</span>
+          <span class="creds-label">рейтинг, 0.1% мира</span>
+        </li>
+        <li>
+          <span class="creds-value">2500+</span>
+          <span class="creds-label">проведенных занятий</span>
+        </li>
+        <li>
+          <span class="creds-value">3–77</span>
+          <span class="creds-label">возраст учеников</span>
+        </li>
+        <li>
+          <span class="creds-value is-word">ScienceChess</span>
+          <span class="creds-label">автор метода</span>
+        </li>
       </ul>
+
+      <div class="about-more">
+        <p>Победитель соревнований по ментальной арифметике и математике, участник научных конференций и форумов.</p>
+        <p>Занимался футболом, боксом и вокалом — это помогает подобрать ключи к самым разным детям.</p>
+        <p>Среди учеников — предприниматели, IT-специалисты, модели и профессиональные бойцы. Для своих учеников создал ряд бесплатных материалов.</p>
+      </div>
     </div>
   </section>
 
@@ -589,7 +645,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 
 <footer class="site-footer">
   <div class="wrap">
-    <span data-fill="name">Владислав Дмитровский</span> — профессиональный шахматный тренер
+    <span data-fill="name">Владислав Дмитровский</span> — профессиональный шахматный тренер, метод ScienceChess
   </div>
 </footer>
 
@@ -610,16 +666,21 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 <script>
 /* ------------------------------------------------------------------
    ВСЕ ЗНАЧЕНИЯ ДЛЯ ЗАМЕНЫ — ЗДЕСЬ.
-   Отдельно: DOMAIN правится вручную в <head> (canonical, og:url, og:image).
    Отзывы — это картинки в папке images, они правятся прямо в разметке.
-   Осталось подставить: FORM_ENDPOINT.
+   Ждут заполнения: SITE_URL и FORM_ENDPOINT. Пока они пустые,
+   сайт работает: адрес страницы просто не прописывается в мета-теги,
+   а форма уходит в WhatsApp вместо несуществующего сервера.
 ------------------------------------------------------------------- */
+
+// адрес сайта после публикации, например "https://sciencechess.ru"
+// пустая строка — canonical, og:url и og:image не выводятся вовсе
+const SITE_URL       = "";
 const NAME           = "Владислав Дмитровский";   // имя в шапке и подвале
 const TELEGRAM_URL   = "https://t.me/vLdm56";
 const WHATSAPP_URL   = "https://wa.me/79017002756";
 const PHONE          = "+7 901 700-27-56";
 const PHONE_TEL      = "+79017002756";             // то же самое для href="tel:"
-const FORM_ENDPOINT  = "ВСТАВИТЬ_ENDPOINT";        // пока не заполнен, форма уходит в WhatsApp
+const FORM_ENDPOINT  = "";                         // пока пустой, форма уходит в WhatsApp
 
 // заготовка сообщения, которое подставится в WhatsApp при нажатии на кнопку
 const WHATSAPP_TEXT  = "Здравствуйте! Пишу по поводу занятий шахматами.";
@@ -628,7 +689,7 @@ const WHATSAPP_TEXT  = "Здравствуйте! Пишу по поводу з�
 const MID_CTA_TEXT   = "Разобрать позицию вместе";
 
 // что происходит после заявки. Пустая строка — блок не показывается
-const NEXT_STEP      = "ТЕКСТ_ПРО_СЛЕДУЮЩИЙ_ШАГ";
+const NEXT_STEP      = "Напишите возраст ученика, примерный уровень и что хотелось бы получить от занятий. Я отвечу и предложу подходящий формат.";
 
 // диаграмма лежит в images/task-board.jpg
 // стрелки: откуда, куда, цвет. Первая — заманчивое взятие, вторая — мат
@@ -641,6 +702,26 @@ const DEMO_ANSWERS = {
   grab: "Конь достается бесплатно, ход правда хороший. Но по правилу Ласкера хороший ход — это повод поискать лучше, а не повод остановиться.",
   look: "Ладья идет на d8 — мат. Партия заканчивается сразу, и конь уже не нужен. Это и есть правило Ласкера в работе."
 };
+
+/* Адрес сайта в мета-теги. Пока SITE_URL пуст, теги не создаются,
+   поэтому в разметку физически не может попасть заглушка */
+(function () {
+  if (!SITE_URL) return;
+  const base = SITE_URL.replace(/\/+$/, "");
+  const head = document.head;
+
+  const link = document.createElement("link");
+  link.rel = "canonical";
+  link.href = base + "/";
+  head.appendChild(link);
+
+  [["og:url", base + "/"], ["og:image", base + "/images/og.jpg"]].forEach(function (pair) {
+    const meta = document.createElement("meta");
+    meta.setAttribute("property", pair[0]);
+    meta.content = pair[1];
+    head.appendChild(meta);
+  });
+})();
 
 /* Подстановка значений в разметку */
 document.querySelectorAll('[data-fill="name"]').forEach(function (el) { el.textContent = NAME; });
@@ -789,15 +870,38 @@ phone.textContent = PHONE;
   blocks.forEach(function (b) { io.observe(b); });
 })();
 
-/* Нижняя панель прячется, когда блок контактов на экране */
+/* Нижняя панель появляется, только когда кнопка первого экрана ушла с экрана,
+   и снова прячется у блока контактов, чтобы не закрывать форму */
 (function () {
   const bar = document.getElementById("mobile-cta");
-  const target = document.getElementById("contacts");
-  if (!bar || !target || !("IntersectionObserver" in window)) return;
-  const io = new IntersectionObserver(function (entries) {
-    bar.dataset.hidden = entries[0].isIntersecting ? "true" : "false";
-  }, { threshold: 0.08 });
-  io.observe(target);
+  const heroCta = document.getElementById("hero-cta");
+  const contacts = document.getElementById("contacts");
+  if (!bar) return;
+
+  if (!("IntersectionObserver" in window)) { bar.dataset.hidden = "false"; return; }
+
+  const visible = { hero: true, contacts: false };
+  function apply() {
+    bar.dataset.hidden = (visible.hero || visible.contacts) ? "true" : "false";
+  }
+
+  if (heroCta) {
+    new IntersectionObserver(function (entries) {
+      visible.hero = entries[0].isIntersecting;
+      apply();
+    }, { threshold: 0 }).observe(heroCta);
+  } else {
+    visible.hero = false;
+  }
+
+  if (contacts) {
+    new IntersectionObserver(function (entries) {
+      visible.contacts = entries[0].isIntersecting;
+      apply();
+    }, { threshold: 0.05 }).observe(contacts);
+  }
+
+  apply();
 })();
 
 /* Отправка формы. Если endpoint не отвечает — показываем ссылку на Telegram */
@@ -807,7 +911,7 @@ phone.textContent = PHONE;
   const hint = document.getElementById("form-hint");
   const submit = document.getElementById("form-submit");
   // пока endpoint не подключен, форма собирает сообщение и открывает WhatsApp
-  const noBackend = !FORM_ENDPOINT || FORM_ENDPOINT === "ВСТАВИТЬ_ENDPOINT";
+  const noBackend = !FORM_ENDPOINT;
 
   if (noBackend) {
     submit.textContent = "Отправить в WhatsApp";
