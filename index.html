@@ -225,9 +225,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .demo-out:empty{min-height:0}
 
 /* Доска в расцветке тренажера */
-.board-wrap{width:100%;max-width:340px}
-.board{display:block;width:100%;aspect-ratio:1/1}
-.board svg{display:block;width:100%;height:100%}
+.board-wrap{position:relative;width:100%;max-width:340px}
+.board-img{display:block;width:100%;height:auto;border:1px solid rgba(43,33,25,.18)}
+.arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 /* Стрелки, показываются после ответа */
 .arrow{opacity:0;transition:opacity .3s ease}
 .arrow.on{opacity:1}
@@ -397,13 +397,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
         <!-- Задача. Позиция задается в BOARD_FEN, стрелки в BOARD_ARROWS -->
         <div class="demo-card demo-card--task">
           <div class="board-wrap">
-            <div class="board" id="board" role="img"
-                 aria-label="Позиция: у белых король g1, ферзь a4, ладья d1, слон c1, пешки a2, b2, c2, f2, g2, h2. У черных король g8, конь b5, слон c8, пешки a7, b7, f7, g7, h7. Ход белых."></div>
+            <img class="board-img" src="images/task-board.jpg" width="900" height="899" decoding="async"
+                 alt="Позиция: у белых ферзь a4, ладья d1, слон c1, король g1 и пешки a2, b2, c2, f2, g2, h2. У черных ферзь g6, конь b5, слон c8, король g8 и пешки a7, b7, f7, g7, h7. Ход белых.">
           </div>
-          <div class="demo-body">
-            <h3>Правило Ласкера</h3>
-            <p class="demo-intro">Эмануил Ласкер, второй чемпион мира: увидел хороший ход — поищи лучше.</p>
-            <p class="demo-q">Белые могут забрать коня. Что делать?</p>
+
+          <p class="demo-q">Белые могут забрать коня. Что делать?</p>
             <div class="demo-opts">
               <button class="demo-btn" type="button" data-answer="grab">Забрать коня</button>
               <button class="demo-btn" type="button" data-answer="look">Поискать ход получше</button>
@@ -420,7 +418,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
           </button>
           <div class="demo-body">
             <h3>Мой тренажер</h3>
-            <p class="demo-intro">Собственная разработка: я программист и математик, поэтому упражнения пишу сам.</p>
+            <p class="demo-intro">Я программист и математик, поэтому у меня много собственных разработок, которые ускоряют обучение.</p>
             <p class="demo-cap">Раздел «Моторика»: 30 повторов, время и точность считаются автоматически.</p>
           </div>
         </div>
@@ -624,8 +622,7 @@ const WHATSAPP_TEXT  = "Здравствуйте! Пишу по поводу з�
 // что происходит после заявки. Пустая строка — блок не показывается
 const NEXT_STEP      = "ТЕКСТ_ПРО_СЛЕДУЮЩИЙ_ШАГ";
 
-// позиция для задачи в блоке «Как я работаю», запись FEN
-const BOARD_FEN      = "2b3k1/pp3ppp/7r/1n6/Q7/8/PPP2PPP/2BR2K1";
+// диаграмма лежит в images/task-board.jpg
 // стрелки: откуда, куда, цвет. Первая — заманчивое взятие, вторая — мат
 const BOARD_ARROWS   = [
   { id: "grab", from: "a4", to: "b5", color: "#3a2b1d" },
@@ -666,83 +663,30 @@ phone.textContent = PHONE;
   else slot.remove();
 })();
 
-/* Доска для задачи. Рисуется одним SVG в системе координат 8x8:
-   клетки, координаты, фигуры и стрелки считаются в одних единицах,
-   поэтому доска остается ровной при любой ширине экрана */
+/* Стрелки поверх готовой диаграммы. Слой лежит в тех же координатах 8x8,
+   что и доска на картинке, поэтому стрелки попадают ровно в клетки */
 (function () {
-  const host = document.getElementById("board");
-  if (!host) return;
+  const wrap = document.querySelector(".board-wrap");
+  if (!wrap) return;
 
   const NS = "http://www.w3.org/2000/svg";
-  const GLYPH = { k: "\u265A", q: "\u265B", r: "\u265C", b: "\u265D", n: "\u265E", p: "\u265F" };
   const FILES = "abcdefgh";
-  const LIGHT = "#edd6b0", DARK = "#b58863", EDGE = "#8d6b4d";
 
   function el(name, attrs) {
     const node = document.createElementNS(NS, name);
     Object.keys(attrs || {}).forEach(function (k) { node.setAttribute(k, attrs[k]); });
     return node;
   }
-
-  const svg = el("svg", { viewBox: "0 0 8 8", "aria-hidden": "true", focusable: "false" });
-
-  // FEN раскладывается в сетку 8x8, цифры означают пустые поля подряд
-  const grid = BOARD_FEN.split(" ")[0].split("/").map(function (row) {
-    const line = [];
-    row.split("").forEach(function (ch) {
-      if (/\d/.test(ch)) { for (let i = 0; i < parseInt(ch, 10); i++) line.push(null); }
-      else line.push(ch);
-    });
-    return line;
-  });
-
-  grid.forEach(function (line, r) {
-    line.forEach(function (ch, f) {
-      const isLight = (r + f) % 2 === 0;
-      svg.appendChild(el("rect", { x: f, y: r, width: 1, height: 1, fill: isLight ? LIGHT : DARK }));
-
-      // координаты по левому и нижнему краю, цветом соседней клетки
-      const ink = isLight ? DARK : LIGHT;
-      if (f === 0) {
-        const n = el("text", { x: 0.08, y: r + 0.22, "font-size": 0.17, fill: ink });
-        n.textContent = String(8 - r);
-        svg.appendChild(n);
-      }
-      if (r === 7) {
-        const n = el("text", { x: f + 0.92, y: 7.94, "font-size": 0.17, fill: ink, "text-anchor": "end" });
-        n.textContent = FILES[f];
-        svg.appendChild(n);
-      }
-    });
-  });
-
-  // фигуры отдельным проходом, чтобы они лежали поверх клеток
-  grid.forEach(function (line, r) {
-    line.forEach(function (ch, f) {
-      if (!ch) return;
-      const white = ch === ch.toUpperCase();
-      const piece = el("text", {
-        x: f + 0.5, y: r + 0.5,
-        "font-size": 0.78,
-        "text-anchor": "middle",
-        "dominant-baseline": "central",
-        fill: white ? "#fbf8f2" : "#2b2119",
-        stroke: white ? "#2b2119" : "none",
-        "stroke-width": white ? 0.028 : 0,
-        "paint-order": "stroke"
-      });
-      piece.textContent = GLYPH[ch.toLowerCase()];
-      svg.appendChild(piece);
-    });
-  });
-
-  // стрелки поверх фигур
-  const defs = el("defs", {});
-  svg.appendChild(defs);
-
   function center(square) {
     return { x: FILES.indexOf(square[0]) + 0.5, y: 8 - parseInt(square[1], 10) + 0.5 };
   }
+
+  const svg = el("svg", {
+    class: "arrows", viewBox: "0 0 8 8", preserveAspectRatio: "none",
+    "aria-hidden": "true", focusable: "false"
+  });
+  const defs = el("defs", {});
+  svg.appendChild(defs);
 
   BOARD_ARROWS.forEach(function (a) {
     const marker = el("marker", {
@@ -752,14 +696,14 @@ phone.textContent = PHONE;
     marker.appendChild(el("path", { d: "M0,1 L10,5 L0,9 z", fill: a.color }));
     defs.appendChild(marker);
 
-    // хвост стрелки отодвинут от центра, чтобы фигура под ним оставалась видна
+    // хвост отодвинут от центра, чтобы фигура под ним оставалась видна
     const from = center(a.from), to = center(a.to);
     const dx = to.x - from.x, dy = to.y - from.y;
     const len = Math.sqrt(dx * dx + dy * dy) || 1;
-    const x1 = from.x + (dx / len) * 0.34, y1 = from.y + (dy / len) * 0.34;
-    const x2 = to.x - (dx / len) * 0.1,   y2 = to.y - (dy / len) * 0.1;
     const line = el("line", {
-      class: "arrow", x1: x1, y1: y1, x2: x2, y2: y2,
+      class: "arrow",
+      x1: from.x + (dx / len) * 0.36, y1: from.y + (dy / len) * 0.36,
+      x2: to.x - (dx / len) * 0.12,   y2: to.y - (dy / len) * 0.12,
       stroke: a.color, "stroke-width": 0.13, "stroke-linecap": "round",
       "marker-end": "url(#head-" + a.id + ")"
     });
@@ -767,8 +711,7 @@ phone.textContent = PHONE;
     svg.appendChild(line);
   });
 
-  svg.appendChild(el("rect", { x: 0, y: 0, width: 8, height: 8, fill: "none", stroke: EDGE, "stroke-width": 0.04 }));
-  host.appendChild(svg);
+  wrap.appendChild(svg);
 })();
 
 /* Ответ на задачу: подсвечивается своя стрелка и появляется объяснение */
