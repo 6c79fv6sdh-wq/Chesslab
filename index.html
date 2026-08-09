@@ -225,25 +225,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{
 .demo-out:empty{min-height:0}
 
 /* Доска в расцветке тренажера */
-.board-wrap{position:relative;width:100%;max-width:330px}
-.board{
-  position:relative;display:grid;grid-template-columns:repeat(8,1fr);
-  aspect-ratio:1/1;width:100%;border:1px solid #8d6b4d;
-}
-.sq{position:relative;display:flex;align-items:center;justify-content:center}
-.sq.light{background:#edd6b0}
-.sq.dark{background:#b58863}
-.piece{
-  font-size:min(9vw,42px);line-height:1;
-  font-family:"Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2","DejaVu Sans",serif;
-}
-.piece.w{color:#fdfcf8;text-shadow:0 0 1px #3a2b1d,1px 0 0 #3a2b1d,-1px 0 0 #3a2b1d,0 1px 0 #3a2b1d,0 -1px 0 #3a2b1d}
-.piece.b{color:#2b2119}
-.sq .coord{position:absolute;font-size:9px;letter-spacing:.04em;color:#6b4f36;opacity:.9}
-.sq .coord.file{right:3px;bottom:1px}
-.sq .coord.rank{left:3px;top:1px}
-/* Стрелки поверх доски, показываются после ответа */
-.arrows{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.board-wrap{width:100%;max-width:340px}
+.board{display:block;width:100%;aspect-ratio:1/1}
+.board svg{display:block;width:100%;height:100%}
+/* Стрелки, показываются после ответа */
 .arrow{opacity:0;transition:opacity .3s ease}
 .arrow.on{opacity:1}
 @media (prefers-reduced-motion:reduce){.arrow{transition:none}}
@@ -640,7 +625,7 @@ const WHATSAPP_TEXT  = "Здравствуйте! Пишу по поводу з�
 const NEXT_STEP      = "ТЕКСТ_ПРО_СЛЕДУЮЩИЙ_ШАГ";
 
 // позиция для задачи в блоке «Как я работаю», запись FEN
-const BOARD_FEN      = "2b3k1/pp3ppp/8/1n6/Q7/8/PPP2PPP/2BR2K1";
+const BOARD_FEN      = "2b3k1/pp3ppp/7r/1n6/Q7/8/PPP2PPP/2BR2K1";
 // стрелки: откуда, куда, цвет. Первая — заманчивое взятие, вторая — мат
 const BOARD_ARROWS   = [
   { id: "grab", from: "a4", to: "b5", color: "#3a2b1d" },
@@ -681,13 +666,25 @@ phone.textContent = PHONE;
   else slot.remove();
 })();
 
-/* Доска для задачи: рисуется из BOARD_FEN, сверху слой со стрелками */
+/* Доска для задачи. Рисуется одним SVG в системе координат 8x8:
+   клетки, координаты, фигуры и стрелки считаются в одних единицах,
+   поэтому доска остается ровной при любой ширине экрана */
 (function () {
-  const board = document.getElementById("board");
-  if (!board) return;
+  const host = document.getElementById("board");
+  if (!host) return;
 
-  const GLYPH = { k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" };
+  const NS = "http://www.w3.org/2000/svg";
+  const GLYPH = { k: "\u265A", q: "\u265B", r: "\u265C", b: "\u265D", n: "\u265E", p: "\u265F" };
   const FILES = "abcdefgh";
+  const LIGHT = "#edd6b0", DARK = "#b58863", EDGE = "#8d6b4d";
+
+  function el(name, attrs) {
+    const node = document.createElementNS(NS, name);
+    Object.keys(attrs || {}).forEach(function (k) { node.setAttribute(k, attrs[k]); });
+    return node;
+  }
+
+  const svg = el("svg", { viewBox: "0 0 8 8", "aria-hidden": "true", focusable: "false" });
 
   // FEN раскладывается в сетку 8x8, цифры означают пустые поля подряд
   const grid = BOARD_FEN.split(" ")[0].split("/").map(function (row) {
@@ -700,74 +697,78 @@ phone.textContent = PHONE;
   });
 
   grid.forEach(function (line, r) {
-    const rank = 8 - r;
     line.forEach(function (ch, f) {
-      const cell = document.createElement("div");
-      cell.className = "sq " + ((r + f) % 2 === 0 ? "light" : "dark");
-      cell.dataset.square = FILES[f] + rank;
-      if (ch) {
-        const piece = document.createElement("span");
-        piece.className = "piece " + (ch === ch.toUpperCase() ? "w" : "b");
-        piece.textContent = GLYPH[ch.toLowerCase()];
-        cell.appendChild(piece);
+      const isLight = (r + f) % 2 === 0;
+      svg.appendChild(el("rect", { x: f, y: r, width: 1, height: 1, fill: isLight ? LIGHT : DARK }));
+
+      // координаты по левому и нижнему краю, цветом соседней клетки
+      const ink = isLight ? DARK : LIGHT;
+      if (f === 0) {
+        const n = el("text", { x: 0.08, y: r + 0.22, "font-size": 0.17, fill: ink });
+        n.textContent = String(8 - r);
+        svg.appendChild(n);
       }
-      if (r === 7) cell.appendChild(coord("file", FILES[f]));
-      if (f === 0) cell.appendChild(coord("rank", String(rank)));
-      board.appendChild(cell);
+      if (r === 7) {
+        const n = el("text", { x: f + 0.92, y: 7.94, "font-size": 0.17, fill: ink, "text-anchor": "end" });
+        n.textContent = FILES[f];
+        svg.appendChild(n);
+      }
     });
   });
 
-  function coord(kind, text) {
-    const el = document.createElement("span");
-    el.className = "coord " + kind;
-    el.textContent = text;
-    return el;
-  }
+  // фигуры отдельным проходом, чтобы они лежали поверх клеток
+  grid.forEach(function (line, r) {
+    line.forEach(function (ch, f) {
+      if (!ch) return;
+      const white = ch === ch.toUpperCase();
+      const piece = el("text", {
+        x: f + 0.5, y: r + 0.5,
+        "font-size": 0.78,
+        "text-anchor": "middle",
+        "dominant-baseline": "central",
+        fill: white ? "#fbf8f2" : "#2b2119",
+        stroke: white ? "#2b2119" : "none",
+        "stroke-width": white ? 0.028 : 0,
+        "paint-order": "stroke"
+      });
+      piece.textContent = GLYPH[ch.toLowerCase()];
+      svg.appendChild(piece);
+    });
+  });
 
-  // центр поля в координатах доски 8x8
+  // стрелки поверх фигур
+  const defs = el("defs", {});
+  svg.appendChild(defs);
+
   function center(square) {
     return { x: FILES.indexOf(square[0]) + 0.5, y: 8 - parseInt(square[1], 10) + 0.5 };
   }
 
-  const NS = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(NS, "svg");
-  svg.setAttribute("class", "arrows");
-  svg.setAttribute("viewBox", "0 0 8 8");
-  svg.setAttribute("aria-hidden", "true");
-
-  const defs = document.createElementNS(NS, "defs");
-  svg.appendChild(defs);
-
   BOARD_ARROWS.forEach(function (a) {
-    const from = center(a.from), to = center(a.to);
-    // наконечник для каждой стрелки своего цвета
-    const marker = document.createElementNS(NS, "marker");
-    marker.setAttribute("id", "head-" + a.id);
-    marker.setAttribute("viewBox", "0 0 10 10");
-    marker.setAttribute("refX", "7");
-    marker.setAttribute("refY", "5");
-    marker.setAttribute("markerWidth", "4");
-    marker.setAttribute("markerHeight", "4");
-    marker.setAttribute("orient", "auto-start-reverse");
-    const path = document.createElementNS(NS, "path");
-    path.setAttribute("d", "M0,1 L10,5 L0,9 z");
-    path.setAttribute("fill", a.color);
-    marker.appendChild(path);
+    const marker = el("marker", {
+      id: "head-" + a.id, viewBox: "0 0 10 10", refX: 7, refY: 5,
+      markerWidth: 4, markerHeight: 4, orient: "auto-start-reverse"
+    });
+    marker.appendChild(el("path", { d: "M0,1 L10,5 L0,9 z", fill: a.color }));
     defs.appendChild(marker);
 
-    const line = document.createElementNS(NS, "line");
-    line.setAttribute("class", "arrow");
+    // хвост стрелки отодвинут от центра, чтобы фигура под ним оставалась видна
+    const from = center(a.from), to = center(a.to);
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+    const x1 = from.x + (dx / len) * 0.34, y1 = from.y + (dy / len) * 0.34;
+    const x2 = to.x - (dx / len) * 0.1,   y2 = to.y - (dy / len) * 0.1;
+    const line = el("line", {
+      class: "arrow", x1: x1, y1: y1, x2: x2, y2: y2,
+      stroke: a.color, "stroke-width": 0.13, "stroke-linecap": "round",
+      "marker-end": "url(#head-" + a.id + ")"
+    });
     line.dataset.arrow = a.id;
-    line.setAttribute("x1", from.x); line.setAttribute("y1", from.y);
-    line.setAttribute("x2", to.x);   line.setAttribute("y2", to.y);
-    line.setAttribute("stroke", a.color);
-    line.setAttribute("stroke-width", "0.13");
-    line.setAttribute("stroke-linecap", "round");
-    line.setAttribute("marker-end", "url(#head-" + a.id + ")");
     svg.appendChild(line);
   });
 
-  board.appendChild(svg);
+  svg.appendChild(el("rect", { x: 0, y: 0, width: 8, height: 8, fill: "none", stroke: EDGE, "stroke-width": 0.04 }));
+  host.appendChild(svg);
 })();
 
 /* Ответ на задачу: подсвечивается своя стрелка и появляется объяснение */
