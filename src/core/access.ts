@@ -7,7 +7,7 @@
  * localStorage устройства код сверяется с текущим ACCESS_CODE при каждом
  * запуске, старое значение перестаёт совпадать.
  */
-export const ACCESS_CODE = 'sciencechess';
+export const ACCESS_CODE = '2000';
 
 /** Куда ведёт кнопка «Получить доступ» на экране входа. */
 export const CONTACT_TELEGRAM_URL = 'https://t.me/vLdm56';
