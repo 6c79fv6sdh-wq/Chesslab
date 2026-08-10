@@ -1,0 +1,57 @@
+name: Публикация в vladchess-site /lab/
+
+# По релизному тегу (v*) или вручную: собирает приложение и пушит готовую
+# сборку в папку lab/ репозитория vladchess-site — оттуда GitHub Pages
+# сам раздаёт её по адресу /lab/. Исходники не смешиваются, в основной
+# сайт попадают только статические файлы после билда.
+#
+# Разовая ручная настройка (см. lab-integration-brief.md):
+#   1. Fine-grained PAT с правом Contents: Read and write на
+#      6c79fv6sdh-wq/vladchess-site.
+#   2. Секрет VLADCHESS_SITE_TOKEN в этом репозитории
+#      (Settings -> Secrets and variables -> Actions).
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch: {}
+
+concurrency:
+  group: publish-lab
+  cancel-in-progress: false
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Установка зависимостей
+        run: npm ci
+
+      - name: Тесты
+        run: npm test
+
+      - name: Сборка
+        run: npm run build
+
+      - name: Публикация сборки в vladchess-site/lab
+        env:
+          TOKEN: ${{ secrets.VLADCHESS_SITE_TOKEN }}
+        run: |
+          git clone https://x-access-token:${TOKEN}@github.com/6c79fv6sdh-wq/vladchess-site.git target
+          rm -rf target/lab
+          mkdir -p target/lab
+          cp -r dist/* target/lab/
+          cd target
+          git config user.name "sciencechess-lab bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add lab
+          git diff --cached --quiet && exit 0
+          git commit -m "Update /lab/ from sciencechess-lab@${GITHUB_SHA::7}"
+          git push
