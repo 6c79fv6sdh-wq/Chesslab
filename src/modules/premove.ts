@@ -124,9 +124,13 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
 
   function onPremoveUnset(): void {
     if (!current || resolved) return;
+    // Как и в playPremove(), фиксируем значение до сброса: cancelMove()
+    // тоже шлёт unset синхронно, а finishCancel() ниже должен записать
+    // именно тот UCI, что был снят, а не null.
+    const uciAtUnset = premoveUci;
     premoveUci = null;
     if (awaitingCancel) {
-      finishCancel(true);
+      finishCancel(true, undefined, uciAtUnset);
     }
   }
 
@@ -192,12 +196,12 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
       promptEl.textContent = `Соперник сыграл неожиданно: ${position.unexpectedSan}. Снимай premove!`;
       if (!board.hasPremove() && !premoveUci) {
         // Premove не ставился — засчитывать нечего.
-        finishCancel(false, 'no-premove');
+        finishCancel(false, 'no-premove', premoveUci);
         return;
       }
       // Если за 3 секунды не снял, считаем провалом.
       later(() => {
-        if (awaitingCancel) finishCancel(false);
+        if (awaitingCancel) finishCancel(false, undefined, premoveUci);
       }, 3000);
       return;
     }
@@ -260,7 +264,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     });
   }
 
-  function finishCancel(cancelled: boolean, reason?: 'no-premove'): void {
+  function finishCancel(cancelled: boolean, reason: 'no-premove' | undefined, uci: string | null): void {
     if (!current || resolved) return;
     resolved = true;
     awaitingCancel = false;
@@ -274,7 +278,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
       setLatencyMs: premoveSetAt === null ? null : premoveSetAt - shownAt,
       cancelLatencyMs: latency,
       action: reason === 'no-premove' ? 'skip' : cancelled ? 'cancelled' : 'not-cancelled',
-      premoveUci,
+      premoveUci: uci,
     });
   }
 
@@ -345,9 +349,15 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   // --- Снятие premove: кнопка, пробел, Esc, правая кнопка мыши.
   function cancelPremoveByUser(): void {
     if (!board.hasPremove() && !premoveUci) return;
+    // board.cancelPremove() обычно уже вызывает onPremoveUnset() синхронно
+    // (chessground шлёт unset изнутри cancelMove()), который сам разрулит
+    // awaitingCancel. Локальная копия ниже — подстраховка на случай рассинхрона
+    // (premoveUci выставлен у нас, а current в chessground уже пуст, и unset
+    // не шлётся): тогда resolved ещё false и мы обязаны закрыть попытку сами.
+    const uciAtCancel = premoveUci;
     board.cancelPremove();
     premoveUci = null;
-    if (awaitingCancel) finishCancel(true);
+    if (awaitingCancel) finishCancel(true, undefined, uciAtCancel);
   }
 
   const cancelBtn = el('button', { class: 'btn danger', type: 'button' }, ['Снять premove']);
