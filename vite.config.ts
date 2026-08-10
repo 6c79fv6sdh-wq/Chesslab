@@ -26,8 +26,8 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['icon-192.png', 'icon-512.png'],
       manifest: {
-        name: 'Science Chess Speed Lab',
-        short_name: 'Speed Lab',
+        name: 'Science Chess Lab',
+        short_name: 'Chess Lab',
         description: 'Тренажёр моторики и скорости для ultrabullet. Автор: Vladislav Dmitrovsky',
         lang: 'ru',
         start_url: './index.html',
