@@ -57,7 +57,6 @@ async function boot(): Promise<void> {
 
   const buildEl = document.getElementById('build-id');
   if (buildEl) buildEl.textContent = `сборка ${__BUILD_ID__}`;
-  reloadOnServiceWorkerUpdate();
 
   // Просим постоянное хранение до первых замеров, чтобы браузер
   // не вычистил базу через неделю простоя.
@@ -136,6 +135,15 @@ async function boot(): Promise<void> {
   const initial = location.hash.replace('#', '');
   show(TABS.some((t) => t.id === initial) ? initial : 'calibration');
 }
+
+// Слушаем обновление service worker'а СРАЗУ, а не внутри boot(): пока
+// показан экран доступа, страница работает на старом закешированном JS
+// (там же старый ACCESS_CODE) и boot() ещё не вызван. Если слушатель
+// повесить только внутри boot(), у вернувшегося пользователя с устаревшим
+// SW обновление в фоне произойдёт, но перезагрузку страницы поймать будет
+// некому — он застрянет вводя новый код в старый бандл, который его не
+// узнаёт.
+reloadOnServiceWorkerUpdate();
 
 // Экран доступа: пока код не введён (и не сохранён с прошлого раза в
 // localStorage), boot() вообще не вызывается — вкладки не монтируются,
