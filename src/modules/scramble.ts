@@ -75,6 +75,8 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   const userMoveTimes: number[] = [];
   let tickHandle: number | null = null;
   const timers: number[] = [];
+  /** Номер попытки старта: отменяет отсчёт, если нажали «Отмена» или ушли со вкладки. */
+  let startToken = 0;
 
   function later(fn: () => void, ms: number): void {
     timers.push(window.setTimeout(fn, ms));
@@ -350,21 +352,57 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   const resignBtn = el('button', { class: 'btn', type: 'button' }, ['Сдаться']);
   resignBtn.disabled = true;
 
-  startBtn.addEventListener('click', () => {
+  const wait = (ms: number) => new Promise<void>((resolve) => later(() => resolve(), ms));
+
+  /**
+   * Партия начинается с отсчёта готовности.
+   *
+   * Раньше часы включались прямо по нажатию «Старт»: на пятнадцати секундах
+   * достаточно было замешкаться на пару мгновений, чтобы флаг упал до первого
+   * хода. Доска после этого замирала, и выглядело так, будто ходить нельзя.
+   * Заодно дожидаемся загрузки движка, чтобы соперник не думал о вечном.
+   */
+  async function beginGame(): Promise<void> {
+    const token = ++startToken;
+    const cancelled = () => token !== startToken;
     clearTimers();
     userMoveTimes.length = 0;
     pos = posFromFen(INITIAL_FEN);
     clocks = new Clocks(Number(clockSetting) * 1000);
-    running = true;
-    const mode =
-      opponent === 'engine' ? `sf${eloOfLevel(level) ?? 'max'}:${clockSetting}s` : `${profile}:${clockSetting}s`;
-    session = new Session('scramble', mode, cal);
+    running = false;
     startBtn.disabled = true;
     resignBtn.disabled = false;
     board.cancelPremove();
     paint();
     renderClocks();
     renderLive();
+
+    if (opponent === 'engine') {
+      promptEl.textContent = 'Загружаю движок…';
+      try {
+        await sharedEngine().start();
+        await sharedEngine().setStrength(eloOfLevel(level));
+        await sharedEngine().newGame();
+      } catch (e) {
+        engineStatusEl.textContent = `Движок не загрузился, играю простым ботом: ${(e as Error).message}`;
+        opponent = 'simple';
+      }
+    }
+    // Партию могли отменить, пока грузился движок.
+    if (cancelled()) return;
+
+    for (const n of [3, 2, 1]) {
+      promptEl.textContent = `Готовность… ${n}`;
+      await wait(600);
+      if (cancelled()) return;
+    }
+
+    const mode =
+      opponent === 'engine' ? `sf${eloOfLevel(level) ?? 'max'}:${clockSetting}s` : `${profile}:${clockSetting}s`;
+    session = new Session('scramble', mode, cal);
+
+    running = true;
+    paint();
     clocks.start('white');
     startTicking();
     if (pos.turn === userColor) {
@@ -373,10 +411,24 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     } else {
       scheduleBotMove();
     }
+  }
+
+  startBtn.addEventListener('click', () => {
+    void beginGame();
   });
 
   resignBtn.addEventListener('click', () => {
-    if (running) void end('aborted');
+    if (running) {
+      void end('aborted');
+      return;
+    }
+    // Отмена во время отсчёта готовности: партия ещё не началась.
+    startToken++;
+    clearTimers();
+    startBtn.disabled = false;
+    resignBtn.disabled = true;
+    promptEl.textContent = 'Отменено до начала партии.';
+    paint();
   });
 
   board.setOptions({ onMove });
@@ -421,6 +473,7 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   if (opponent === 'engine') void sharedEngine().start().catch(() => undefined);
 
   return () => {
+    startToken++;
     stopTicking();
     clearTimers();
     if (running) void end('aborted');

@@ -113,6 +113,14 @@ body {
   opacity: 0.6;
 }
 
+/* Хеш сборки набираем как есть: капитель мешает его сверять. */
+.credit-build {
+  text-transform: none;
+  letter-spacing: 0.04em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+}
+
 #tabs {
   display: flex;
   flex-wrap: wrap;
