@@ -52,7 +52,7 @@ export function mountGate(): GateHandle {
   );
 
   const card = el('div', { class: 'gate-card' }, [
-    el('div', { class: 'gate-title' }, ['Science Chess ', el('span', { class: 'gate-title-accent' }, ['Lab'])]),
+    el('div', { class: 'gate-title' }, ['ScienceChess ', el('span', { class: 'gate-title-accent' }, ['Lab'])]),
     el('p', { class: 'gate-subtitle' }, ['Закрытая тренировочная лаборатория для учеников ScienceChess.']),
     form,
     el('p', { class: 'gate-no-access' }, ['Нет доступа?']),

@@ -1,4 +1,4 @@
-# Science Chess Lab
+# ScienceChess Lab
 
 _by Vladislav Dmitrovsky_
 
