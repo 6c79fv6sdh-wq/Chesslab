@@ -16,6 +16,7 @@ import {
 } from '../core/chess';
 
 import { HANGING_PUZZLES, type HangingPuzzle } from '../data/puzzles-hanging';
+import { MATE_PUZZLES, type MatePuzzle } from '../data/puzzles-mate';
 
 export type Rng = () => number;
 
@@ -254,35 +255,59 @@ export function generateDeltaTask(rnd: Rng, tries = 400): DeltaTask | null {
 export interface PuzzleTask extends ReactionTask {
   puzzleId: string;
   san: string;
-  victim: string;
+  /** Взятая фигура — только у задач «висящая фигура». */
+  victim?: string;
 }
 
-/** Превращает задачу в задание упражнения. Решение ровно одно, авторское. */
-export function taskFromPuzzle(p: HangingPuzzle): PuzzleTask {
-  const pos = posFromFenStrict(p.fen);
-  const from = p.uci.slice(0, 2);
-  const to = p.uci.slice(2, 4);
+function taskFromSolution(fen: string, id: string, uci: string, san: string, victim?: string): PuzzleTask {
+  const pos = posFromFenStrict(fen);
+  const from = uci.slice(0, 2);
+  const to = uci.slice(2, 4);
   return {
-    fen: p.fen,
+    fen,
     pos,
     userColor: pos.turn,
     solutions: [{ uci: `${from}${to}`, from, to }],
-    puzzleId: p.id,
-    san: p.san,
-    victim: p.victim,
+    puzzleId: id,
+    san,
+    victim,
   };
 }
 
-/** Очередь задач на сессию: перемешана, без повторов. */
-export function puzzleQueue(rnd: Rng, count: number): HangingPuzzle[] {
-  const pool = [...HANGING_PUZZLES];
-  for (let i = pool.length - 1; i > 0; i--) {
+/** Превращает задачу «висящая фигура» в задание упражнения. */
+export function taskFromPuzzle(p: HangingPuzzle): PuzzleTask {
+  return taskFromSolution(p.fen, p.id, p.uci, p.san, p.victim);
+}
+
+/** Превращает задачу «мат в один ход» в задание упражнения. */
+export function taskFromMatePuzzle(p: MatePuzzle): PuzzleTask {
+  return taskFromSolution(p.fen, p.id, p.uci, p.san);
+}
+
+/** Перемешивает набор и берёт первые count элементов — очередь на сессию без повторов. */
+function shuffledQueue<T>(pool: readonly T[], rnd: Rng, count: number): T[] {
+  const copy = [...pool];
+  for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(rnd() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+    [copy[i], copy[j]] = [copy[j], copy[i]];
   }
-  return pool.slice(0, Math.min(count, pool.length));
+  return copy.slice(0, Math.min(count, copy.length));
+}
+
+/** Очередь задач «висящая фигура» на сессию: перемешана, без повторов. */
+export function puzzleQueue(rnd: Rng, count: number): HangingPuzzle[] {
+  return shuffledQueue(HANGING_PUZZLES, rnd, count);
 }
 
 export function puzzleCount(): number {
   return HANGING_PUZZLES.length;
+}
+
+/** Очередь задач «мат в один ход» на сессию: перемешана, без повторов. */
+export function matePuzzleQueue(rnd: Rng, count: number): MatePuzzle[] {
+  return shuffledQueue(MATE_PUZZLES, rnd, count);
+}
+
+export function matePuzzleCount(): number {
+  return MATE_PUZZLES.length;
 }

@@ -7,8 +7,11 @@ import { checkedColor, dests, fenOf, moveFromUci, posFromFen } from '../core/che
 import {
   generateDeltaTask,
   generateSafeCheckTask,
+  matePuzzleCount,
+  matePuzzleQueue,
   puzzleCount,
   puzzleQueue,
+  taskFromMatePuzzle,
   taskFromPuzzle,
   type DeltaTask,
   type ReactionTask,
@@ -16,13 +19,22 @@ import {
 import { boardRect, keyFromPoint } from './motorics-geometry';
 import type { Key } from 'chessground/types';
 
-export type ReactionExercise = 'free-capture' | 'safe-check' | 'delta';
+export type ReactionExercise = 'free-capture' | 'mate-in-1' | 'safe-check' | 'delta';
 export type Exposure = 'unlimited' | '500' | '300' | '200';
 
 const EXERCISE_LABELS: Record<ReactionExercise, string> = {
   'free-capture': 'Бесплатное взятие',
+  'mate-in-1': 'Мат в один ход',
   'safe-check': 'Безопасный шах',
   delta: 'Дельта позиции',
+};
+
+/** Подсказка под доской. У «дельты» свой текст, задаётся отдельно по ходу упражнения. */
+const PROMPTS: Record<ReactionExercise, string> = {
+  'free-capture': 'Забери висящую фигуру. Отбить её нельзя.',
+  'mate-in-1': 'Поставь мат в один ход.',
+  'safe-check': 'Найди шах, при котором шахующую фигуру нельзя взять.',
+  delta: '',
 };
 
 const EXPOSURE_LABELS: Record<Exposure, string> = {
@@ -71,8 +83,9 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
 
   let session: Session | null = null;
   let taskCount = 0;
-  // Очередь задач «висящая фигура» на текущую сессию, без повторов.
+  // Очереди задач на текущую сессию, без повторов внутри сессии.
   let puzzles: ReturnType<typeof puzzleQueue> = [];
+  let matePuzzles: ReturnType<typeof matePuzzleQueue> = [];
   let currentPuzzleId = '';
   let current: ReactionTask | null = null;
   let delta: DeltaTask | null = null;
@@ -155,6 +168,10 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
       const puzzle = puzzles.shift();
       t = puzzle ? taskFromPuzzle(puzzle) : null;
       currentPuzzleId = puzzle?.id ?? '';
+    } else if (exercise === 'mate-in-1') {
+      const puzzle = matePuzzles.shift();
+      t = puzzle ? taskFromMatePuzzle(puzzle) : null;
+      currentPuzzleId = puzzle?.id ?? '';
     } else {
       t = generateSafeCheckTask(rnd);
       currentPuzzleId = '';
@@ -173,10 +190,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
       dests: dests(t.pos),
       check: checkedColor(t.pos),
     });
-    promptEl.textContent =
-      exercise === 'free-capture'
-        ? 'Забери висящую фигуру. Отбить её нельзя.'
-        : 'Найди шах, при котором шахующую фигуру нельзя взять.';
+    promptEl.textContent = PROMPTS[exercise];
     shownAt = performance.now();
     accepting = true;
     applyExposure();
@@ -330,6 +344,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     attempts.length = 0;
     taskCount = 0;
     puzzles = exercise === 'free-capture' ? puzzleQueue(rnd, TASKS_PER_SESSION) : [];
+    matePuzzles = exercise === 'mate-in-1' ? matePuzzleQueue(rnd, TASKS_PER_SESSION) : [];
     session = new Session('reaction', `${exercise}:${exposure}`, cal);
     startBtn.disabled = true;
     stopBtn.disabled = false;
@@ -352,8 +367,9 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
         'После лимита экспозиции фигуры скрываются, решение идёт по памяти.',
       ]),
       el('p', { class: 'hint' }, [
-        `«Бесплатное взятие» идёт по ${puzzleCount()} реальным задачам Lichess. `,
-        'Остальные два упражнения пока на случайных позициях.',
+        `«Бесплатное взятие» — ${puzzleCount()} реальных задач Lichess, `,
+        `«Мат в один ход» — ${matePuzzleCount()}. `,
+        '«Безопасный шах» и «Дельта позиции» пока на случайных позициях.',
       ]),
     ]),
     panel('Тренировка', [
