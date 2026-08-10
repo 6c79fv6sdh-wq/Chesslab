@@ -2,6 +2,7 @@ import './styles.css';
 import { loadCalibration, requestPersistentStorage, saveCalibration } from './core/db';
 import { DEFAULT_CALIBRATION, type Calibration } from './core/settings';
 import { el } from './core/ui';
+import { hasAccess, mountGate } from './gate';
 
 import { mountCalibration } from './modules/calibration';
 import { mountMotorics } from './modules/motorics';
@@ -136,4 +137,11 @@ async function boot(): Promise<void> {
   show(TABS.some((t) => t.id === initial) ? initial : 'calibration');
 }
 
-void boot();
+// Экран доступа: пока код не введён (и не сохранён с прошлого раза в
+// localStorage), boot() вообще не вызывается — вкладки не монтируются,
+// IndexedDB не читается. См. gate.ts и core/access.ts.
+if (hasAccess()) {
+  void boot();
+} else {
+  mountGate(() => void boot());
+}

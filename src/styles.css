@@ -469,3 +469,139 @@ code {
   border-radius: 4px;
   font-size: 12px;
 }
+
+/* --- Экран доступа ------------------------------------------------- */
+
+#app.gate-locked {
+  filter: blur(14px) brightness(0.7);
+  transform: scale(1.01); /* прячет размытые края под затемнением */
+  transition: filter 0.3s ease;
+  user-select: none;
+  pointer-events: none;
+}
+
+.gate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+  background: rgba(12, 11, 10, 0.62);
+  animation: gate-fade-in 0.25s ease;
+}
+
+@keyframes gate-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.gate-card {
+  width: min(92vw, 380px);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 34px 28px 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+
+.gate-title {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+  color: var(--fg-strong);
+}
+
+.gate-title-accent {
+  font-weight: 650;
+  color: var(--accent);
+}
+
+.gate-subtitle {
+  margin: 10px 0 26px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--fg);
+  opacity: 0.75;
+}
+
+.gate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.gate-label {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--fg);
+  opacity: 0.7;
+}
+
+.gate-input {
+  background: var(--panel2);
+  color: var(--fg-strong);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 12px;
+  font-size: 16px; /* 16px не даёт Safari на iPhone зумить при фокусе */
+  letter-spacing: 0.03em;
+  text-align: center;
+  font-family: inherit;
+  width: 100%;
+}
+
+.gate-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.gate-error {
+  min-height: 16px;
+  margin: 0;
+  font-size: 12.5px;
+  color: #d99a5b;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.gate-error.visible {
+  opacity: 1;
+}
+
+.gate-submit {
+  margin-top: 6px;
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 14.5px;
+}
+
+.gate-no-access {
+  margin: 22px 0 8px;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg);
+  opacity: 0.45;
+}
+
+.gate-contact {
+  display: block;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .gate-card {
+    padding: 40px 36px 32px;
+  }
+}
