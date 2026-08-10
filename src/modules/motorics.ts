@@ -359,7 +359,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
           liveStats,
           el('div', { class: 'row' }, [startBtn, stopBtn]),
           el('p', { class: 'hint' }, [
-            '30 повторов. Сначала кликни по зелёной клетке, потом по новой зелёной. Траектория указателя рисуется поверх доски.',
+            '30 повторов. Сначала кликни по зелёной клетке, потом по новой зелёной.',
           ]),
         ]),
       ]),

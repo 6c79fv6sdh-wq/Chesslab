@@ -19,7 +19,7 @@ import {
   type OpponentKind,
   type Outcome,
 } from './scramble-logic';
-import { ENGINE_NAME, engineSupported, sharedEngine } from '../core/engine';
+import { engineSupported, sharedEngine } from '../core/engine';
 import {
   INITIAL_FEN,
   checkedColor,
@@ -314,16 +314,10 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
   const levelRow = el('div', { class: 'row' }, [el('label', {}, ['Сила движка']), levelSeg.root]);
 
+  // engineStatusEl зарезервирован под реальные ошибки движка (не загрузился,
+  // недоступен), поэтому при обычном переключении настроек просто чистим его.
   function updateEngineHint(): void {
-    if (opponent !== 'engine') {
-      engineStatusEl.textContent =
-        'Простой бот считает на один полуход. Быстрый, но слабый.';
-      return;
-    }
-    const elo = eloOfLevel(level);
-    engineStatusEl.textContent =
-      `${ENGINE_NAME}, ${elo === null ? 'без ограничения силы' : `UCI_Elo ${elo}`}. ` +
-      'Первый запуск подтянет 7 МБ, дальше движок работает офлайн.';
+    engineStatusEl.textContent = '';
   }
 
   const botSeg = segmented<BotProfile>(
@@ -441,10 +435,7 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
       el('div', { class: 'row' }, [el('label', {}, ['Темп хода']), botSeg.root]),
       el('div', { class: 'row' }, [el('label', {}, ['Играю']), colorSeg.root]),
       engineStatusEl,
-      el('p', { class: 'hint' }, [
-        'Темп задаёт только задержку хода соперника, силу игры — движок.',
-        ' Без добавления времени, обеим сторонам поровну.',
-      ]),
+      el('p', { class: 'hint' }, ['Без добавления времени, обеим сторонам поровну.']),
     ]),
     panel('Партия', [
       el('div', { class: 'board-area' }, [

@@ -127,7 +127,7 @@ export function mountCalibration(root: HTMLElement, ctx: AppContext): Unmount {
     panel('Проверка доски', [
       el('div', { class: 'board-area' }, [boardHost]),
       el('p', { class: 'hint' }, [
-        'Фигуры cburnett, тема brown. Доска здесь только для проверки ощущений от ввода, ходы не записываются.',
+        'Доска здесь только для проверки ощущений от ввода, ходы не записываются.',
       ]),
       resetBtn,
     ]),

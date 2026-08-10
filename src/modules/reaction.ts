@@ -7,9 +7,7 @@ import { checkedColor, dests, fenOf, moveFromUci, posFromFen } from '../core/che
 import {
   generateDeltaTask,
   generateSafeCheckTask,
-  matePuzzleCount,
   matePuzzleQueue,
-  puzzleCount,
   puzzleQueue,
   taskFromMatePuzzle,
   taskFromPuzzle,
@@ -365,11 +363,6 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
       el('div', { class: 'row' }, [el('label', {}, ['Экспозиция']), exposureSeg.root]),
       el('p', { class: 'hint' }, [
         'После лимита экспозиции фигуры скрываются, решение идёт по памяти.',
-      ]),
-      el('p', { class: 'hint' }, [
-        `«Бесплатное взятие» — ${puzzleCount()} реальных задач Lichess, `,
-        `«Мат в один ход» — ${matePuzzleCount()}. `,
-        '«Безопасный шах» и «Дельта позиции» пока на случайных позициях.',
       ]),
     ]),
     panel('Тренировка', [
