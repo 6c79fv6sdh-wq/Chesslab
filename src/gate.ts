@@ -2,13 +2,20 @@ import { el } from './core/ui';
 import { CONTACT_TELEGRAM_URL, checkCode, grantAccess, hasAccess } from './core/access';
 
 /**
- * Экран доступа поверх приложения. Пока код не введён, boot() приложения
- * не вызывается вовсе (см. main.ts) — вкладки не монтируются, данные из
- * IndexedDB не читаются. #app при этом виден фоном: получает класс
- * gate-locked (blur/затемнение из styles.css) и inert/pointer-events:none,
- * чтобы с ним нельзя было взаимодействовать ни мышью, ни клавиатурой.
+ * Экран доступа поверх приложения. Интерфейс за карточкой отрисован
+ * по-настоящему — он и есть фон, — но полностью выключен: #app получает
+ * класс gate-locked (лёгкий блюр из styles.css), pointer-events: none и
+ * inert, поэтому ни мышью, ни пальцем, ни клавиатурой до него не
+ * добраться, а фокус остаётся в поле кода. Ничего не запускается само:
+ * все упражнения стартуют только по кнопке «Старт», нажать которую
+ * нельзя. См. main.ts.
  */
-export function mountGate(onUnlock: () => void): void {
+export interface GateHandle {
+  /** Вернуть фокус в поле кода (см. вызов в main.ts после boot). */
+  focus(): void;
+}
+
+export function mountGate(): GateHandle {
   const app = document.getElementById('app');
 
   const input = el('input', {
@@ -91,7 +98,6 @@ export function mountGate(onUnlock: () => void): void {
       grantAccess();
       overlay.remove();
       unlockBackground();
-      onUnlock();
       return;
     }
     showError('Код не подошёл. Проверьте и попробуйте ещё раз.');
@@ -102,7 +108,17 @@ export function mountGate(onUnlock: () => void): void {
 
   lockBackground();
   document.body.append(overlay);
-  input.focus({ preventScroll: true });
+
+  const focusInput = (): void => {
+    // Только если карточка ещё на экране и пользователь сам не ушёл в неё
+    // мышью: перехватывать фокус у того, кто уже печатает, незачем.
+    if (!overlay.isConnected) return;
+    if (overlay.contains(document.activeElement)) return;
+    input.focus({ preventScroll: true });
+  };
+
+  focusInput();
+  return { focus: focusInput };
 }
 
 export { hasAccess };

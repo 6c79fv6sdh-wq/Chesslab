@@ -472,10 +472,15 @@ code {
 
 /* --- Экран доступа ------------------------------------------------- */
 
+/* Интерфейс за карточкой видно — он приглушён, а не спрятан:
+   лёгкий блюр и совсем немного затемнения, чтобы читалась структура
+   (вкладки, панели, доска), но взгляд оставался на карточке. */
 #app.gate-locked {
-  filter: blur(14px) brightness(0.7);
-  transform: scale(1.01); /* прячет размытые края под затемнением */
-  transition: filter 0.3s ease;
+  filter: blur(5px) brightness(0.88) saturate(0.92);
+  transform: scale(1.008); /* прячет полупрозрачные края блюра */
+  transition:
+    filter 0.45s ease,
+    transform 0.45s ease;
   user-select: none;
   pointer-events: none;
 }
@@ -488,8 +493,11 @@ code {
   align-items: center;
   justify-content: center;
   padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
-  background: rgba(12, 11, 10, 0.62);
-  animation: gate-fade-in 0.25s ease;
+  /* Мягкая виньетка вместо плоской заливки: к центру плотнее, чтобы
+     карточка отделилась от фона, по краям интерфейс остаётся светлее. */
+  background:
+    radial-gradient(120% 90% at 50% 50%, rgba(10, 9, 8, 0.62) 0%, rgba(10, 9, 8, 0.34) 55%, rgba(10, 9, 8, 0.22) 100%);
+  animation: gate-fade-in 0.3s ease;
 }
 
 @keyframes gate-fade-in {
@@ -501,14 +509,28 @@ code {
   }
 }
 
+/* Матовое стекло: карточка чуть прозрачная и сама размывает фон под
+   собой, поэтому читается как слой поверх интерфейса, а не как заплатка. */
 .gate-card {
   width: min(92vw, 380px);
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 16px;
+  background: rgba(38, 36, 33, 0.82);
+  -webkit-backdrop-filter: blur(22px) saturate(1.15);
+  backdrop-filter: blur(22px) saturate(1.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
   padding: 34px 28px 28px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   text-align: center;
+}
+
+/* Если backdrop-filter не поддерживается, стекло выродится в прозрачную
+   карточку поверх блюра — делаем её плотной, чтобы текст не поплыл. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .gate-card {
+    background: rgba(38, 36, 33, 0.97);
+  }
 }
 
 .gate-title {
