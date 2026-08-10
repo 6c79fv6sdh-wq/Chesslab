@@ -1,4 +1,5 @@
 import type { Color } from 'chessops/types';
+import { PREMOVE_FORCED_IMPORTED } from './premove-forced-imported';
 
 export type PremoveMode = 'forced-capture' | 'safe-unsafe' | 'cancel';
 
@@ -283,6 +284,14 @@ export const PREMOVE_POSITIONS: PremovePosition[] = [
   },
 ];
 
+/**
+ * Позиции режима «Форсированное взятие» смешивают рукописный набор
+ * (с комментариями про дебютную идею) и импортированный из реальных партий
+ * Lichess — см. premove-forced-imported.ts. Остальные режимы пока только
+ * рукописные.
+ */
 export function positionsOf(mode: PremoveMode): PremovePosition[] {
-  return PREMOVE_POSITIONS.filter((p) => p.mode === mode);
+  const handwritten = PREMOVE_POSITIONS.filter((p) => p.mode === mode);
+  if (mode !== 'forced-capture') return handwritten;
+  return [...handwritten, ...PREMOVE_FORCED_IMPORTED];
 }

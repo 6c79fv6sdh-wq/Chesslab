@@ -203,12 +203,18 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     }
 
     paint(after, position, [from, to]);
+    // Chessground сбрасывает state.premovable.current и шлёт events.unset
+    // синхронно внутри playPremove() — даже когда премув успешно сыгран.
+    // Поэтому запоминаем UCI ДО вызова, иначе onPremoveUnset() обнулит
+    // premoveUci раньше, чем evaluate() успеет его прочитать, и любой
+    // верно поставленный премув засчитается как «не поставлен».
+    const premoveAtMove = premoveUci;
     // Даём Chessground проиграть premove — так же, как это происходит на Lichess.
     const played = board.playPremove();
-    later(() => evaluate(played), 60);
+    later(() => evaluate(played, premoveAtMove), 60);
   }
 
-  function evaluate(premovePlayed: boolean): void {
+  function evaluate(premovePlayed: boolean, premoveUciAtMove: string | null): void {
     if (!current || resolved) return;
     resolved = true;
     const position = current;
@@ -217,14 +223,14 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     let correct: boolean;
     let action: Attempt['action'];
 
-    if (!premoveUci) {
+    if (!premoveUciAtMove) {
       // Пользователь пропустил ход. Верно, если premove тут и не нужен.
       correct = !position.shouldPremove;
       action = 'skip';
     } else if (!position.shouldPremove) {
       correct = false;
       action = 'set';
-    } else if (position.answerUci && premoveUci.startsWith(position.answerUci.slice(0, 4))) {
+    } else if (position.answerUci && premoveUciAtMove.startsWith(position.answerUci.slice(0, 4))) {
       correct = true;
       action = 'set';
     } else {
@@ -233,13 +239,13 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     }
 
     // Ход применяем к позиции сами: доска должна остаться слепком FEN.
-    if (premovePlayed && premoveUci && pos) {
-      const mv = pos.isLegal(moveFromUci(premoveUci)) ? moveFromUci(premoveUci) : null;
+    if (premovePlayed && premoveUciAtMove && pos) {
+      const mv = pos.isLegal(moveFromUci(premoveUciAtMove)) ? moveFromUci(premoveUciAtMove) : null;
       if (mv) {
         const after = pos.clone();
         after.play(mv);
         pos = after;
-        paint(after, position, [premoveUci.slice(0, 2) as Key, premoveUci.slice(2, 4) as Key]);
+        paint(after, position, [premoveUciAtMove.slice(0, 2) as Key, premoveUciAtMove.slice(2, 4) as Key]);
       }
     }
 
@@ -250,7 +256,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
       setLatencyMs: setLatency,
       cancelLatencyMs: null,
       action,
-      premoveUci,
+      premoveUci: premoveUciAtMove,
     });
   }
 
