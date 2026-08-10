@@ -1,23 +1,109 @@
-import { el } from './core/ui';
+import { el, panel } from './core/ui';
 import { CONTACT_TELEGRAM_URL, checkCode, grantAccess, hasAccess } from './core/access';
 
 /**
- * Экран доступа поверх приложения. Интерфейс за карточкой отрисован
- * по-настоящему — он и есть фон, — но полностью выключен: #app получает
- * класс gate-locked (лёгкий блюр из styles.css), pointer-events: none и
- * inert, поэтому ни мышью, ни пальцем, ни клавиатурой до него не
- * добраться, а фокус остаётся в поле кода. Ничего не запускается само:
- * все упражнения стартуют только по кнопке «Старт», нажать которую
- * нельзя. См. main.ts.
+ * Публичная витрина Lab — то, что видит посетитель БЕЗ доступа. Рендерится
+ * прямо в #view, вместо вкладок: boot() (монтирование вкладок, чтение
+ * IndexedDB) не вызывается вовсе, пока код не введён и не подтверждён —
+ * см. вызов в main.ts. Сам ввод кода живёт в нативном <dialog>, который
+ * открывается по кнопке «Войти в Lab» — форма и её проверка не изменились,
+ * просто раньше показывались сразу, теперь по кнопке.
  */
-export interface GateHandle {
-  /** Вернуть фокус в поле кода (см. вызов в main.ts после boot). */
-  focus(): void;
+
+interface Slide {
+  src: string;
+  title: string;
+  caption: string;
 }
 
-export function mountGate(): GateHandle {
-  const app = document.getElementById('app');
+// Реальные скриншоты реальных режимов (public/showcase/*.webp), подписи
+// сверены с их фактическим поведением — ничего не выдумано.
+const SLIDES: Slide[] = [
+  {
+    src: './showcase/premove.webp',
+    title: 'Premove',
+    caption: 'Форсированное взятие, safe/unsafe и отмена — сотни реальных позиций из партий Lichess.',
+  },
+  {
+    src: './showcase/reaction.webp',
+    title: 'Реакция',
+    caption: 'Мат в один ход и бесплатное взятие на скорость, с ограничением показа фигур или без.',
+  },
+  {
+    src: './showcase/scramble.webp',
+    title: 'Скрэмбл',
+    caption: 'Партии 5–15 секунд против бота — решения и игра на флажке в темпе ультрабуллета.',
+  },
+  {
+    src: './showcase/motorics.webp',
+    title: 'Моторика',
+    caption: 'Клик по нужной клетке на скорость — точность и скорость ввода.',
+  },
+];
 
+function buildGallery(slides: Slide[]): HTMLElement {
+  const viewport = el('div', {
+    class: 'carousel-viewport',
+    role: 'region',
+    'aria-label': 'Скриншоты режимов Lab',
+  });
+
+  const slideEls = slides.map((s) =>
+    el('figure', { class: 'carousel-slide' }, [
+      el('img', { src: s.src, alt: `Скриншот режима «${s.title}»`, width: '560', height: '257', loading: 'lazy', decoding: 'async' }),
+      el('figcaption', {}, [el('strong', {}, [s.title]), el('span', {}, [s.caption])]),
+    ]),
+  );
+  for (const s of slideEls) viewport.append(s);
+
+  const prevBtn = el('button', { class: 'carousel-arrow', type: 'button', 'aria-label': 'Предыдущий пример' }, ['‹']);
+  const nextBtn = el('button', { class: 'carousel-arrow', type: 'button', 'aria-label': 'Следующий пример' }, ['›']);
+  const dotsWrap = el('div', { class: 'carousel-dots' });
+  const dots = slides.map((_, i) => {
+    const d = el('button', { class: 'carousel-dot', type: 'button', 'aria-label': `Пример ${i + 1} из ${slides.length}` });
+    d.addEventListener('click', () => scrollToIndex(i));
+    dotsWrap.append(d);
+    return d;
+  });
+
+  let current = 0;
+  function setActive(i: number): void {
+    current = i;
+    dots.forEach((d, k) => d.classList.toggle('active', k === i));
+    (prevBtn as HTMLButtonElement).disabled = i === 0;
+    (nextBtn as HTMLButtonElement).disabled = i === slides.length - 1;
+  }
+  function scrollToIndex(i: number): void {
+    const clamped = Math.max(0, Math.min(slides.length - 1, i));
+    viewport.scrollTo({ left: clamped * viewport.clientWidth, behavior: 'smooth' });
+    setActive(clamped);
+  }
+  setActive(0);
+
+  prevBtn.addEventListener('click', () => scrollToIndex(current - 1));
+  nextBtn.addEventListener('click', () => scrollToIndex(current + 1));
+
+  // Догоняем свайп пальцем/трекпадом: после того как прокрутка утихла,
+  // синхронизируем точки и стрелки с реально видимым слайдом.
+  let scrollTimer: number | null = null;
+  viewport.addEventListener(
+    'scroll',
+    () => {
+      if (scrollTimer !== null) window.clearTimeout(scrollTimer);
+      scrollTimer = window.setTimeout(() => {
+        const width = viewport.clientWidth || 1;
+        const i = Math.round(viewport.scrollLeft / width);
+        setActive(Math.max(0, Math.min(slides.length - 1, i)));
+      }, 90);
+    },
+    { passive: true },
+  );
+
+  const controls = el('div', { class: 'carousel-controls' }, [prevBtn, dotsWrap, nextBtn]);
+  return el('div', { class: 'carousel' }, [viewport, controls]);
+}
+
+function buildLoginDialog(onUnlock: () => void): { dialog: HTMLDialogElement; open: () => void } {
   const input = el('input', {
     id: 'gate-code',
     type: 'text',
@@ -30,7 +116,6 @@ export function mountGate(): GateHandle {
   }) as HTMLInputElement;
 
   const errorEl = el('p', { class: 'gate-error' }, ['']);
-
   const submitBtn = el('button', { class: 'btn primary gate-submit', type: 'submit' }, ['Войти']);
 
   const form = el('form', { class: 'gate-form' }, [
@@ -40,48 +125,18 @@ export function mountGate(): GateHandle {
     submitBtn,
   ]);
 
-  const contactLink = el(
-    'a',
-    {
-      class: 'btn gate-contact',
-      href: CONTACT_TELEGRAM_URL,
-      target: '_blank',
-      rel: 'noopener noreferrer',
-    },
-    ['Получить доступ'],
-  );
+  const closeBtn = el('button', { class: 'gate-dialog-close', type: 'button', 'aria-label': 'Закрыть' }, ['×']);
 
-  const card = el('div', { class: 'gate-card' }, [
-    el('div', { class: 'gate-title' }, ['ScienceChess ', el('span', { class: 'gate-title-accent' }, ['Lab'])]),
-    el('p', { class: 'gate-subtitle' }, ['Закрытая тренировочная лаборатория для учеников ScienceChess.']),
-    form,
-    el('p', { class: 'gate-no-access' }, ['Нет доступа?']),
-    contactLink,
-  ]);
-
-  const overlay = el('div', { class: 'gate-overlay', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Экран доступа' }, [
-    card,
-  ]);
-
-  function lockBackground(): void {
-    if (!app) return;
-    app.classList.add('gate-locked');
-    app.setAttribute('inert', '');
-    app.setAttribute('aria-hidden', 'true');
-  }
-
-  function unlockBackground(): void {
-    if (!app) return;
-    app.classList.remove('gate-locked');
-    app.removeAttribute('inert');
-    app.removeAttribute('aria-hidden');
-  }
+  const dialog = el(
+    'dialog',
+    { class: 'gate-dialog', 'aria-label': 'Вход в Lab' },
+    [closeBtn, el('div', { class: 'gate-dialog-title' }, ['Вход в Lab']), form],
+  ) as HTMLDialogElement;
 
   function showError(message: string): void {
     errorEl.textContent = message;
     errorEl.classList.add('visible');
   }
-
   function clearError(): void {
     errorEl.textContent = '';
     errorEl.classList.remove('visible');
@@ -96,29 +151,60 @@ export function mountGate(): GateHandle {
     }
     if (checkCode(value)) {
       grantAccess();
-      overlay.remove();
-      unlockBackground();
+      dialog.close();
+      onUnlock();
       return;
     }
     showError('Код не подошёл. Проверьте и попробуйте ещё раз.');
     input.select();
   });
-
   input.addEventListener('input', clearError);
+  closeBtn.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('close', () => {
+    input.value = '';
+    clearError();
+  });
+  // Клик по backdrop закрывает диалог, как в лайтбоксе на основном сайте.
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
 
-  lockBackground();
-  document.body.append(overlay);
+  document.body.append(dialog);
 
-  const focusInput = (): void => {
-    // Только если карточка ещё на экране и пользователь сам не ушёл в неё
-    // мышью: перехватывать фокус у того, кто уже печатает, незачем.
-    if (!overlay.isConnected) return;
-    if (overlay.contains(document.activeElement)) return;
+  function open(): void {
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', ''); // старые браузеры без <dialog> — просто показываем
     input.focus({ preventScroll: true });
-  };
+  }
 
-  focusInput();
-  return { focus: focusInput };
+  return { dialog, open };
+}
+
+export function mountGate(onUnlock: () => void): void {
+  const view = document.getElementById('view');
+  if (!view) return;
+  view.innerHTML = '';
+
+  const { open: openLogin } = buildLoginDialog(onUnlock);
+
+  const loginBtn = el('button', { class: 'btn primary', type: 'button' }, ['Войти в Lab']);
+  loginBtn.addEventListener('click', openLogin);
+
+  const contactLink = el(
+    'a',
+    { class: 'btn', href: CONTACT_TELEGRAM_URL, target: '_blank', rel: 'noopener noreferrer' },
+    ['Обсудить занятия'],
+  );
+
+  view.append(
+    el('h1', { class: 'showcase-title' }, ['ScienceChess ', el('span', { class: 'brand-accent' }, ['Lab'])]),
+    el('p', { class: 'showcase-subtitle' }, ['Закрытая тренировочная лаборатория для учеников ScienceChess.']),
+    panel('Несколько режимов', [buildGallery(SLIDES)]),
+    el('div', { class: 'showcase-ctas' }, [
+      panel('Уже занимаетесь со мной?', [loginBtn]),
+      panel('Хотите получить доступ?', [contactLink]),
+    ]),
+  );
 }
 
 export { hasAccess };

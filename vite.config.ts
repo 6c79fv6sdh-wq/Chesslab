@@ -43,7 +43,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
         // Движок весит 7 МБ: в предзагрузку не кладём, иначе первое открытие
         // сайта стало бы неприлично тяжёлым. Кешируется при первом использовании.
         globIgnores: ['**/engine/**'],

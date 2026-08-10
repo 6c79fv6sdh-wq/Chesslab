@@ -203,12 +203,15 @@ label {
 }
 
 .btn {
+  display: inline-block;
   background: var(--panel2);
   color: var(--fg-strong);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 9px 14px;
   font-size: 14px;
+  text-decoration: none; /* на случай <a class="btn"> — кнопки не подчёркиваются */
+  text-align: center;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -470,87 +473,180 @@ code {
   font-size: 12px;
 }
 
-/* --- Экран доступа ------------------------------------------------- */
+/* --- Витрина Lab (без доступа) --------------------------------------- */
 
-/* Интерфейс за карточкой видно — он приглушён, а не спрятан:
-   лёгкий блюр и совсем немного затемнения, чтобы читалась структура
-   (вкладки, панели, доска), но взгляд оставался на карточке. */
-#app.gate-locked {
-  filter: blur(5px) brightness(0.88) saturate(0.92);
-  transform: scale(1.008); /* прячет полупрозрачные края блюра */
-  transition:
-    filter 0.45s ease,
-    transform 0.45s ease;
-  user-select: none;
-  pointer-events: none;
-}
-
-.gate-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
-  /* Мягкая виньетка вместо плоской заливки: к центру плотнее, чтобы
-     карточка отделилась от фона, по краям интерфейс остаётся светлее. */
-  background:
-    radial-gradient(120% 90% at 50% 50%, rgba(10, 9, 8, 0.62) 0%, rgba(10, 9, 8, 0.34) 55%, rgba(10, 9, 8, 0.22) 100%);
-  animation: gate-fade-in 0.3s ease;
-}
-
-@keyframes gate-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Матовое стекло: карточка чуть прозрачная и сама размывает фон под
-   собой, поэтому читается как слой поверх интерфейса, а не как заплатка. */
-.gate-card {
-  width: min(92vw, 380px);
-  background: rgba(38, 36, 33, 0.82);
-  -webkit-backdrop-filter: blur(22px) saturate(1.15);
-  backdrop-filter: blur(22px) saturate(1.15);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 18px;
-  padding: 34px 28px 28px;
-  box-shadow:
-    0 28px 70px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  text-align: center;
-}
-
-/* Если backdrop-filter не поддерживается, стекло выродится в прозрачную
-   карточку поверх блюра — делаем её плотной, чтобы текст не поплыл. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .gate-card {
-    background: rgba(38, 36, 33, 0.97);
-  }
-}
-
-.gate-title {
-  font-size: 22px;
+.showcase-title {
+  font-size: 26px;
   font-weight: 500;
   letter-spacing: 0.015em;
   color: var(--fg-strong);
+  margin: 18px 0 6px;
 }
 
-.gate-title-accent {
-  font-weight: 650;
-  color: var(--accent);
-}
-
-.gate-subtitle {
-  margin: 10px 0 26px;
-  font-size: 13.5px;
+.showcase-subtitle {
+  margin: 0 0 4px;
+  font-size: 15px;
   line-height: 1.5;
   color: var(--fg);
+  opacity: 0.8;
+  max-width: 56ch;
+}
+
+.showcase-ctas {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.showcase-ctas .btn {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .showcase-ctas {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* --- Галерея скриншотов: нативный scroll-snap, без библиотек ---------- */
+
+.carousel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.carousel-viewport {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #000;
+}
+
+.carousel-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.carousel-slide img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 560 / 257;
+}
+
+.carousel-slide figcaption {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: var(--panel2);
+}
+
+.carousel-slide figcaption strong {
+  font-size: 13.5px;
+  color: var(--fg-strong);
+}
+
+.carousel-slide figcaption span {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--fg);
   opacity: 0.75;
+}
+
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.carousel-arrow {
+  background: var(--panel2);
+  color: var(--fg-strong);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  width: 34px;
+  height: 34px;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.carousel-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.carousel-dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.carousel-dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--border);
+  cursor: pointer;
+}
+
+.carousel-dot.active {
+  background: var(--accent);
+}
+
+/* --- Диалог входа: карточка кода доступа ------------------------------ */
+
+.gate-dialog {
+  border: 0;
+  padding: 34px 28px 28px;
+  width: min(92vw, 380px);
+  background: var(--panel);
+  color: var(--fg);
+  border-radius: 18px;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+}
+
+.gate-dialog::backdrop {
+  background: rgba(10, 9, 8, 0.72);
+}
+
+.gate-dialog-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--fg);
+  opacity: 0.6;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 6px;
+}
+
+.gate-dialog-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--fg-strong);
+  margin: 0 0 18px;
+  text-align: center;
 }
 
 .gate-form {
@@ -603,27 +699,4 @@ code {
   width: 100%;
   padding: 11px 14px;
   font-size: 14.5px;
-}
-
-.gate-no-access {
-  margin: 22px 0 8px;
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--fg);
-  opacity: 0.45;
-}
-
-.gate-contact {
-  display: block;
-  width: 100%;
-  text-align: center;
-  text-decoration: none;
-  box-sizing: border-box;
-}
-
-@media (min-width: 640px) {
-  .gate-card {
-    padding: 40px 36px 32px;
-  }
 }
