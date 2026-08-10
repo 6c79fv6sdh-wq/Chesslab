@@ -35,9 +35,28 @@ const TABS: Tab[] = [
   { id: 'data', label: 'Данные', mount: mountData },
 ];
 
+/**
+ * Перезагружаем страницу, когда новый service worker берёт управление:
+ * иначе на экране остаётся старый код, а пользователь думает, что
+ * исправление не приехало.
+ */
+function reloadOnServiceWorkerUpdate(): void {
+  if (!('serviceWorker' in navigator)) return;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloading) return;
+    reloading = true;
+    location.reload();
+  });
+}
+
 async function boot(): Promise<void> {
   const nav = document.getElementById('tabs') as HTMLElement;
   const view = document.getElementById('view') as HTMLElement;
+
+  const buildEl = document.getElementById('build-id');
+  if (buildEl) buildEl.textContent = `сборка ${__BUILD_ID__}`;
+  reloadOnServiceWorkerUpdate();
 
   // Просим постоянное хранение до первых замеров, чтобы браузер
   // не вычистил базу через неделю простоя.

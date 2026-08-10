@@ -1,8 +1,25 @@
+import { execSync } from 'node:child_process';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+/** Короткая метка сборки: видно в подписи внизу страницы. */
+function buildId(): string {
+  let sha = 'local';
+  try {
+    sha = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+  } catch {
+    // Сборка вне git — не беда.
+  }
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}.${pad(d.getMonth() + 1)} ${pad(d.getHours())}:${pad(d.getMinutes())} ${sha}`;
+}
+
 export default defineConfig({
   base: './',
+  define: {
+    __BUILD_ID__: JSON.stringify(buildId()),
+  },
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
