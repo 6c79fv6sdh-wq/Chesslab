@@ -2,7 +2,7 @@ import { Chessground } from 'chessground';
 import type { Api } from 'chessground/api';
 import type { Config } from 'chessground/config';
 import type { Color, Key, Dests } from 'chessground/types';
-import { fitBoardSize } from '../core/settings';
+import { BOARD_HEIGHT_RESERVE, fitBoardSize } from '../core/settings';
 
 import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.brown.css';
@@ -21,6 +21,35 @@ import './board.css';
  */
 
 export type InputMode = 'select' | 'drag' | 'both';
+
+/**
+ * Высота окна, не дёргающаяся от адресной строки Safari.
+ *
+ * `documentElement.clientHeight` на iOS меняется, когда адресная строка
+ * сворачивается при прокрутке, — доска на такой высоте пересчитывалась бы
+ * прямо посреди упражнения. `100svh` (small viewport height) — это высота
+ * при РАЗВЁРНУТОЙ адресной строке, она постоянна и меняется только от
+ * поворота экрана. Меряем её скрытым зондом, одним на все доски.
+ */
+let svhProbe: HTMLElement | null = null;
+let svhUnsupported = false;
+
+function viewportHeight(): number {
+  const fallback = document.documentElement.clientHeight;
+  if (svhUnsupported) return fallback;
+  if (!svhProbe) {
+    if (typeof CSS === 'undefined' || !CSS.supports?.('height', '100svh')) {
+      svhUnsupported = true;
+      return fallback;
+    }
+    svhProbe = document.createElement('div');
+    svhProbe.setAttribute('aria-hidden', 'true');
+    svhProbe.style.cssText =
+      'position:fixed;top:0;left:0;width:0;height:100svh;pointer-events:none;visibility:hidden';
+    document.body.append(svhProbe);
+  }
+  return svhProbe.offsetHeight || fallback;
+}
 
 export interface BoardOptions {
   /** Ориентация: снизу этот цвет. Обязателен, умолчания нет. */
@@ -79,12 +108,12 @@ export class Board {
     this.wrap = document.createElement('div');
     this.wrap.className = 'hl-board';
     container.appendChild(this.wrap);
-    this.rendered = fitBoardSize(opts.size, this.availWidth());
+    this.rendered = fitBoardSize(opts.size, this.availWidth(), this.availHeight());
     this.applySize(this.rendered);
 
     this.api = Chessground(this.wrap, this.baseConfig());
     this.installGuards();
-    this.watchWidth();
+    this.watchViewport();
   }
 
   /** Фактический размер доски: он же уходит в замеры, а не желаемый. */
@@ -168,7 +197,7 @@ export class Board {
    * Ноль означает «померить нечем»: модули собирают разметку до
    * root.append, и на момент конструктора доска ещё не в документе.
    * Тогда рисуем желаемый размер, а первый настоящий замер делает
-   * watchWidth() следующим кадром.
+   * watchViewport() следующим кадром.
    */
   private availWidth(): number {
     const box = this.host.parentElement;
@@ -176,12 +205,23 @@ export class Board {
   }
 
   /**
-   * Ширина меняется от поворота экрана, появления клавиатуры и просто
+   * Доступная высота — экран минус запас под липкие вкладки. Меряем окно,
+   * а не какой-либо блок страницы: высота блока сама зависит от высоты
+   * доски, и получилась бы обратная связь «доска ужалась → блок стал ниже
+   * → доска ужалась ещё».
+   */
+  private availHeight(): number {
+    const h = viewportHeight();
+    return h > 0 ? h - BOARD_HEIGHT_RESERVE : 0;
+  }
+
+  /**
+   * Место под доску меняется от поворота экрана, появления клавиатуры и просто
    * другого устройства. ResizeObserver ловит это точнее, чем window.resize
    * (на iOS resize по повороту приходит до перекладки layout), но слушаем
    * оба: ResizeObserver может отсутствовать в старых webview.
    */
-  private watchWidth(): void {
+  private watchViewport(): void {
     this.firstFit = requestAnimationFrame(() => {
       this.firstFit = 0;
       this.refit();
@@ -208,7 +248,7 @@ export class Board {
       this.observed = box;
     }
 
-    const next = fitBoardSize(this.opts.size, this.availWidth());
+    const next = fitBoardSize(this.opts.size, this.availWidth(), this.availHeight());
     if (next === this.rendered) return;
     this.rendered = next;
     this.applySize(next);

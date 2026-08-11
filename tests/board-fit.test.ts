@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  BOARD_HEIGHT_RESERVE,
   BOARD_SIZE_FLOOR,
   BOARD_SIZE_MAX,
   BOARD_SIZE_MIN,
@@ -57,6 +58,32 @@ describe('fitBoardSize: доска подгоняется под ширину э
     expect(fitBoardSize(5000, 10000)).toBe(BOARD_SIZE_MAX);
     expect(fitBoardSize(10, 10000)).toBe(BOARD_SIZE_MIN);
     expect(fitBoardSize(Number.NaN, 10000)).toBe(DEFAULT_CALIBRATION.boardSize);
+  });
+
+  it('ужимается по высоте экрана, а не только по ширине', () => {
+    // Телефон в альбомной: ширины вагон, а высоты 390 — доска 480 целиком
+    // на экран не поместится, сколько бы ширины ни было.
+    expect(fitBoardSize(480, 800, 318)).toBe(312);
+    expect(fitBoardSize(480, 800, 1000)).toBe(480);
+  });
+
+  it('берёт меньшее из ограничений по ширине и по высоте', () => {
+    expect(fitBoardSize(760, 400, 300)).toBe(296);
+    expect(fitBoardSize(760, 300, 400)).toBe(296);
+    expect(fitBoardSize(760, 300, 300)).toBe(296);
+  });
+
+  it('без замера высоты ведёт себя как раньше — только по ширине', () => {
+    expect(fitBoardSize(480, 352, 0)).toBe(352);
+    expect(fitBoardSize(480, 352)).toBe(352);
+    expect(fitBoardSize(480, 0, 320)).toBe(320);
+  });
+
+  it('запас под липкие вкладки оставляет место самой полосе', () => {
+    // Альбомная 390: полоса вкладок в одну строку ~55 px, доска обязана
+    // умещаться под ней.
+    const board = fitBoardSize(480, 800, 390 - BOARD_HEIGHT_RESERVE);
+    expect(board).toBeLessThanOrEqual(390 - 55);
   });
 
   it('монотонен: чем шире экран, тем не меньше доска', () => {

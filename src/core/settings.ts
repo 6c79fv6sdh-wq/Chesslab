@@ -45,18 +45,30 @@ const SQUARE_STEP = 8;
 export const BOARD_SIZE_FLOOR = 160;
 
 /**
- * Сколько на самом деле рисуем при доступной ширине `avail`.
+ * Сколько высоты экрана доске не отдаём: липкая полоса вкладок сверху плюс
+ * немного воздуха. Без этого запаса доска ростом ровно в экран уезжала бы
+ * верхом под вкладки.
+ */
+export const BOARD_HEIGHT_RESERVE = 72;
+
+/**
+ * Сколько на самом деле рисуем в доступном месте.
  *
  * `boardSize` в калибровке — это ЖЕЛАЕМЫЙ размер: его выбирают на большом
- * экране, он переносится между устройствами и пишется в замеры. На телефоне
- * желаемые 480 px в 390 px экрана не влезают, поэтому рисуем минимум из
- * желаемого и доступного. `avail <= 0` означает «померить не удалось»
- * (элемент ещё не в документе) — тогда просто берём желаемое.
+ * экране, он переносится между устройствами и пишется в замеры. Реальный
+ * размер — минимум из желаемого, доступной ширины и доступной высоты.
+ * Высота важна не меньше ширины: телефон в альбомной ориентации высотой
+ * 390 px не покажет доску 480 px целиком, сколько бы ширины ни было.
+ *
+ * Ноль или отрицательное значение любого из ограничений означает «померить
+ * не удалось» (элемент ещё не в документе) — такое ограничение просто не
+ * учитывается.
  */
-export function fitBoardSize(desired: number, avail: number): number {
+export function fitBoardSize(desired: number, availWidth: number, availHeight = 0): number {
   const want = clampBoardSize(desired);
-  if (!Number.isFinite(avail) || avail <= 0) return want;
-  const fits = Math.floor(avail / SQUARE_STEP) * SQUARE_STEP;
+  const limits = [availWidth, availHeight].filter((v) => Number.isFinite(v) && v > 0);
+  if (!limits.length) return want;
+  const fits = Math.floor(Math.min(...limits) / SQUARE_STEP) * SQUARE_STEP;
   return Math.max(BOARD_SIZE_FLOOR, Math.min(want, fits));
 }
 
