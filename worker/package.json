@@ -1,0 +1,17 @@
+{
+  "name": "sciencechess-lab-gate",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Проверка кода доступа ScienceChess Lab и выдача подписанного токена. Отдельный деплой от фронтенда, см. README в корне репозитория.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.0.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^4.0.0"
+  }
+}

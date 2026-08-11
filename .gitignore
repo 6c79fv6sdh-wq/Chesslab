@@ -3,3 +3,8 @@ dist/
 dev-dist/
 *.local
 .DS_Store
+
+# Cloudflare Worker: локальные переменные для wrangler dev — реальный код
+# доступа и приватный ключ подписи не должны попасть в git.
+worker/.dev.vars
+worker/node_modules/

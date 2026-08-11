@@ -1,5 +1,5 @@
 import { el, panel } from './core/ui';
-import { CONTACT_TELEGRAM_URL, checkCode, grantAccess, hasAccess } from './core/access';
+import { CONTACT_TELEGRAM_URL, hasAccess, login } from './core/access';
 
 /**
  * Публичная витрина Lab — то, что видит посетитель БЕЗ доступа. Рендерится
@@ -160,6 +160,46 @@ function buildLoginDialog(onUnlock: () => void): { dialog: HTMLDialogElement; op
     errorEl.classList.remove('visible');
   }
 
+  /** Секунды/минуты человеку, а не «65237 мс». */
+  function fmtRetry(ms: number): string {
+    const s = Math.ceil(ms / 1000);
+    if (s < 60) return `${s} с`;
+    return `${Math.ceil(s / 60)} мин`;
+  }
+
+  async function attemptLogin(value: string): Promise<void> {
+    clearError();
+    input.disabled = true;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Проверяю…';
+    try {
+      const result = await login(value);
+      if (result.ok) {
+        dialog.close();
+        onUnlock();
+        return;
+      }
+      switch (result.reason) {
+        case 'rate_limited':
+          showError(`Слишком много попыток. Попробуй через ${fmtRetry(result.retryAfterMs)}.`);
+          break;
+        case 'network':
+          showError('Не получилось проверить код — проверь соединение и попробуй ещё раз.');
+          break;
+        case 'not_configured':
+          showError('Вход временно недоступен, зайди позже.');
+          break;
+        default:
+          showError('Код не подошёл. Проверьте и попробуйте ещё раз.');
+          input.select();
+      }
+    } finally {
+      input.disabled = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Войти';
+    }
+  }
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const value = input.value;
@@ -167,14 +207,7 @@ function buildLoginDialog(onUnlock: () => void): { dialog: HTMLDialogElement; op
       showError('Введите код доступа.');
       return;
     }
-    if (checkCode(value)) {
-      grantAccess();
-      dialog.close();
-      onUnlock();
-      return;
-    }
-    showError('Код не подошёл. Проверьте и попробуйте ещё раз.');
-    input.select();
+    void attemptLogin(value);
   });
   input.addEventListener('input', clearError);
   closeBtn.addEventListener('click', () => dialog.close());

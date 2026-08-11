@@ -1,0 +1,5 @@
+# Локальные переменные для `npx wrangler dev`. Скопируй в `.dev.vars`
+# (уже в .gitignore) и заполни своими значениями — только для локальной
+# разработки, не для продакшна (там секреты через `wrangler secret put`).
+ACCESS_CODE=test1234
+SIGNING_PRIVATE_KEY_JWK={"key_ops":["sign"],"ext":true,"kty":"EC","x":"...","y":"...","crv":"P-256","d":"..."}

@@ -1,43 +1,166 @@
 /**
- * Экран доступа: один общий код для учеников ScienceChess, без бэкенда
- * и криптографии — просто отсекает случайных посетителей.
+ * Экран доступа: код проверяется на сервере (Cloudflare Worker), не
+ * здесь. В этом файле и во всём собранном бандле самого кода нет и быть
+ * не может — раньше он лежал прямо в JS константой, теперь его знает
+ * только воркер (Cloudflare Secret, см. worker/README и README корня).
  *
- * ЧТОБЫ СМЕНИТЬ КОД ДОСТУПА, ПРАВЬ СТРОКУ НИЖЕ.
- * Смена кода автоматически «разлогинивает» всех: у сохранённого в
- * localStorage устройства код сверяется с текущим ACCESS_CODE при каждом
- * запуске, старое значение перестаёт совпадать.
+ * После верного кода воркер выдаёт короткоживущий токен, подписанный
+ * приватным ключом ECDSA P-256, который знает только он. Токен хранится
+ * в localStorage, а на каждом заходе проверяется ЗДЕСЬ, офлайн, по
+ * публичному ключу (публичный ключ — не секрет: им можно только
+ * ПРОВЕРИТЬ чужую подпись, не создать новую) — поэтому вернувшийся
+ * ученик с валидным токеном не спрашивает сеть на каждом заходе, и
+ * приложение по-прежнему открывается офлайн, как и раньше.
  */
-export const ACCESS_CODE = '2000';
 
-/** Куда ведёт кнопка «Получить доступ» на экране входа. */
+/** Куда ведёт кнопка «Обсудить занятия» на экране входа. */
 export const CONTACT_TELEGRAM_URL = 'https://t.me/vLdm56';
 export const CONTACT_WHATSAPP_URL = 'https://wa.me/79017002756';
 
-const STORAGE_KEY = 'sciencechess-lab-access';
+/**
+ * ЗАПОЛНИ ПОСЛЕ ДЕПЛОЯ ВОРКЕРА (README → «Доступ»): адрес без слэша на
+ * конце, например https://sciencechess-lab-gate.<твой-поддомен>.workers.dev
+ */
+const WORKER_URL = '';
 
-function normalize(code: string): string {
-  return code.trim().toLowerCase();
+/**
+ * ЗАПОЛНИ ПОСЛЕ ДЕПЛОЯ ВОРКЕРА: публичный ключ ECDSA P-256 (JWK), его
+ * печатает worker/tools/generate-key.mjs. Не секрет — им нельзя
+ * подделать токен, только проверить настоящую подпись воркера.
+ */
+const PUBLIC_KEY_JWK: JsonWebKey | null = null;
+
+/** Не секрет — просто ключ localStorage, экспортирован для тестов. */
+export const STORAGE_KEY = 'sciencechess-lab-access';
+
+interface TokenPayload {
+  /** unix-секунды */
+  exp: number;
 }
 
-/** Уже вводили верный код на этом устройстве? */
-export function hasAccess(): boolean {
+// Фронтенд только ПРОВЕРЯЕТ токен — в отличие от воркера, кодировать
+// (base64url → строка) здесь ничего не нужно, только декодировать обратно.
+function fromBase64Url(str: string): Uint8Array<ArrayBuffer> {
+  const pad = str.length % 4 === 0 ? '' : '='.repeat(4 - (str.length % 4));
+  const b64 = str.replace(/-/g, '+').replace(/_/g, '/') + pad;
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+// Импортируем ключ один раз и переиспользуем — он не меняется в рантайме.
+// Кешируем только реальный ключ модуля (importKeyFor(null) в тестах —
+// намеренно каждый раз заново, там это не горячий путь).
+let cachedRealKey: Promise<CryptoKey> | null = null;
+function importVerifyKey(jwk: JsonWebKey): Promise<CryptoKey> {
+  if (jwk === PUBLIC_KEY_JWK) {
+    if (!cachedRealKey) {
+      cachedRealKey = crypto.subtle.importKey('jwk', jwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, [
+        'verify',
+      ]);
+    }
+    return cachedRealKey;
+  }
+  return crypto.subtle.importKey('jwk', jwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
+}
+
+/**
+ * Подпись и срок годности токена верны по конкретному публичному ключу?
+ * Полностью офлайн: сеть здесь не нужна — только к воркеру при самом
+ * вводе кода (см. login ниже). Ключ параметром — чтобы можно было
+ * проверить логику тестом на собственной паре ключей, не трогая
+ * PUBLIC_KEY_JWK модуля.
+ */
+export async function verifyTokenWithKey(token: string, jwk: JsonWebKey | null): Promise<boolean> {
+  if (!jwk) return false;
+  const parts = token.split('.');
+  if (parts.length !== 2) return false;
+  const [payloadB64, sigB64] = parts;
   try {
-    return localStorage.getItem(STORAGE_KEY) === normalize(ACCESS_CODE);
+    const key = await importVerifyKey(jwk);
+    const ok = await crypto.subtle.verify(
+      { name: 'ECDSA', hash: 'SHA-256' },
+      key,
+      fromBase64Url(sigB64),
+      new TextEncoder().encode(payloadB64),
+    );
+    if (!ok) return false;
+    const payload = JSON.parse(new TextDecoder().decode(fromBase64Url(payloadB64))) as Partial<TokenPayload>;
+    return typeof payload.exp === 'number' && payload.exp * 1000 > Date.now();
   } catch {
-    // Приватный режим/заблокированный localStorage — просто спросим код снова.
+    // Битый токен, чужой формат JSON — в любом случае просто «доступа
+    // нет», а не падение приложения.
     return false;
   }
 }
 
-/** Код совпал — запоминаем на этом устройстве. */
-export function grantAccess(): void {
+/** Уже входили на этом устройстве и токен ещё не истёк? */
+export async function hasAccess(): Promise<boolean> {
+  let token: string | null;
   try {
-    localStorage.setItem(STORAGE_KEY, normalize(ACCESS_CODE));
+    token = localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return false; // приватный режим/заблокированный localStorage
+  }
+  if (!token) return false;
+  return verifyTokenWithKey(token, PUBLIC_KEY_JWK);
+}
+
+function storeToken(token: string): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, token);
   } catch {
     // Не критично: просто будет спрашивать код при следующем открытии.
   }
 }
 
-export function checkCode(input: string): boolean {
-  return normalize(input) === normalize(ACCESS_CODE);
+export type LoginResult =
+  | { ok: true }
+  | { ok: false; reason: 'invalid' }
+  | { ok: false; reason: 'rate_limited'; retryAfterMs: number }
+  | { ok: false; reason: 'network' }
+  | { ok: false; reason: 'not_configured' };
+
+/**
+ * Собственно запрос к воркеру — адрес параметром, чтобы можно было
+ * протестировать разбор ответа (200/401/429/битый JSON/обрыв сети) без
+ * настоящего WORKER_URL, который до деплоя пуст намеренно.
+ */
+export async function loginTo(workerUrl: string, code: string): Promise<LoginResult> {
+  if (!workerUrl) return { ok: false, reason: 'not_configured' };
+
+  let res: Response;
+  try {
+    res = await fetch(`${workerUrl}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+  } catch {
+    return { ok: false, reason: 'network' };
+  }
+
+  if (res.status === 200) {
+    const data = (await res.json().catch(() => null)) as { token?: unknown } | null;
+    if (typeof data?.token !== 'string') return { ok: false, reason: 'network' };
+    storeToken(data.token);
+    return { ok: true };
+  }
+
+  if (res.status === 429) {
+    const data = (await res.json().catch(() => null)) as { retryAfterMs?: unknown } | null;
+    const retryAfterMs = typeof data?.retryAfterMs === 'number' ? data.retryAfterMs : 60_000;
+    return { ok: false, reason: 'rate_limited', retryAfterMs };
+  }
+
+  return { ok: false, reason: 'invalid' };
+}
+
+/**
+ * Отправить код воркеру по HTTPS. При успехе токен уже сохранён в
+ * localStorage — вызывающему коду достаточно проверить result.ok.
+ */
+export function login(code: string): Promise<LoginResult> {
+  return loginTo(WORKER_URL, code);
 }
