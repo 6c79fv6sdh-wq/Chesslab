@@ -151,6 +151,17 @@ export async function loadCalibration(): Promise<Calibration> {
   return raw ? normalizeCalibration(raw) : { ...DEFAULT_CALIBRATION };
 }
 
+/**
+ * Калибровку на этом устройстве уже сохраняли? Отличить «человек выбрал
+ * значения по умолчанию» от «человек здесь впервые» по самим значениям
+ * нельзя — отсюда отдельная проверка: по ней решается, показывать ли
+ * первоначальную настройку.
+ */
+export async function hasSavedCalibration(): Promise<boolean> {
+  const d = await db();
+  return (await d.get('kv', 'calibration')) !== undefined;
+}
+
 export async function saveCalibration(c: Calibration): Promise<void> {
   const d = await db();
   await d.put('kv', normalizeCalibration(c), 'calibration');

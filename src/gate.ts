@@ -30,14 +30,24 @@ const SLIDES: Slide[] = [
     caption: 'Мат в один ход и бесплатное взятие на скорость, с ограничением показа фигур или без.',
   },
   {
+    src: './showcase/motorics.webp',
+    title: 'Моторика',
+    caption: 'Клик по нужной клетке: точность и скорость ввода.',
+  },
+  {
+    src: './showcase/openings.webp',
+    title: 'Дебюты',
+    caption: 'Репертуар по узлам: где ход находится сразу, а где идёт заминка.',
+  },
+  {
     src: './showcase/scramble.webp',
     title: 'Скрэмбл',
     caption: 'Ультрабуллет против бота — решения и игра на флажке.',
   },
   {
-    src: './showcase/motorics.webp',
-    title: 'Моторика',
-    caption: 'Клик по нужной клетке: точность и скорость ввода.',
+    src: './showcase/progress.webp',
+    title: 'Прогресс',
+    caption: 'Каждый замер сохраняется: время, точность и динамика по неделям.',
   },
 ];
 
@@ -50,7 +60,15 @@ function buildGallery(slides: Slide[]): HTMLElement {
 
   const slideEls = slides.map((s) =>
     el('figure', { class: 'carousel-slide' }, [
-      el('img', { src: s.src, alt: `Скриншот режима «${s.title}»`, width: '560', height: '257', loading: 'lazy', decoding: 'async' }),
+      // Без loading="lazy": все шесть скриншотов вместе весят ~55 КБ, зато
+      // свайп по галерее не упирается в пустой кадр, пока грузится соседний.
+      el('img', {
+        src: s.src,
+        alt: `Скриншот режима «${s.title}»`,
+        width: '560',
+        height: '257',
+        decoding: 'async',
+      }),
       el('figcaption', {}, [el('strong', {}, [s.title]), el('span', {}, [s.caption])]),
     ]),
   );
@@ -180,29 +198,94 @@ function buildLoginDialog(onUnlock: () => void): { dialog: HTMLDialogElement; op
   return { dialog, open };
 }
 
+/**
+ * Демонстрационные числа для блока «Прогресс». Это витрина для родителей
+ * без доступа: показываем, ЧТО именно Lab измеряет и накапливает, а не
+ * чьи-то настоящие результаты. Поэтому блок прямо подписан как пример —
+ * выдавать выдуманные цифры за реальные замеры нельзя.
+ */
+interface DemoMetric {
+  label: string;
+  value: string;
+  note: string;
+}
+
+const DEMO_METRICS: DemoMetric[] = [
+  { label: 'Время решения', value: '640 мс', note: 'медиана за неделю' },
+  { label: 'Точность', value: '92%', note: 'верных решений из всех' },
+  { label: 'Динамика', value: '−18%', note: 'время решения за месяц' },
+];
+
+function buildProgressBlock(): HTMLElement {
+  const metrics = el(
+    'div',
+    { class: 'metrics' },
+    DEMO_METRICS.map((m) =>
+      el('div', { class: 'metric' }, [
+        el('span', { class: 'metric-k' }, [m.label]),
+        el('span', { class: 'metric-v' }, [m.value]),
+        el('span', { class: 'metric-note' }, [m.note]),
+      ]),
+    ),
+  );
+
+  return el('div', {}, [
+    el('p', { class: 'showcase-lead' }, [
+      'Каждое задание замеряется и сохраняется на устройстве: сколько заняло ',
+      'решение, что решено верно, как это меняется от недели к неделе. ',
+      'Тренировка не «прошла и забылась» — она видна в цифрах.',
+    ]),
+    metrics,
+    el('p', { class: 'hint' }, ['Числа выше — пример оформления, не чьи-то результаты.']),
+  ]);
+}
+
 export function mountGate(onUnlock: () => void): void {
   const view = document.getElementById('view');
   if (!view) return;
   view.innerHTML = '';
 
-  const { open: openLogin } = buildLoginDialog(onUnlock);
+  // Публичная страница — не рабочий экран: собственную шапку приложения
+  // и пустую полосу вкладок прячем, чтобы название не дублировалось и
+  // над витриной не висела чужая разделительная линия.
+  const app = document.getElementById('app');
+  app?.classList.add('app-public');
 
-  const loginBtn = el('button', { class: 'btn primary', type: 'button' }, ['Войти в Lab']);
-  loginBtn.addEventListener('click', openLogin);
+  const { open: openLogin } = buildLoginDialog(() => {
+    app?.classList.remove('app-public');
+    onUnlock();
+  });
 
   const contactLink = el(
     'a',
-    { class: 'btn', href: CONTACT_TELEGRAM_URL, target: '_blank', rel: 'noopener noreferrer' },
+    {
+      class: 'btn primary',
+      href: CONTACT_TELEGRAM_URL,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+    },
     ['Обсудить занятия'],
   );
 
+  const loginBtn = el('button', { class: 'btn', type: 'button' }, ['Уже есть код? Войти']);
+  loginBtn.addEventListener('click', openLogin);
+
   view.append(
-    el('h1', { class: 'showcase-title' }, ['ScienceChess ', el('span', { class: 'brand-accent' }, ['Lab'])]),
-    el('p', { class: 'showcase-subtitle' }, ['Закрытая тренировочная лаборатория для учеников ScienceChess.']),
-    panel('Несколько режимов', [buildGallery(SLIDES)]),
-    el('div', { class: 'showcase-ctas' }, [
-      panel('Уже занимаетесь со мной?', [loginBtn]),
-      panel('Хотите получить доступ?', [contactLink]),
+    el('header', { class: 'hero' }, [
+      el('h1', { class: 'hero-title' }, [
+        'ScienceChess ',
+        el('span', { class: 'brand-accent' }, ['Lab']),
+      ]),
+      el('p', { class: 'hero-lead' }, [
+        'Тренажеры скорости, внимания и принятия решений в шахматах',
+      ]),
+      el('p', { class: 'hero-modules' }, ['Моторика · Реакция · Premove · Дебюты · Цейтнот']),
+    ]),
+    panel('Тренировочные модули', [buildGallery(SLIDES)]),
+    panel('Прогресс', [buildProgressBlock()]),
+    el('section', { class: 'panel cta' }, [
+      el('div', { class: 'cta-actions' }, [contactLink, loginBtn]),
+      el('p', { class: 'cta-note' }, ['Lab доступен ученикам ScienceChess.']),
     ]),
   );
 }

@@ -40,7 +40,7 @@ function summaryTable(rows: SummaryRow[], firstHeader: string): HTMLElement {
 }
 
 export function mountData(root: HTMLElement, _ctx: AppContext): Unmount {
-  root.append(el('h1', {}, ['Данные']));
+  root.append(el('h1', {}, ['Прогресс']));
 
   const overviewHost = el('div', {});
   const storageHost = el('div', {});

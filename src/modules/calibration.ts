@@ -1,4 +1,4 @@
-import type { AppContext, Unmount } from '../main';
+import type { AppContext, MountFn, Unmount } from '../main';
 import { Board } from '../board/board';
 import type { InputMode } from '../board/board';
 import {
@@ -20,10 +20,42 @@ import {
   type Chess,
 } from '../core/chess';
 
+export interface CalibrationOptions {
+  /**
+   * Первый запуск: калибровка показывается как короткая первоначальная
+   * настройка, а не как обычный раздел. Тексты объясняют, зачем это надо,
+   * и внизу появляется кнопка «Готово», уводящая в тренировку.
+   */
+  firstRun?: boolean;
+  onDone?: () => void;
+}
+
 export function mountCalibration(root: HTMLElement, ctx: AppContext): Unmount {
+  return mountCalibrationView(root, ctx, {});
+}
+
+/** Тот же экран, но в роли первоначальной настройки. */
+export function firstRunSetup(onDone: () => void): MountFn {
+  return (root, ctx) => mountCalibrationView(root, ctx, { firstRun: true, onDone });
+}
+
+function mountCalibrationView(
+  root: HTMLElement,
+  ctx: AppContext,
+  opts: CalibrationOptions,
+): Unmount {
   const cal: Calibration = { ...ctx.calibration };
 
-  root.append(el('h1', {}, ['Калибровка']));
+  root.append(el('h1', {}, [opts.firstRun ? 'Настройка перед первой тренировкой' : 'Настройки']));
+  if (opts.firstRun) {
+    root.append(
+      el('p', { class: 'setup-lead' }, [
+        'Займёт минуту. Эти значения пишутся в каждый замер, поэтому важно ',
+        'выставить их один раз до начала — иначе результаты с разных настроек ',
+        'смешаются между собой.',
+      ]),
+    );
+  }
 
   const boardHost = el('div', { class: 'board-host' });
   let pos: Chess = posFromFen(INITIAL_FEN);
@@ -163,6 +195,18 @@ export function mountCalibration(root: HTMLElement, ctx: AppContext): Unmount {
       ]),
     ]),
   );
+
+  if (opts.firstRun) {
+    // Настройки сохраняются по ходу правки, так что кнопка только уводит
+    // дальше — специально «применять» тут нечего.
+    const doneBtn = el('button', { class: 'btn primary setup-done', type: 'button' }, [
+      'Готово, к тренировке',
+    ]);
+    doneBtn.addEventListener('click', () => {
+      void ctx.setCalibration({ ...cal }).then(() => opts.onDone?.());
+    });
+    root.append(doneBtn);
+  }
 
   return () => board.destroy();
 }

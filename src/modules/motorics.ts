@@ -168,7 +168,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
       samples.map((s) => `${s.x - rect.left},${s.y - rect.top}`).join(' '),
     );
     poly.setAttribute('fill', 'none');
-    poly.setAttribute('stroke', '#3692e7');
+    poly.setAttribute('stroke', 'var(--accent2)');
     poly.setAttribute('stroke-width', '2');
     poly.setAttribute('stroke-opacity', '0.85');
     trace.append(poly);

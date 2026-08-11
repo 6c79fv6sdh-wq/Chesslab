@@ -1,10 +1,16 @@
 import './styles.css';
-import { loadCalibration, requestPersistentStorage, saveCalibration } from './core/db';
+import {
+  hasSavedCalibration,
+  loadCalibration,
+  requestPersistentStorage,
+  saveCalibration,
+} from './core/db';
 import { DEFAULT_CALIBRATION, type Calibration } from './core/settings';
 import { el } from './core/ui';
 import { hasAccess, mountGate } from './gate';
 
-import { mountCalibration } from './modules/calibration';
+import { firstRunSetup, mountCalibration } from './modules/calibration';
+import { mountToday } from './modules/today';
 import { mountMotorics } from './modules/motorics';
 import { mountPremove } from './modules/premove';
 import { mountReaction } from './modules/reaction';
@@ -26,15 +32,26 @@ interface Tab {
   mount: MountFn;
 }
 
+/**
+ * Основная навигация: путь ученика от «что делать сегодня» через сами
+ * тренировки к накопленному прогрессу. Калибровки здесь нет намеренно —
+ * это настройка, а не тренировка, и живёт она отдельной кнопкой справа
+ * (SETTINGS_TAB), чтобы не отвлекать на себя внимание каждый заход.
+ */
 const TABS: Tab[] = [
-  { id: 'calibration', label: 'Калибровка', mount: mountCalibration },
+  { id: 'today', label: 'Сегодня', mount: mountToday },
   { id: 'motorics', label: 'Моторика', mount: mountMotorics },
   { id: 'premove', label: 'Premove', mount: mountPremove },
   { id: 'reaction', label: 'Реакция', mount: mountReaction },
   { id: 'openings', label: 'Дебюты', mount: mountOpenings },
   { id: 'scramble', label: 'Скрэмбл', mount: mountScramble },
-  { id: 'data', label: 'Данные', mount: mountData },
+  // id 'data' сохраняем: по нему уже есть закладки и ссылки в хеше.
+  { id: 'data', label: 'Прогресс', mount: mountData },
 ];
+
+const SETTINGS_TAB: Tab = { id: 'calibration', label: 'Настройки', mount: mountCalibration };
+
+const ALL_TABS: Tab[] = [...TABS, SETTINGS_TAB];
 
 /**
  * Перезагружаем страницу, когда новый service worker берёт управление:
@@ -78,16 +95,22 @@ async function boot(): Promise<void> {
   let unmount: Unmount | null = null;
   const buttons = new Map<string, HTMLButtonElement>();
 
-  const show = (id: string) => {
-    const tab = TABS.find((t) => t.id === id) ?? TABS[0];
+  /** Смонтировать произвольный экран, не обязательно из полосы вкладок. */
+  const mountView = (mount: MountFn, activeId: string | null) => {
     if (unmount) {
       unmount();
       unmount = null;
     }
     view.innerHTML = '';
-    for (const [k, b] of buttons) b.classList.toggle('active', k === tab.id);
+    for (const [k, b] of buttons) b.classList.toggle('active', k === activeId);
+    window.scrollTo({ top: 0 });
+    unmount = mount(view, ctx);
+  };
+
+  const show = (id: string) => {
+    const tab = ALL_TABS.find((t) => t.id === id) ?? TABS[0];
     location.hash = `#${tab.id}`;
-    unmount = tab.mount(view, ctx);
+    mountView(tab.mount, tab.id);
   };
 
   for (const t of TABS) {
@@ -97,9 +120,19 @@ async function boot(): Promise<void> {
     nav.append(b);
   }
 
+  // Настройки отдельной кнопкой в конце полосы: доступны всегда, но
+  // визуально не в одном ряду с тренировками.
+  const settingsBtn = el('button', { class: 'tab tab-settings', type: 'button' }, [
+    SETTINGS_TAB.label,
+  ]);
+  settingsBtn.addEventListener('click', () => show(SETTINGS_TAB.id));
+  buttons.set(SETTINGS_TAB.id, settingsBtn);
+  nav.append(settingsBtn);
+
   window.addEventListener('hashchange', () => {
     const id = location.hash.replace('#', '');
-    if (id && TABS.some((t) => t.id === id) && !buttons.get(id)?.classList.contains('active')) show(id);
+    if (id && ALL_TABS.some((t) => t.id === id) && !buttons.get(id)?.classList.contains('active'))
+      show(id);
   });
 
   // Отключаем двойной тап с зумом и резиновую прокрутку на доске.
@@ -129,8 +162,29 @@ async function boot(): Promise<void> {
     { passive: false },
   );
 
+  // Первый запуск на устройстве — сначала короткая первоначальная
+  // настройка. Дальше она в основную навигацию не возвращается: живёт
+  // кнопкой «Настройки».
+  let firstRun = false;
+  try {
+    firstRun = !(await hasSavedCalibration());
+  } catch (e) {
+    console.warn('Не удалось проверить, настраивались ли раньше', e);
+  }
+  if (firstRun) {
+    nav.classList.add('setup-mode');
+    mountView(
+      firstRunSetup(() => {
+        nav.classList.remove('setup-mode');
+        show('today');
+      }),
+      null,
+    );
+    return;
+  }
+
   const initial = location.hash.replace('#', '');
-  show(TABS.some((t) => t.id === initial) ? initial : 'calibration');
+  show(ALL_TABS.some((t) => t.id === initial) ? initial : 'today');
 }
 
 // Метка сборки нужна и на витрине, а не только внутри приложения: по ней

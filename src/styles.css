@@ -1,13 +1,25 @@
+/*
+ * Палитра ScienceChess: тёмный графит и глубокий зелёный.
+ *
+ * Раньше здесь стояли цвета Lichess один в один (#161512 фон, #629924
+ * кнопки) — интерфейс читался как его копия. Графит холоднее и нейтральнее
+ * коричневого, зелёный глубже и спокойнее салатового: вместе они дают
+ * собственное лицо, не мешая доске (её поля не трогаем — классические
+ * #f0d9b5/#b58863 узнаются всеми и менять их во вред тренировке).
+ */
 :root {
-  --bg: #161512;
-  --panel: #262421;
-  --panel2: #302e2b;
-  --fg: #bababa;
-  --fg-strong: #e8e6e3;
-  --accent: #629924;
-  --accent2: #3692e7;
-  --danger: #b33;
-  --border: #3d3a37;
+  --bg: #101316;
+  --panel: #191d21;
+  --panel2: #222831;
+  --fg: #a7b1ba;
+  --fg-strong: #eef2f5;
+  --accent: #1d7a52;
+  --accent-hi: #249464;
+  --accent2: #4a90c4;
+  --danger: #a63d3d;
+  --border: #2c333b;
+  --ok: #4fb87a;
+  --warn: #d9a05b;
   color-scheme: dark;
 }
 
@@ -225,7 +237,7 @@ label {
 }
 
 .btn:hover {
-  border-color: #555;
+  border-color: #3c454f;
 }
 
 .btn.primary {
@@ -293,9 +305,42 @@ textarea {
   resize: vertical;
 }
 
+/* Системный ползунок рисует дорожку почти белой — на графите она бьёт по
+   глазам сильнее, чем сам регулятор. Задаём дорожку и бегунок явно. */
 input[type='range'] {
   width: 100%;
-  accent-color: var(--accent);
+  appearance: none;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--accent-hi);
+  cursor: pointer;
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--accent-hi);
+  cursor: pointer;
+}
+
+input[type='range']::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--panel2);
 }
 
 input[type='checkbox'] {
@@ -340,9 +385,9 @@ input[type='checkbox'] {
   overflow-x: auto;
   margin: 8px 0;
   background:
-    linear-gradient(to right, var(--panel) 40%, rgba(38, 36, 33, 0)) left center / 26px 100% no-repeat
+    linear-gradient(to right, var(--panel) 40%, rgba(25, 29, 33, 0)) left center / 26px 100% no-repeat
       local,
-    linear-gradient(to left, var(--panel) 40%, rgba(38, 36, 33, 0)) right center / 26px 100% no-repeat
+    linear-gradient(to left, var(--panel) 40%, rgba(25, 29, 33, 0)) right center / 26px 100% no-repeat
       local,
     radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0)) left center / 11px
       100% no-repeat scroll,
@@ -409,11 +454,11 @@ input[type='checkbox'] {
 }
 
 .verdict-ok {
-  color: #83c944;
+  color: var(--ok);
 }
 
 .verdict-bad {
-  color: #e06666;
+  color: #e07b7b;
 }
 
 .muted {
@@ -440,12 +485,12 @@ input[type='checkbox'] {
 }
 
 .clock.active {
-  background: #47433f;
+  background: #1a2a24;
   border-color: var(--accent);
 }
 
 .clock.flagged {
-  background: #5a2020;
+  background: #40201f;
   border-color: var(--danger);
 }
 
@@ -548,37 +593,97 @@ code {
   }
 }
 
-/* --- Витрина Lab (без доступа) --------------------------------------- */
+/* --- Витрина Lab (без доступа) ---------------------------------------
+   Публичная страница живёт по своим типографским правилам: крупнее и
+   с большим воздухом, чем рабочий интерфейс. Внутренние экраны
+   тренажёров этот блок не задевает. */
 
-.showcase-title {
-  font-size: 26px;
-  font-weight: 500;
-  letter-spacing: 0.015em;
+/* На публичной странице название только в hero: своя шапка приложения
+   и пустая полоса вкладок здесь были бы дублем и лишней линией. */
+.app-public #brand,
+.app-public #tabs {
+  display: none;
+}
+
+.hero {
+  padding: 40px 0 28px;
+}
+
+.hero-title {
+  font-size: clamp(34px, 9vw, 52px);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   color: var(--fg-strong);
-  margin: 18px 0 6px;
+  margin: 0 0 18px;
 }
 
-.showcase-subtitle {
-  margin: 0 0 4px;
-  font-size: 15px;
-  line-height: 1.5;
+.hero-lead {
+  margin: 0 0 14px;
+  font-size: clamp(17px, 4.4vw, 21px);
+  line-height: 1.4;
+  color: var(--fg-strong);
+  opacity: 0.9;
+  max-width: 22ch;
+}
+
+.hero-modules {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  line-height: 1.9;
   color: var(--fg);
-  opacity: 0.8;
-  max-width: 56ch;
-}
-
-.showcase-ctas {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-.showcase-ctas .btn {
-  width: 100%;
+  opacity: 0.55;
 }
 
 @media (min-width: 640px) {
-  .showcase-ctas {
+  .hero {
+    padding: 64px 0 40px;
+  }
+  .hero-lead {
+    max-width: 34ch;
+  }
+}
+
+/* Витрина дышит свободнее рабочего интерфейса. */
+.app-public .panel {
+  padding: 18px 16px;
+  margin: 18px 0;
+}
+
+.showcase-lead {
+  margin: 0 0 16px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--fg);
+  max-width: 62ch;
+}
+
+/* --- Два действия под витриной --------------------------------------- */
+
+.cta-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.cta-actions .btn {
+  width: 100%;
+  padding: 13px 18px;
+  font-size: 15px;
+}
+
+.cta-note {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--fg);
+  opacity: 0.65;
+}
+
+@media (min-width: 640px) {
+  .cta-actions {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -766,7 +871,7 @@ code {
   min-height: 16px;
   margin: 0;
   font-size: 12.5px;
-  color: #d99a5b;
+  color: var(--warn);
   opacity: 0;
   transition: opacity 0.15s;
 }
@@ -780,4 +885,203 @@ code {
   width: 100%;
   padding: 11px 14px;
   font-size: 14.5px;
+}
+
+/* --- Метрики: крупное число с подписью -------------------------------
+   Используются и на витрине (демонстрационные), и в «Сегодня»
+   (настоящие) — оформление одно, чтобы публичная страница показывала
+   ровно то, что человек увидит внутри. */
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.metric-k {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg);
+  opacity: 0.6;
+}
+
+.metric-v {
+  font-size: 25px;
+  line-height: 1.15;
+  font-weight: 600;
+  color: var(--fg-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-note {
+  font-size: 12px;
+  color: var(--fg);
+  opacity: 0.6;
+}
+
+/* --- «Сегодня»: назначенная тренировка -------------------------------- */
+
+.plan-count {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--fg);
+  opacity: 0.75;
+}
+
+.plan-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.plan-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+/* Пройденный шаг гасим, но не прячем: видно и что сделано, и что дальше. */
+.plan-step.done {
+  opacity: 0.62;
+}
+
+.plan-mark {
+  flex: 0 0 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+
+.plan-mark.done {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.plan-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.plan-text strong {
+  font-size: 14.5px;
+  color: var(--fg-strong);
+}
+
+.plan-text span {
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--fg);
+  opacity: 0.75;
+}
+
+.plan-go {
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  font-size: 13px;
+}
+
+.plan-start {
+  width: 100%;
+  padding: 13px 18px;
+  font-size: 15px;
+}
+
+/* --- Настройки и первоначальная настройка ----------------------------- */
+
+/* Настройки — не тренировка: отодвигаем от полосы модулей и приглушаем. */
+.tab-settings {
+  margin-left: auto;
+  background: transparent;
+  opacity: 0.75;
+}
+
+.tab-settings.active {
+  background: var(--panel2);
+  border-color: var(--border);
+  color: var(--fg-strong);
+  opacity: 1;
+}
+
+/* Первый запуск: полоса вкладок ещё пустая, линия под ней ни к чему. */
+#tabs.setup-mode {
+  display: none;
+}
+
+.setup-lead {
+  margin: 0 0 4px;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--fg);
+  max-width: 60ch;
+}
+
+.setup-done {
+  width: 100%;
+  padding: 13px 18px;
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+@media (max-width: 520px) {
+  .plan-step {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  /* На узком экране в сетку влезает две карточки, и третья висит
+     одинокой половиной строки. Разворачиваем метрику в строку: подпись
+     слева, число справа — три ровных ряда во всю ширину. */
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .metric {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'k v'
+      'note v';
+    align-items: center;
+    column-gap: 12px;
+    padding: 11px 13px;
+  }
+
+  .metric-k {
+    grid-area: k;
+  }
+
+  .metric-v {
+    grid-area: v;
+    font-size: 22px;
+  }
+
+  .metric-note {
+    grid-area: note;
+  }
 }
