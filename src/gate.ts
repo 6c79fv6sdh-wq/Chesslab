@@ -22,7 +22,7 @@ const SLIDES: Slide[] = [
   {
     src: './showcase/premove.webp',
     title: 'Premove',
-    caption: 'Форсированное взятие, safe/unsafe и отмена — сотни реальных позиций из партий Lichess.',
+    caption: 'Форсированное взятие, safe/unsafe и отмена — сотни реальных позиций из партий мастеров.',
   },
   {
     src: './showcase/reaction.webp',
