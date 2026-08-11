@@ -29,7 +29,11 @@ body {
 #app {
   max-width: 1100px;
   margin: 0 auto;
-  padding: env(safe-area-inset-top) 12px 40px;
+  /* Боковые отступы учитывают вырез и скруглённые углы: в альбомной
+     ориентации на iPhone safe-area слева/справа доходит до 44 px, и без
+     max() первая вертикаль доски уезжала бы под чёлку. */
+  padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
 }
 
 /* Подпись автора: шапка над вкладками и сноска внизу.
@@ -81,7 +85,10 @@ body {
 
 @media (max-width: 520px) {
   #brand {
-    gap: 2px;
+    /* По вертикали почти вплотную (подпись — вторая строка под названием),
+       но по горизонтали зазор нужен: пока строки не перенеслись, без него
+       «Lab» и «by Vladislav Dmitrovsky» слипаются. */
+    gap: 2px 10px;
   }
   .brand-by {
     padding-left: 0;
@@ -96,8 +103,9 @@ body {
   padding: 14px 2px 8px;
   border-top: 1px solid var(--border);
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  gap: 4px 8px;
   font-size: 10.5px;
   text-transform: uppercase;
   letter-spacing: 0.16em;
@@ -321,9 +329,25 @@ input[type='checkbox'] {
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * Широкие таблицы прокручиваются вбок внутри себя. Тень у края показывает,
+ * что прокрутка есть: без неё срезанный столбец на телефоне читается просто
+ * как сломанная вёрстка. Приём чисто на background-attachment, без JS —
+ * «шторки» цвета панели прокручиваются вместе с содержимым (local) и
+ * закрывают тень (scroll), когда докрутили до края.
+ */
 .tbl-wrap {
   overflow-x: auto;
   margin: 8px 0;
+  background:
+    linear-gradient(to right, var(--panel) 40%, rgba(38, 36, 33, 0)) left center / 26px 100% no-repeat
+      local,
+    linear-gradient(to left, var(--panel) 40%, rgba(38, 36, 33, 0)) right center / 26px 100% no-repeat
+      local,
+    radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0)) left center / 11px
+      100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0)) right center /
+      11px 100% no-repeat scroll;
 }
 
 .tbl {
@@ -372,7 +396,9 @@ input[type='checkbox'] {
 
 .side {
   flex: 1 1 260px;
-  min-width: 240px;
+  /* min-width: 0 вместо 240px: на узком экране колонка обязана дать себя
+     сжать, иначе она распирает .board-area и страница едет вбок. */
+  min-width: 0;
 }
 
 .prompt {
@@ -471,6 +497,55 @@ code {
   padding: 1px 5px;
   border-radius: 4px;
   font-size: 12px;
+}
+
+/* --- Телефон ---------------------------------------------------------
+   Отступы на узком экране режем: каждые лишние 4 px по краям — это 4 px,
+   которых не хватит доске (её размер считается по ширине .board-area). */
+
+@media (max-width: 520px) {
+  #app {
+    padding-right: max(8px, env(safe-area-inset-right));
+    padding-left: max(8px, env(safe-area-inset-left));
+  }
+
+  .panel {
+    padding: 10px;
+  }
+
+  .board-area {
+    gap: 12px;
+  }
+
+  #tabs {
+    gap: 5px;
+  }
+
+  .tab {
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+
+  /* Сегментные переключатели («5 секунд / 10 секунд / 15 секунд» и
+     подобные) на телефоне обязаны переноситься, а не растягивать строку. */
+  .seg {
+    max-width: 100%;
+  }
+
+  .clock {
+    font-size: 22px;
+  }
+
+  /* Плотнее набор в таблицах: часть из них после этого влезает целиком
+     и прокручивать вбок уже не нужно. */
+  .tbl {
+    font-size: 12px;
+  }
+
+  .tbl th,
+  .tbl td {
+    padding: 5px 7px;
+  }
 }
 
 /* --- Витрина Lab (без доступа) --------------------------------------- */

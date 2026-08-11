@@ -1,7 +1,7 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
 import { el, panel, segmented, statLine } from '../core/ui';
-import { Session } from '../core/session';
+import { Session, measuredCalibration } from '../core/session';
 import { fmtMs, fmtPct, median, p90 } from '../core/stats';
 import {
   PREMOVE_MODE_LABELS,
@@ -406,7 +406,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
       queue = queue.concat(shuffle(pool, Math.random));
     }
     queue = queue.slice(0, TASKS_PER_SESSION);
-    session = new Session('premove', mode, cal);
+    session = new Session('premove', mode, measuredCalibration(cal, board.size));
     startBtn.disabled = true;
     stopBtn.disabled = false;
     renderLive();

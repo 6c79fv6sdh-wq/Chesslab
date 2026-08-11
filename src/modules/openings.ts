@@ -1,7 +1,7 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
 import { el, panel, segmented, statLine, table } from '../core/ui';
-import { Session } from '../core/session';
+import { Session, measuredCalibration } from '../core/session';
 import { fmtMs, fmtPct, median, p90 } from '../core/stats';
 import { getOpeningNodes, recordOpeningNode, type OpeningNodeStat } from '../core/db';
 import { REPERTOIRES, type OpeningLine, type Repertoire } from '../data/repertoire';
@@ -283,7 +283,7 @@ export function mountOpenings(root: HTMLElement, ctx: AppContext): Unmount {
     startBtn.disabled = true;
     stopBtn.disabled = false;
     void refreshHitches().then(() => {
-      session = new Session('openings', repertoire.id, cal);
+      session = new Session('openings', repertoire.id, measuredCalibration(cal, board.size));
       renderLive();
       startLine();
     });

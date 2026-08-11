@@ -55,9 +55,6 @@ async function boot(): Promise<void> {
   const nav = document.getElementById('tabs') as HTMLElement;
   const view = document.getElementById('view') as HTMLElement;
 
-  const buildEl = document.getElementById('build-id');
-  if (buildEl) buildEl.textContent = `сборка ${__BUILD_ID__}`;
-
   // Просим постоянное хранение до первых замеров, чтобы браузер
   // не вычистил базу через неделю простоя.
   void requestPersistentStorage();
@@ -135,6 +132,11 @@ async function boot(): Promise<void> {
   const initial = location.hash.replace('#', '');
   show(TABS.some((t) => t.id === initial) ? initial : 'calibration');
 }
+
+// Метка сборки нужна и на витрине, а не только внутри приложения: по ней
+// сразу видно, доехала ли новая версия, или браузер держит старую из кеша.
+const buildEl = document.getElementById('build-id');
+if (buildEl) buildEl.textContent = `сборка ${__BUILD_ID__}`;
 
 // Слушаем обновление service worker'а СРАЗУ: пока показана витрина Lab,
 // страница работает на старом закешированном JS (там же старый

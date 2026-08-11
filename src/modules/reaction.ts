@@ -1,7 +1,7 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
 import { el, panel, segmented, statLine } from '../core/ui';
-import { Session } from '../core/session';
+import { Session, measuredCalibration } from '../core/session';
 import { fmtMs, fmtPct, median, p90 } from '../core/stats';
 import { checkedColor, dests, fenOf, moveFromUci, posFromFen } from '../core/chess';
 import {
@@ -343,7 +343,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     taskCount = 0;
     puzzles = exercise === 'free-capture' ? puzzleQueue(rnd, TASKS_PER_SESSION) : [];
     matePuzzles = exercise === 'mate-in-1' ? matePuzzleQueue(rnd, TASKS_PER_SESSION) : [];
-    session = new Session('reaction', `${exercise}:${exposure}`, cal);
+    session = new Session('reaction', `${exercise}:${exposure}`, measuredCalibration(cal, board.size));
     startBtn.disabled = true;
     stopBtn.disabled = false;
     renderLive();

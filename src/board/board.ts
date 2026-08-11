@@ -2,6 +2,7 @@ import { Chessground } from 'chessground';
 import type { Api } from 'chessground/api';
 import type { Config } from 'chessground/config';
 import type { Color, Key, Dests } from 'chessground/types';
+import { fitBoardSize } from '../core/settings';
 
 import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.brown.css';
@@ -24,7 +25,7 @@ export type InputMode = 'select' | 'drag' | 'both';
 export interface BoardOptions {
   /** Ориентация: снизу этот цвет. Обязателен, умолчания нет. */
   orientation: Color;
-  /** Размер доски в пикселях. */
+  /** Желаемый размер доски в пикселях. На узком экране будет урезан. */
   size: number;
   /** Показывать координаты по краям. */
   coordinates: boolean;
@@ -40,6 +41,8 @@ export interface BoardOptions {
   onSelect?: (key: Key) => void;
   onSetPremove?: (orig: Key, dest: Key) => void;
   onUnsetPremove?: () => void;
+  /** Фактический размер изменился: экран повернули или доска не влезла. */
+  onResize?: (size: number) => void;
 }
 
 export interface PositionOptions {
@@ -62,17 +65,31 @@ export class Board {
   readonly wrap: HTMLElement;
   private opts: BoardOptions;
   private unbindGuards: Array<() => void> = [];
+  private readonly host: HTMLElement;
+  private rendered: number;
+  private ro: ResizeObserver | null = null;
+  private observed: Element | null = null;
+  private firstFit = 0;
+  private destroyed = false;
 
   constructor(container: HTMLElement, opts: BoardOptions) {
     this.opts = opts;
+    this.host = container;
     container.innerHTML = '';
     this.wrap = document.createElement('div');
     this.wrap.className = 'hl-board';
     container.appendChild(this.wrap);
-    this.applySize(opts.size);
+    this.rendered = fitBoardSize(opts.size, this.availWidth());
+    this.applySize(this.rendered);
 
     this.api = Chessground(this.wrap, this.baseConfig());
     this.installGuards();
+    this.watchWidth();
+  }
+
+  /** Фактический размер доски: он же уходит в замеры, а не желаемый. */
+  get size(): number {
+    return this.rendered;
   }
 
   private baseConfig(): Config {
@@ -141,6 +158,66 @@ export class Board {
     this.wrap.style.height = `${size}px`;
   }
 
+  /**
+   * Доступная ширина — по родителю контейнера. Сам контейнер (.board-host)
+   * inline-block и ужимается по доске, то есть о свободном месте не знает:
+   * спросив его, мы бы всегда получали текущий размер доски и никогда её
+   * не уменьшили. Родитель (.board-area) — блочный, его ширина и есть
+   * то, во что надо влезть.
+   *
+   * Ноль означает «померить нечем»: модули собирают разметку до
+   * root.append, и на момент конструктора доска ещё не в документе.
+   * Тогда рисуем желаемый размер, а первый настоящий замер делает
+   * watchWidth() следующим кадром.
+   */
+  private availWidth(): number {
+    const box = this.host.parentElement;
+    return box ? box.clientWidth : 0;
+  }
+
+  /**
+   * Ширина меняется от поворота экрана, появления клавиатуры и просто
+   * другого устройства. ResizeObserver ловит это точнее, чем window.resize
+   * (на iOS resize по повороту приходит до перекладки layout), но слушаем
+   * оба: ResizeObserver может отсутствовать в старых webview.
+   */
+  private watchWidth(): void {
+    this.firstFit = requestAnimationFrame(() => {
+      this.firstFit = 0;
+      this.refit();
+    });
+    if (typeof ResizeObserver === 'function') {
+      this.ro = new ResizeObserver(() => this.refit());
+    }
+    window.addEventListener('resize', this.onViewportChange);
+    window.addEventListener('orientationchange', this.onViewportChange);
+  }
+
+  private onViewportChange = (): void => {
+    this.refit();
+  };
+
+  /** Пересчитать фактический размер под текущую ширину экрана. */
+  private refit(): void {
+    if (this.destroyed) return;
+
+    const box = this.host.parentElement;
+    if (box && this.ro && this.observed !== box) {
+      if (this.observed) this.ro.unobserve(this.observed);
+      this.ro.observe(box);
+      this.observed = box;
+    }
+
+    const next = fitBoardSize(this.opts.size, this.availWidth());
+    if (next === this.rendered) return;
+    this.rendered = next;
+    this.applySize(next);
+    // Chessground кеширует размеры доски: без redrawAll фигуры остались бы
+    // разложены по старой сетке.
+    this.api.redrawAll();
+    this.opts.onResize?.(next);
+  }
+
   /** Единственный способ выставить фигуры: из FEN. */
   setPosition(p: PositionOptions): void {
     const cfg: Config = {
@@ -168,7 +245,6 @@ export class Board {
   setOptions(patch: Partial<BoardOptions>): void {
     const coordsChanged = patch.coordinates !== undefined && patch.coordinates !== this.opts.coordinates;
     this.opts = { ...this.opts, ...patch };
-    if (patch.size !== undefined) this.applySize(patch.size);
     this.api.set({
       coordinates: this.opts.coordinates,
       orientation: this.opts.orientation,
@@ -179,7 +255,10 @@ export class Board {
     });
     // Координаты живут в обёртке, созданной при инициализации: чтобы их
     // добавить или убрать, обёртку надо перерисовать целиком.
-    if (coordsChanged || patch.size !== undefined) this.api.redrawAll();
+    if (coordsChanged) this.api.redrawAll();
+    // Желаемый размер сменился — refit() сам решит, сколько влезет,
+    // и перерисует доску, если фактический размер изменился.
+    if (patch.size !== undefined) this.refit();
   }
 
   setOrientation(color: Color): void {
@@ -205,6 +284,13 @@ export class Board {
   }
 
   destroy(): void {
+    this.destroyed = true;
+    if (this.firstFit) cancelAnimationFrame(this.firstFit);
+    this.ro?.disconnect();
+    this.ro = null;
+    this.observed = null;
+    window.removeEventListener('resize', this.onViewportChange);
+    window.removeEventListener('orientationchange', this.onViewportChange);
     this.unbindGuards.forEach((f) => f());
     this.unbindGuards = [];
     this.api.destroy();

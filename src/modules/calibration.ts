@@ -38,6 +38,7 @@ export function mountCalibration(root: HTMLElement, ctx: AppContext): Unmount {
       if (mv) pos.play(mv);
       paint();
     },
+    onResize: () => showSize(),
   });
 
   // Стартовая позиция для проверки ощущений от ввода. Ходы легальные,
@@ -59,6 +60,21 @@ export function mountCalibration(root: HTMLElement, ctx: AppContext): Unmount {
   };
 
   const sizeOut = el('span', { class: 'stat-v' }, [`${cal.boardSize} px`]);
+  const sizeNote = el('p', { class: 'hint' }, ['']);
+
+  /**
+   * Настройка задаёт желаемый размер, но на узком экране доска ужимается.
+   * Показываем оба числа, иначе непонятно, почему ползунок на 480 px, а
+   * доска заметно меньше — и какой размер на самом деле уйдёт в замеры.
+   */
+  function showSize(): void {
+    const capped = board.size < cal.boardSize;
+    sizeOut.textContent = `${board.size} px`;
+    sizeNote.textContent = capped
+      ? `Выбрано ${cal.boardSize} px, но в ширину экрана помещается ${board.size} px — доска ужата. В замеры пишется фактический размер.`
+      : '';
+  }
+
   const sizeInput = el('input', {
     type: 'range',
     min: String(BOARD_SIZE_MIN),
@@ -68,10 +84,11 @@ export function mountCalibration(root: HTMLElement, ctx: AppContext): Unmount {
   }) as HTMLInputElement;
   sizeInput.addEventListener('input', () => {
     cal.boardSize = clampBoardSize(Number(sizeInput.value));
-    sizeOut.textContent = `${cal.boardSize} px`;
     board.setOptions({ size: cal.boardSize });
+    showSize();
     save();
   });
+  showSize();
 
   const inputSeg = segmented<InputMode>(
     [
@@ -136,6 +153,7 @@ export function mountCalibration(root: HTMLElement, ctx: AppContext): Unmount {
         el('div', { class: 'col grow' }, [el('label', {}, ['Размер доски']), sizeInput]),
         sizeOut,
       ]),
+      sizeNote,
       el('div', { class: 'row' }, [el('label', {}, ['Способ ввода']), inputSeg.root]),
       el('div', { class: 'row' }, [el('label', {}, ['Координаты по краям']), coordsCb]),
       el('div', { class: 'row' }, [el('label', {}, ['Профиль устройства']), profileSeg.root]),

@@ -1,7 +1,7 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
 import { el, panel, segmented, statLine } from '../core/ui';
-import { Session } from '../core/session';
+import { Session, measuredCalibration } from '../core/session';
 import { fmtMs, median, p90 } from '../core/stats';
 import {
   BOT_LABELS,
@@ -393,7 +393,7 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
     const mode =
       opponent === 'engine' ? `sf${eloOfLevel(level) ?? 'max'}:${clockSetting}s` : `${profile}:${clockSetting}s`;
-    session = new Session('scramble', mode, cal);
+    session = new Session('scramble', mode, measuredCalibration(cal, board.size));
 
     running = true;
     paint();

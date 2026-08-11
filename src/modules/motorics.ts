@@ -1,7 +1,7 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
 import { el, panel, statLine, table } from '../core/ui';
-import { Session } from '../core/session';
+import { Session, measuredCalibration } from '../core/session';
 import { fmtMs, fmtNum, fmtPct, groupBy, median, p90 } from '../core/stats';
 import { directionBetween, squareDistance, type Direction } from '../core/chess';
 import {
@@ -109,7 +109,6 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
   const boardHost = el('div', { class: 'board-host' });
   const trace = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   trace.setAttribute('class', 'hl-trace');
-  trace.setAttribute('viewBox', `0 0 ${cal.boardSize} ${cal.boardSize}`);
 
   const board = new Board(boardHost, {
     orientation: 'white',
@@ -117,7 +116,12 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     coordinates: cal.coordinates,
     inputMode: cal.inputMode,
     viewOnly: true,
+    // Точки траектории считаются в пикселях доски, поэтому система
+    // координат слоя обязана совпадать с её фактическим размером —
+    // иначе на телефоне след рисовался бы со смещением и в другом масштабе.
+    onResize: (size) => trace.setAttribute('viewBox', `0 0 ${size} ${size}`),
   });
+  trace.setAttribute('viewBox', `0 0 ${board.size} ${board.size}`);
   board.setPosition({
     fen: EMPTY_BOARD_FEN,
     orientation: 'white',
@@ -335,7 +339,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     results.length = 0;
     repIndex = 0;
     resultsHost.innerHTML = '';
-    session = new Session('motorics', 'source-target', cal);
+    session = new Session('motorics', 'source-target', measuredCalibration(cal, board.size));
     startBtn.disabled = true;
     stopBtn.disabled = false;
     renderLive();

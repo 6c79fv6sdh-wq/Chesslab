@@ -33,6 +33,33 @@ export function clampBoardSize(v: number): number {
   return Math.min(BOARD_SIZE_MAX, Math.max(BOARD_SIZE_MIN, Math.round(v)));
 }
 
+/** Доска всегда кратна 8: тогда клетка — целое число пикселей, без щелей. */
+const SQUARE_STEP = 8;
+
+/**
+ * Нижняя граница на совсем узких экранах. Меньше BOARD_SIZE_MIN намеренно:
+ * настройка задаёт желаемый размер, а физическую ширину телефона не
+ * переспорить — лучше доска 264 px целиком, чем 320 px с обрезанной
+ * вертикалью h.
+ */
+export const BOARD_SIZE_FLOOR = 160;
+
+/**
+ * Сколько на самом деле рисуем при доступной ширине `avail`.
+ *
+ * `boardSize` в калибровке — это ЖЕЛАЕМЫЙ размер: его выбирают на большом
+ * экране, он переносится между устройствами и пишется в замеры. На телефоне
+ * желаемые 480 px в 390 px экрана не влезают, поэтому рисуем минимум из
+ * желаемого и доступного. `avail <= 0` означает «померить не удалось»
+ * (элемент ещё не в документе) — тогда просто берём желаемое.
+ */
+export function fitBoardSize(desired: number, avail: number): number {
+  const want = clampBoardSize(desired);
+  if (!Number.isFinite(avail) || avail <= 0) return want;
+  const fits = Math.floor(avail / SQUARE_STEP) * SQUARE_STEP;
+  return Math.max(BOARD_SIZE_FLOOR, Math.min(want, fits));
+}
+
 export function normalizeCalibration(raw: unknown): Calibration {
   const c = (raw ?? {}) as Partial<Calibration>;
   const inputMode: InputMode =
