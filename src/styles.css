@@ -1012,6 +1012,26 @@ code {
   font-size: 15px;
 }
 
+/*
+ * Кнопка «Следующее упражнение →» после сессии внутри модуля — часть
+ * дневной тренировки «Сегодня», см. core/session.ts (markPlanNavigation)
+ * и modules/today-plan.ts (stepAfter). Пустой .plan-next-host не занимает
+ * места и никак не виден вне дневного плана.
+ */
+.plan-next-host:empty {
+  display: none;
+}
+
+.plan-next-host {
+  margin-top: 4px;
+}
+
+.plan-next {
+  width: 100%;
+  padding: 13px 18px;
+  font-size: 15px;
+}
+
 /* --- Настройки и первоначальная настройка ----------------------------- */
 
 /* Настройки — не тренировка: отодвигаем от полосы модулей и приглушаем. */

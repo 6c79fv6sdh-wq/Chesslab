@@ -1,8 +1,9 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
 import { el, panel, segmented, statLine } from '../core/ui';
-import { Session, measuredCalibration } from '../core/session';
+import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
 import { fmtMs, fmtPct, median, p90 } from '../core/stats';
+import { stepAfter } from './today-plan';
 import { checkedColor, dests, fenOf, moveFromUci, posFromFen } from '../core/chess';
 import {
   generateDeltaTask,
@@ -46,7 +47,8 @@ export function exposureMs(e: Exposure): number | null {
   return e === 'unlimited' ? null : Number(e);
 }
 
-const TASKS_PER_SESSION = 10;
+// export: сверяется тестом с порогом полноценного завершения в today-plan.ts
+export const TASKS_PER_SESSION = 10;
 
 interface Attempt {
   exercise: ReactionExercise;
@@ -64,6 +66,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   const cal = ctx.calibration;
   let exercise: ReactionExercise = 'free-capture';
   let exposure: Exposure = 'unlimited';
+  const cameFromPlan = consumePlanNavigation();
 
   root.append(el('h1', {}, ['Реакция']));
 
@@ -78,6 +81,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   const promptEl = el('div', { class: 'prompt' }, ['Выбери упражнение и нажми «Старт».']);
   const verdictEl = el('div', { class: 'prompt' }, ['']);
   const liveStats = el('div', {});
+  const planNextHost = el('div', { class: 'plan-next-host' });
 
   let session: Session | null = null;
   let taskCount = 0;
@@ -312,6 +316,26 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     promptEl.textContent = 'Сессия закончена. Результат записан.';
     startBtn.disabled = false;
     stopBtn.disabled = true;
+    renderPlanNext();
+  }
+
+  /** Часть дневной тренировки «Сегодня» — см. пояснение в motorics.ts. */
+  function renderPlanNext(): void {
+    planNextHost.innerHTML = '';
+    if (!cameFromPlan) return;
+    const next = stepAfter('reaction', new Date());
+    if (next) {
+      const nextBtn = el('button', { class: 'btn primary plan-next', type: 'button' }, [
+        `Следующее упражнение: ${next.label} →`,
+      ]);
+      nextBtn.addEventListener('click', () => {
+        markPlanNavigation();
+        location.hash = `#${next.tab}`;
+      });
+      planNextHost.append(nextBtn);
+    } else {
+      location.hash = '#today';
+    }
   }
 
   const exerciseSeg = segmented<ReactionExercise>(
@@ -341,6 +365,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   startBtn.addEventListener('click', () => {
     attempts.length = 0;
     taskCount = 0;
+    planNextHost.innerHTML = '';
     puzzles = exercise === 'free-capture' ? puzzleQueue(rnd, TASKS_PER_SESSION) : [];
     matePuzzles = exercise === 'mate-in-1' ? matePuzzleQueue(rnd, TASKS_PER_SESSION) : [];
     session = new Session('reaction', `${exercise}:${exposure}`, measuredCalibration(cal, board.size));
@@ -373,6 +398,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
           verdictEl,
           liveStats,
           el('div', { class: 'row' }, [startBtn, stopBtn]),
+          planNextHost,
         ]),
       ]),
     ]),

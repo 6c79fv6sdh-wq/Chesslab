@@ -42,7 +42,7 @@ const SLIDES: Slide[] = [
   {
     src: './showcase/scramble.webp',
     title: 'Цейтнот',
-    caption: 'Ультрабуллет против бота — решения и игра на флажке.',
+    caption: 'Решения и управление временем в экстремальном цейтноте.',
   },
   {
     src: './showcase/progress.webp',

@@ -1,10 +1,11 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
 import { el, panel, segmented, statLine, table } from '../core/ui';
-import { Session, measuredCalibration } from '../core/session';
+import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
 import { fmtMs, fmtPct, median, p90 } from '../core/stats';
 import { getOpeningNodes, recordOpeningNode, type OpeningNodeStat } from '../core/db';
 import { REPERTOIRES, type OpeningLine, type Repertoire } from '../data/repertoire';
+import { stepAfter } from './today-plan';
 import {
   computeHitches,
   nodePath,
@@ -24,7 +25,8 @@ import {
 } from '../core/chess';
 import type { Key } from 'chessground/types';
 
-const LINES_PER_SESSION = 4;
+// export: сверяется тестом с порогом полноценного завершения в today-plan.ts
+export const LINES_PER_SESSION = 4;
 
 interface NodeAttempt {
   repertoireId: string;
@@ -40,6 +42,7 @@ interface NodeAttempt {
 export function mountOpenings(root: HTMLElement, ctx: AppContext): Unmount {
   const cal = ctx.calibration;
   let repertoire: Repertoire = REPERTOIRES[0];
+  const cameFromPlan = consumePlanNavigation();
 
   root.append(el('h1', {}, ['Дебютный автомат']));
 
@@ -56,6 +59,7 @@ export function mountOpenings(root: HTMLElement, ctx: AppContext): Unmount {
   const liveStats = el('div', {});
   const lineNameEl = el('div', { class: 'muted' }, ['']);
   const hitchHost = el('div', {});
+  const planNextHost = el('div', { class: 'plan-next-host' });
 
   let session: Session | null = null;
   let hitchPaths = new Set<string>();
@@ -251,12 +255,36 @@ export function mountOpenings(root: HTMLElement, ctx: AppContext): Unmount {
       medianMs: median(correct.map((a) => a.latencyMs)),
       p90Ms: p90(correct.map((a) => a.latencyMs)),
       repertoire: repertoire.id,
+      // Полных линий пройдено — по нему считается завершённость дня
+      // («Сегодня»/today-plan.ts): узлов на линию не фиксировано, а линий
+      // за сессию всегда LINES_PER_SESSION при полном прохождении.
+      linesDone,
     });
     session = null;
     promptEl.textContent = 'Сессия закончена. Результат записан.';
     startBtn.disabled = false;
     stopBtn.disabled = true;
     await renderHitches();
+    renderPlanNext();
+  }
+
+  /** Часть дневной тренировки «Сегодня» — см. пояснение в motorics.ts. */
+  function renderPlanNext(): void {
+    planNextHost.innerHTML = '';
+    if (!cameFromPlan) return;
+    const next = stepAfter('openings', new Date());
+    if (next) {
+      const nextBtn = el('button', { class: 'btn primary plan-next', type: 'button' }, [
+        `Следующее упражнение: ${next.label} →`,
+      ]);
+      nextBtn.addEventListener('click', () => {
+        markPlanNavigation();
+        location.hash = `#${next.tab}`;
+      });
+      planNextHost.append(nextBtn);
+    } else {
+      location.hash = '#today';
+    }
   }
 
   const repSeg = segmented<string>(
@@ -280,6 +308,7 @@ export function mountOpenings(root: HTMLElement, ctx: AppContext): Unmount {
   startBtn.addEventListener('click', () => {
     attempts.length = 0;
     linesDone = 0;
+    planNextHost.innerHTML = '';
     startBtn.disabled = true;
     stopBtn.disabled = false;
     void refreshHitches().then(() => {
@@ -309,6 +338,7 @@ export function mountOpenings(root: HTMLElement, ctx: AppContext): Unmount {
           el('p', { class: 'hint' }, [
             'Пока ходит соперник, доска заблокирована. Узлы с задержкой выше полутора медиан выпадают чаще.',
           ]),
+          planNextHost,
         ]),
       ]),
     ]),

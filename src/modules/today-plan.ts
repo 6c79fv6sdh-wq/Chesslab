@@ -88,20 +88,61 @@ export function planFor(at: Date): PlanStep[] {
 }
 
 /** Сессия засчитывается за сегодня, если она в этот день и доведена до
- *  конца (endedAt проставляется только при завершении). */
+ *  конца (endedAt проставляется только при завершении). Не требует
+ *  ПОЛНОГО прохождения — для этого есть sessionIsComplete ниже. Этой,
+ *  более мягкой проверкой считается «Итог дня»: сколько всего заданий
+ *  сделано и сколько времени потрачено, включая прерванные попытки. */
 export function sessionCountsToday(s: SessionRecord, at: Date): boolean {
   if (s.endedAt === null) return false;
   return dayKey(new Date(s.startedAt)) === dayKey(at);
 }
 
 /**
+ * Пороги полноценного завершения сессии по модулям. Дублируют константы
+ * из своих модулей (`REPS` в motorics.ts, `TASKS_PER_SESSION` в
+ * premove.ts и reaction.ts, `LINES_PER_SESSION` в openings.ts) —
+ * намеренно, а не импортом: те же модули импортируют stepAfter() ниже
+ * для кнопки «Следующее упражнение», и обратный импорт констант отсюда
+ * дал бы цикл между today-plan.ts и каждым из пяти модулей. Совпадение
+ * значений с оригиналом проверяет tests/today-plan.test.ts.
+ */
+const MOTORICS_REPS = 30;
+const PREMOVE_TASKS = 8;
+const REACTION_TASKS = 10;
+const OPENINGS_LINES = 4;
+
+/**
+ * Модуль засчитан за день только при полноценном завершении сессии — не
+ * при любом её закрытии. «Прервать» и уход с вкладки тоже вызывают
+ * session.finish() (иначе замер потерялся бы), поэтому полноценность
+ * проверяем по факту: сколько заданий/линий/повторов реально сделано, а
+ * для Цейтнота — не была ли партия сдана досрочно.
+ */
+export function sessionIsComplete(s: SessionRecord): boolean {
+  const num = (v: unknown): number | null => (typeof v === 'number' ? v : null);
+  switch (s.module) {
+    case 'motorics':
+      return num(s.summary.reps) === MOTORICS_REPS;
+    case 'premove':
+      return num(s.summary.attempts) === PREMOVE_TASKS;
+    case 'reaction':
+      return num(s.summary.attempts) === REACTION_TASKS;
+    case 'openings':
+      return num(s.summary.linesDone) === OPENINGS_LINES;
+    case 'scramble':
+      return typeof s.summary.outcome === 'string' && s.summary.outcome !== 'aborted';
+  }
+}
+
+/**
  * План с отметками выполнения. Выполненность берётся из записанных
  * замеров, а не из отдельного «чекбокса»: галочка появляется ровно тогда,
- * когда тренировка действительно измерена и попала в прогресс.
+ * когда тренировка действительно измерена, полностью пройдена и попала
+ * в прогресс.
  */
 export function buildDayPlan(sessions: SessionRecord[], at: Date): DayPlan {
   const todayModules = new Set(
-    sessions.filter((s) => sessionCountsToday(s, at)).map((s) => s.module),
+    sessions.filter((s) => sessionCountsToday(s, at) && sessionIsComplete(s)).map((s) => s.module),
   );
   const steps: PlanStepState[] = planFor(at).map((s) => ({ ...s, done: todayModules.has(s.module) }));
   return {
@@ -110,4 +151,18 @@ export function buildDayPlan(sessions: SessionRecord[], at: Date): DayPlan {
     doneCount: steps.filter((s) => s.done).length,
     next: steps.find((s) => !s.done) ?? null,
   };
+}
+
+/**
+ * Следующий шаг ПОСЛЕ данного модуля в сегодняшнем плане — чисто по
+ * позиции в плане дня, для кнопки «Следующее упражнение →». Не зависит
+ * от того, пройден ли текущий шаг: пользователь мог прерваться и всё
+ * равно решить идти дальше, вернуться к пропущенному можно с «Сегодня».
+ * `null` — шаг последний (или вообще не из сегодняшнего плана).
+ */
+export function stepAfter(current: ModuleId, at: Date): PlanStep | null {
+  const plan = planFor(at);
+  const idx = plan.findIndex((s) => s.module === current);
+  if (idx === -1) return null;
+  return plan[idx + 1] ?? null;
 }

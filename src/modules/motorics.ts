@@ -1,9 +1,10 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
 import { el, panel, statLine, table } from '../core/ui';
-import { Session, measuredCalibration } from '../core/session';
+import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
 import { fmtMs, fmtNum, fmtPct, groupBy, median, p90 } from '../core/stats';
 import { directionBetween, squareDistance, type Direction } from '../core/chess';
+import { stepAfter } from './today-plan';
 import {
   EMPTY_BOARD_FEN,
   boardRect,
@@ -103,6 +104,9 @@ type Phase = 'idle' | 'to-source' | 'to-target' | 'done';
 
 export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
   const cal = ctx.calibration;
+  // Считываем сразу на маунте: если позже переключиться на другую
+  // вкладку и вернуться отдельно, флаг уже не должен сработать.
+  const cameFromPlan = consumePlanNavigation();
 
   root.append(el('h1', {}, ['Моторика']));
 
@@ -135,6 +139,9 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
   const progress = el('div', { class: 'progress' }, [progressBar]);
   const liveStats = el('div', {});
   const resultsHost = el('div', {});
+  // Кнопка «Следующее упражнение» из дневного плана «Сегодня» — пусто вне
+  // плана и очищается заново при каждом старте новой сессии.
+  const planNextHost = el('div', { class: 'plan-next-host' });
 
   let phase: Phase = 'idle';
   let session: Session | null = null;
@@ -296,6 +303,31 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     startBtn.disabled = false;
     stopBtn.disabled = true;
     renderBreakdown();
+    renderPlanNext();
+  }
+
+  /**
+   * Часть дневной тренировки «Сегодня» — ведём по цепочке дальше вместо
+   * возврата в общий список вкладок. Показывается только тем, кто пришёл
+   * сюда из плана (см. cameFromPlan); обычная самостоятельная тренировка
+   * этой кнопки не увидит.
+   */
+  function renderPlanNext(): void {
+    planNextHost.innerHTML = '';
+    if (!cameFromPlan) return;
+    const next = stepAfter('motorics', new Date());
+    if (next) {
+      const nextBtn = el('button', { class: 'btn primary plan-next', type: 'button' }, [
+        `Следующее упражнение: ${next.label} →`,
+      ]);
+      nextBtn.addEventListener('click', () => {
+        markPlanNavigation();
+        location.hash = `#${next.tab}`;
+      });
+      planNextHost.append(nextBtn);
+    } else {
+      location.hash = '#today';
+    }
   }
 
   function renderBreakdown(): void {
@@ -339,6 +371,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     results.length = 0;
     repIndex = 0;
     resultsHost.innerHTML = '';
+    planNextHost.innerHTML = '';
     session = new Session('motorics', 'source-target', measuredCalibration(cal, board.size));
     startBtn.disabled = true;
     stopBtn.disabled = false;
@@ -365,6 +398,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
           el('p', { class: 'hint' }, [
             '30 повторов. Сначала кликни по зелёной клетке, потом по новой зелёной.',
           ]),
+          planNextHost,
         ]),
       ]),
     ]),

@@ -1,7 +1,7 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
 import { el, panel, segmented, statLine } from '../core/ui';
-import { Session, measuredCalibration } from '../core/session';
+import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
 import { fmtMs, median, p90 } from '../core/stats';
 import {
   BOT_LABELS,
@@ -33,6 +33,7 @@ import {
   type Chess,
 } from '../core/chess';
 import type { Color, Key } from 'chessground/types';
+import { stepAfter } from './today-plan';
 
 type ClockSetting = '15' | '10' | '5';
 
@@ -49,6 +50,7 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   let userColor: Color = 'white';
   let opponent: OpponentKind = engineSupported() ? 'engine' : 'simple';
   let level: EngineLevel = 2200;
+  const cameFromPlan = consumePlanNavigation();
 
   root.append(el('h1', {}, ['Цейтнот']));
 
@@ -66,6 +68,7 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   const promptEl = el('div', { class: 'prompt' }, ['Выбери часы и соперника, потом «Старт».']);
   const engineStatusEl = el('div', { class: 'hint' }, ['']);
   const liveStats = el('div', {});
+  const planNextHost = el('div', { class: 'plan-next-host' });
 
   let session: Session | null = null;
   let pos: Chess = posFromFen(INITIAL_FEN);
@@ -276,6 +279,26 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     session = null;
     startBtn.disabled = false;
     resignBtn.disabled = true;
+    renderPlanNext();
+  }
+
+  /** Часть дневной тренировки «Сегодня» — см. пояснение в motorics.ts. */
+  function renderPlanNext(): void {
+    planNextHost.innerHTML = '';
+    if (!cameFromPlan) return;
+    const next = stepAfter('scramble', new Date());
+    if (next) {
+      const nextBtn = el('button', { class: 'btn primary plan-next', type: 'button' }, [
+        `Следующее упражнение: ${next.label} →`,
+      ]);
+      nextBtn.addEventListener('click', () => {
+        markPlanNavigation();
+        location.hash = `#${next.tab}`;
+      });
+      planNextHost.append(nextBtn);
+    } else {
+      location.hash = '#today';
+    }
   }
 
   const clockSeg = segmented<ClockSetting>(
@@ -361,6 +384,7 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     const cancelled = () => token !== startToken;
     clearTimers();
     userMoveTimes.length = 0;
+    planNextHost.innerHTML = '';
     pos = posFromFen(INITIAL_FEN);
     clocks = new Clocks(Number(clockSetting) * 1000);
     running = false;
@@ -451,6 +475,7 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
           promptEl,
           liveStats,
           el('div', { class: 'row' }, [startBtn, resignBtn]),
+          planNextHost,
         ]),
       ]),
     ]),

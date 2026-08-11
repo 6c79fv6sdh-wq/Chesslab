@@ -1,8 +1,9 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
 import { el, panel, segmented, statLine } from '../core/ui';
-import { Session, measuredCalibration } from '../core/session';
+import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
 import { fmtMs, fmtPct, median, p90 } from '../core/stats';
+import { stepAfter } from './today-plan';
 import {
   PREMOVE_MODE_LABELS,
   positionsOf,
@@ -21,7 +22,8 @@ import {
 } from '../core/chess';
 import type { Key } from 'chessground/types';
 
-const TASKS_PER_SESSION = 8;
+// export: сверяется тестом с порогом полноценного завершения в today-plan.ts
+export const TASKS_PER_SESSION = 8;
 
 interface Attempt {
   positionId: string;
@@ -49,6 +51,7 @@ export function shuffle<T>(items: T[], rnd: () => number): T[] {
 export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   const cal = ctx.calibration;
   let mode: PremoveMode = 'forced-capture';
+  const cameFromPlan = consumePlanNavigation();
 
   root.append(el('h1', {}, ['Premove']));
 
@@ -65,6 +68,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   const verdictEl = el('div', { class: 'prompt' }, ['']);
   const liveStats = el('div', {});
   const commentEl = el('p', { class: 'hint' }, ['']);
+  const planNextHost = el('div', { class: 'plan-next-host' });
 
   let session: Session | null = null;
   let queue: PremovePosition[] = [];
@@ -344,6 +348,26 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     promptEl.textContent = 'Сессия закончена. Результат записан.';
     startBtn.disabled = false;
     stopBtn.disabled = true;
+    renderPlanNext();
+  }
+
+  /** Часть дневной тренировки «Сегодня» — см. пояснение в motorics.ts. */
+  function renderPlanNext(): void {
+    planNextHost.innerHTML = '';
+    if (!cameFromPlan) return;
+    const next = stepAfter('premove', new Date());
+    if (next) {
+      const nextBtn = el('button', { class: 'btn primary plan-next', type: 'button' }, [
+        `Следующее упражнение: ${next.label} →`,
+      ]);
+      nextBtn.addEventListener('click', () => {
+        markPlanNavigation();
+        location.hash = `#${next.tab}`;
+      });
+      planNextHost.append(nextBtn);
+    } else {
+      location.hash = '#today';
+    }
   }
 
   // --- Снятие premove: кнопка, пробел, Esc, правая кнопка мыши.
@@ -400,6 +424,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
 
   startBtn.addEventListener('click', () => {
     attempts.length = 0;
+    planNextHost.innerHTML = '';
     const pool = positionsOf(mode);
     queue = shuffle(pool, Math.random);
     while (queue.length < TASKS_PER_SESSION && pool.length) {
@@ -431,6 +456,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
           el('p', { class: 'hint' }, [
             'Снять premove: кнопка, пробел, Esc или правая кнопка мыши.',
           ]),
+          planNextHost,
         ]),
       ]),
     ]),

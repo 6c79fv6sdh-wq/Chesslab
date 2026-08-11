@@ -1,8 +1,8 @@
 import type { AppContext, Unmount } from '../main';
 import { el, panel } from '../core/ui';
 import { allMeasurements, allSessions } from '../core/db';
-import { fmtMs, median } from '../core/stats';
-import { primaryLatency } from './data-summary';
+import { fmtDuration } from '../core/stats';
+import { markPlanNavigation } from '../core/session';
 import { buildDayPlan, sessionCountsToday, type DayPlan } from './today-plan';
 
 /**
@@ -10,9 +10,9 @@ import { buildDayPlan, sessionCountsToday, type DayPlan } from './today-plan';
  * состав из уже существующих модулей и одну кнопку, чтобы начать.
  *
  * Галочки не хранятся отдельно: шаг считается пройденным, когда его
- * сессия записана в базу. То есть отметка о выполнении и есть измерение —
- * ровно та связка «тренировка → измерение → прогресс», ради которой
- * вкладка и сделана.
+ * сессия записана в базу и полностью доведена до конца (см.
+ * sessionIsComplete в today-plan.ts) — ровно та связка
+ * «тренировка → измерение → прогресс», ради которой вкладка и сделана.
  */
 
 function stepRow(step: DayPlan['steps'][number], index: number, go: (tab: string) => void): HTMLElement {
@@ -44,6 +44,9 @@ export function mountToday(root: HTMLElement, _ctx: AppContext): Unmount {
   root.append(planHost, summaryHost);
 
   function go(tab: string): void {
+    // Ставим флаг ПЕРЕД переходом: модуль на своей стороне считает его на
+    // маунте и по нему решает, показывать ли потом «Следующее упражнение».
+    markPlanNavigation();
     location.hash = `#${tab}`;
   }
 
@@ -74,23 +77,26 @@ export function mountToday(root: HTMLElement, _ctx: AppContext): Unmount {
       ]),
     );
 
-    // Итог дня считаем по тем же замерам, что и вкладка «Прогресс»:
-    // одно число не должно расходиться между экранами.
-    const todaySessionIds = new Set(
-      sessions.filter((s) => sessionCountsToday(s, now)).map((s) => s.id),
-    );
+    // Итог дня считаем по тем же сессиям, что и вкладка «Прогресс»:
+    // одно число не должно расходиться между экранами. Здесь — все
+    // сегодняшние сессии (sessionCountsToday), включая прерванные:
+    // «сколько всего успел сделать» шире, чем строгая отметка о
+    // выполнении модуля в списке выше.
+    const todaySessions = sessions.filter((s) => sessionCountsToday(s, now));
+    const todaySessionIds = new Set(todaySessions.map((s) => s.id));
     const todayMeasurements = measurements.filter((m) => todaySessionIds.has(m.sessionId));
-    const latencies = todayMeasurements
-      .map(primaryLatency)
-      .filter((v): v is number => v !== null);
+    const totalMs = todaySessions.reduce(
+      (sum, s) => sum + (s.endedAt !== null ? Math.max(0, s.endedAt - s.startedAt) : 0),
+      0,
+    );
 
     summaryHost.innerHTML = '';
     summaryHost.append(
       panel('Итог дня', [
         el('div', { class: 'metrics' }, [
-          metric('Заданий', String(todayMeasurements.length)),
-          metric('Медиана', fmtMs(median(latencies))),
           metric('Модулей', `${plan.doneCount} / ${total}`),
+          metric('Заданий', String(todayMeasurements.length)),
+          metric('Время тренировки', fmtDuration(totalMs)),
         ]),
         el('p', { class: 'hint' }, [
           todayMeasurements.length

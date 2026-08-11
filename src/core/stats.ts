@@ -33,6 +33,17 @@ export function fmtNum(v: number | null | undefined, digits = 2): string {
   return v.toFixed(digits);
 }
 
+/** Длительность тренировки для человека — минуты/секунды, не миллисекунды. */
+export function fmtDuration(ms: number | null | undefined): string {
+  if (ms === null || ms === undefined || !Number.isFinite(ms) || ms < 0) return '—';
+  const totalSec = Math.round(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  if (m === 0) return `${s} с`;
+  if (s === 0) return `${m} мин`;
+  return `${m} мин ${s} с`;
+}
+
 export function groupBy<T, K extends string | number>(items: T[], key: (t: T) => K): Map<K, T[]> {
   const m = new Map<K, T[]>();
   for (const it of items) {
