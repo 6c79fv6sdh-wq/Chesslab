@@ -50,7 +50,7 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   let opponent: OpponentKind = engineSupported() ? 'engine' : 'simple';
   let level: EngineLevel = 2200;
 
-  root.append(el('h1', {}, ['Скрэмбл']));
+  root.append(el('h1', {}, ['Цейтнот']));
 
   const boardHost = el('div', { class: 'board-host' });
   const board = new Board(boardHost, {

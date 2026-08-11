@@ -141,13 +141,13 @@ ScienceChess), откуда её раздаёт Pages того репозито�
 - TypeScript, Vite
 - [Chessground](https://github.com/lichess-org/chessground) — доска Lichess, набор фигур cburnett
 - [chessops](https://github.com/niklasf/chessops) — легальность ходов и разбор позиций
-- [Stockfish 18 Lite](https://github.com/nmrugg/stockfish.js) — соперник в «Скрэмбле»
+- [Stockfish 18 Lite](https://github.com/nmrugg/stockfish.js) — соперник в «Цейтноте»
 - [idb](https://github.com/jakearchibald/idb) — обёртка над IndexedDB
 - Vitest — тесты
 
 ## Движок
 
-В «Скрэмбле» соперника считает Stockfish 18 Lite, однопоточная WASM-сборка.
+В «Цейтноте» соперника считает Stockfish 18 Lite, однопоточная WASM-сборка.
 Однопоточная выбрана намеренно: многопоточной нужен SharedArrayBuffer,
 а для него — заголовки COOP/COEP, которых на GitHub Pages не выставить.
 
@@ -288,7 +288,7 @@ node tools/import-premove-forced.mjs data/lichess-safe-premove-200-white.json > 
    (320 задач Lichess), безопасный шах, дельта позиции; экспозиция без лимита /
    500 / 300 / 200 мс — работает во всех четырёх упражнениях.
 5. **Дебюты** — три репертуара, задержка ответа на каждом узле, заминки.
-6. **Скрэмбл** — партии 15/10/5 секунд против Stockfish с выбором силы
+6. **Цейтнот** — партии 15/10/5 секунд против Stockfish с выбором силы
    либо против простого бота.
 7. **Прогресс** — сводные таблицы, экспорт и импорт JSON, очистка измерений.
    Раньше вкладка называлась «Данные»; id остался `data`, чтобы старые

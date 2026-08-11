@@ -44,7 +44,7 @@ const TABS: Tab[] = [
   { id: 'premove', label: 'Premove', mount: mountPremove },
   { id: 'reaction', label: 'Реакция', mount: mountReaction },
   { id: 'openings', label: 'Дебюты', mount: mountOpenings },
-  { id: 'scramble', label: 'Скрэмбл', mount: mountScramble },
+  { id: 'scramble', label: 'Цейтнот', mount: mountScramble },
   // id 'data' сохраняем: по нему уже есть закладки и ссылки в хеше.
   { id: 'data', label: 'Прогресс', mount: mountData },
 ];
