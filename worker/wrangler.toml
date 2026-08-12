@@ -32,3 +32,4 @@ TOKEN_TTL_SECONDS = "2592000"
 [[kv_namespaces]]
 binding = "RATE_LIMIT_KV"
 id = "945435a9b55849579c445fa30eef6e83"
+
