@@ -31,4 +31,4 @@ TOKEN_TTL_SECONDS = "2592000"
 # выведет настоящий id, впиши его вместо REPLACE_WITH_KV_NAMESPACE_ID.
 [[kv_namespaces]]
 binding = "RATE_LIMIT_KV"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "945435a9b55849579c445fa30eef6e83"
