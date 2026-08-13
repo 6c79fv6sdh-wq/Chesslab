@@ -17,6 +17,7 @@ import {
 
 import { HANGING_PUZZLES, type HangingPuzzle } from '../data/puzzles-hanging';
 import { MATE_PUZZLES, type MatePuzzle } from '../data/puzzles-mate';
+import { SAFE_CHECK_PUZZLES, type SafeCheckPuzzle } from '../data/puzzles-safe-check';
 
 export type Rng = () => number;
 
@@ -332,6 +333,11 @@ export function taskFromMatePuzzle(p: MatePuzzle): PuzzleTask {
   return taskFromSolution(p.fen, p.id, p.uci, p.san);
 }
 
+/** Превращает задачу «безопасный шах» в задание упражнения. */
+export function taskFromSafeCheckPuzzle(p: SafeCheckPuzzle): PuzzleTask {
+  return taskFromSolution(p.fen, p.id, p.uci, p.san);
+}
+
 /** Перемешивает набор и берёт первые count элементов — очередь на сессию без повторов. */
 function shuffledQueue<T>(pool: readonly T[], rnd: Rng, count: number): T[] {
   const copy = [...pool];
@@ -358,4 +364,13 @@ export function matePuzzleQueue(rnd: Rng, count: number): MatePuzzle[] {
 
 export function matePuzzleCount(): number {
   return MATE_PUZZLES.length;
+}
+
+/** Очередь задач «безопасный шах» на сессию: перемешана, без повторов. */
+export function safeCheckQueue(rnd: Rng, count: number): SafeCheckPuzzle[] {
+  return shuffledQueue(SAFE_CHECK_PUZZLES, rnd, count);
+}
+
+export function safeCheckCount(): number {
+  return SAFE_CHECK_PUZZLES.length;
 }

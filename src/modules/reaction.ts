@@ -11,8 +11,10 @@ import {
   generateSafeCheckTask,
   matePuzzleQueue,
   puzzleQueue,
+  safeCheckQueue,
   taskFromMatePuzzle,
   taskFromPuzzle,
+  taskFromSafeCheckPuzzle,
   type DeltaTask,
   type ReactionTask,
 } from './reaction-logic';
@@ -129,6 +131,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   // Очереди задач на текущую сессию, без повторов внутри сессии.
   let puzzles: ReturnType<typeof puzzleQueue> = [];
   let matePuzzles: ReturnType<typeof matePuzzleQueue> = [];
+  let safeChecks: ReturnType<typeof safeCheckQueue> = [];
   let currentPuzzleId = '';
   let current: ReactionTask | null = null;
   let delta: DeltaTask | null = null;
@@ -286,8 +289,13 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
       t = puzzle ? taskFromMatePuzzle(puzzle) : null;
       currentPuzzleId = puzzle?.id ?? '';
     } else {
-      t = generateSafeCheckTask(rnd);
-      currentPuzzleId = '';
+      // Позиции из настоящих партий, как в двух упражнениях выше.
+      // Случайная расстановка остаётся запасным вариантом: она никогда не
+      // кончается, а набор конечен — но при 200 задачах на сессию из 10
+      // до неё доходит только если набор чем-то испорчен.
+      const puzzle = safeChecks.shift();
+      t = puzzle ? taskFromSafeCheckPuzzle(puzzle) : generateSafeCheckTask(rnd);
+      currentPuzzleId = puzzle?.id ?? '';
     }
     if (!t) {
       promptEl.textContent = 'Задачи в наборе кончились.';
@@ -495,6 +503,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     planNextHost.innerHTML = '';
     puzzles = exercise === 'free-capture' ? puzzleQueue(rnd, TASKS_PER_SESSION) : [];
     matePuzzles = exercise === 'mate-in-1' ? matePuzzleQueue(rnd, TASKS_PER_SESSION) : [];
+    safeChecks = exercise === 'safe-check' ? safeCheckQueue(rnd, TASKS_PER_SESSION) : [];
     // Лимит времени дописываем в режим, иначе в «Прогрессе» сессия на
     // 0,2 с легла бы в одну строку с сессией без лимита — а это разные
     // условия. Без лимита строка режима прежняя: так вся уже накопленная
