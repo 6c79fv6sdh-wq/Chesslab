@@ -169,3 +169,104 @@ describe('координаты', () => {
     expect(host.querySelector('coords')).not.toBeNull();
   });
 });
+
+/**
+ * Регрессия на настоящую причину «фигуры не нажимаются» в упражнениях.
+ *
+ * Chessground вешает слушатели ввода только внутри redrawAll(), а bindBoard
+ * первой строкой делает `if (s.viewOnly) return`. При этом api.set()
+ * переворачивает доску ДО применения остального конфига — то есть redrawAll
+ * случается, когда viewOnly ещё прежний. Показали ответ (viewOnly) → следующее
+ * задание другим цветом → доска выглядит рабочей (viewOnly уже false, dests на
+ * месте), но глуха и к мыши, и к тапу.
+ */
+describe('доска остаётся живой после показа ответа', () => {
+  const BLACK_TO_MOVE = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1';
+
+  /**
+   * Chessground по умолчанию отвергает недоверенные события (защита от
+   * подмены кликов на lichess). В jsdom все события синтетические, поэтому
+   * для проверки ввода это ограничение снимаем.
+   */
+  function trustSyntheticEvents(): void {
+    board.api.state.trustAllEvents = true;
+  }
+
+  /** Нажатие мышью в центр клетки — как это делает живой пользователь. */
+  function pressAt(key: string, orientation: 'white' | 'black'): void {
+    const step = BOUNDS / 8;
+    const file = key.charCodeAt(0) - 97;
+    const rank = Number(key[1]) - 1;
+    const col = orientation === 'white' ? file : 7 - file;
+    const row = orientation === 'white' ? 7 - rank : rank;
+    const el = host.querySelector('cg-board') as HTMLElement;
+    el.dispatchEvent(
+      new MouseEvent('mousedown', {
+        bubbles: true,
+        cancelable: true,
+        button: 0,
+        clientX: (col + 0.5) * step,
+        clientY: (row + 0.5) * step,
+      }),
+    );
+  }
+
+  function showAnswer(): void {
+    board.setPosition({
+      fen: INITIAL_FEN,
+      orientation: 'white',
+      turnColor: 'white',
+      viewOnly: true,
+    });
+  }
+
+  function nextTaskAsBlack(): void {
+    const pos = posFromFen(BLACK_TO_MOVE);
+    board.setPosition({
+      fen: BLACK_TO_MOVE,
+      orientation: 'black',
+      turnColor: 'black',
+      movableColor: 'black',
+      dests: dests(pos),
+      viewOnly: false,
+    });
+  }
+
+  it('фигура выбирается, когда следующее задание ещё и переворачивает доску', async () => {
+    mount('white');
+    trustSyntheticEvents();
+    showAnswer();
+    await flushRender();
+    nextTaskAsBlack();
+    await flushRender();
+
+    pressAt('e7', 'black');
+    expect(board.api.state.viewOnly).toBe(false);
+    expect(board.api.state.selected).toBe('e7');
+  });
+
+  it('фигура выбирается и без переворота доски', async () => {
+    mount('white');
+    trustSyntheticEvents();
+    board.setPosition({
+      fen: INITIAL_FEN,
+      orientation: 'white',
+      turnColor: 'white',
+      viewOnly: true,
+    });
+    await flushRender();
+    const pos = posFromFen(INITIAL_FEN);
+    board.setPosition({
+      fen: INITIAL_FEN,
+      orientation: 'white',
+      turnColor: 'white',
+      movableColor: 'white',
+      dests: dests(pos),
+      viewOnly: false,
+    });
+    await flushRender();
+
+    pressAt('e2', 'white');
+    expect(board.api.state.selected).toBe('e2');
+  });
+});

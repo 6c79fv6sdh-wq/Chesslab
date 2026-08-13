@@ -270,6 +270,8 @@ export class Board {
 
   /** Единственный способ выставить фигуры: из FEN. */
   setPosition(p: PositionOptions): void {
+    const viewOnly = p.viewOnly ?? !!this.opts.viewOnly;
+    const wasViewOnly = this.api.state.viewOnly;
     const cfg: Config = {
       fen: p.fen,
       orientation: p.orientation,
@@ -277,7 +279,7 @@ export class Board {
       lastMove: p.lastMove,
       check: p.check ?? false,
       selected: p.selected,
-      viewOnly: p.viewOnly ?? !!this.opts.viewOnly,
+      viewOnly,
       movable: {
         free: false,
         color: p.movableColor,
@@ -286,6 +288,23 @@ export class Board {
       },
     };
     this.api.set(cfg);
+
+    // Выход из viewOnly требует перерисовки, иначе доска остаётся без
+    // обработчиков ввода: bindBoard в Chessground первой же строкой делает
+    // `if (s.viewOnly) return`, а вешает слушателей только внутри
+    // redrawAll(). Поймать это легко на смене ориентации: api.set()
+    // переворачивает доску ДО применения остального конфига, то есть
+    // redrawAll случается, когда viewOnly ещё прежний — true. Дальше
+    // viewOnly становится false, состояние выглядит совершенно рабочим
+    // (dests на месте, selectable включён), но ни один клик и тап до доски
+    // не доходит.
+    //
+    // Ровно так ломались упражнения со сменой цвета от задания к заданию:
+    // показали ответ (viewOnly) → следующая позиция другим цветом → доска
+    // мертва. Через раз, потому что зависит от совпадения цветов соседних
+    // заданий. Тем же путём ломал доску и обычный ресайз окна, пока на
+    // экране висел показанный ответ.
+    if (wasViewOnly && !viewOnly) this.api.redrawAll();
   }
 
   setDests(dests: Dests, movableColor: Color | undefined): void {
