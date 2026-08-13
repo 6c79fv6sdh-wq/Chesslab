@@ -34,8 +34,8 @@ const PUBLIC_KEY_JWK: JsonWebKey | null = {
   ext: true,
   key_ops: ['verify'],
   kty: 'EC',
-  x: '3PKcewh-cg6u5ca4mP3D9mvR4Lmj72qFns5pS1tm-hA',
-  y: 'T8hy9GTPwe1Qdq5rGriiTVq3YqoIZokAyT5CtRCcWew',
+  x: 'zWJxvS2Mgia3egqIncKhOGG1G7mULeQmrCSPAAOsNZU',
+  y: 'aiS86cFUFmBZQ7eL_8KDZzCOKniHmVc76IRJeSqcSKQ',
 };
 
 /** Не секрет — просто ключ localStorage, экспортирован для тестов. */
