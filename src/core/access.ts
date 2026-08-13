@@ -127,7 +127,7 @@ export type LoginResult =
   | { ok: true }
   | { ok: false; reason: 'invalid' }
   | { ok: false; reason: 'rate_limited'; retryAfterMs: number }
-  | { ok: false; reason: 'network' }
+  | { ok: false; reason: 'network'; debug?: string } // debug: ВРЕМЕННО, для диагностики
   | { ok: false; reason: 'not_configured' };
 
 /**
@@ -145,13 +145,16 @@ export async function loginTo(workerUrl: string, code: string): Promise<LoginRes
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code }),
     });
-  } catch {
-    return { ok: false, reason: 'network' };
+  } catch (err) {
+    // ВРЕМЕННО (диагностика): реальная причина в debug, уберу после починки.
+    const debug = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    return { ok: false, reason: 'network', debug };
   }
 
   if (res.status === 200) {
     const data = (await res.json().catch(() => null)) as { token?: unknown } | null;
-    if (typeof data?.token !== 'string') return { ok: false, reason: 'network' };
+    if (typeof data?.token !== 'string')
+      return { ok: false, reason: 'network', debug: `status 200, data=${JSON.stringify(data)}` };
     storeToken(data.token);
     return { ok: true };
   }
