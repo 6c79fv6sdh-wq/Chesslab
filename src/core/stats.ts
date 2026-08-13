@@ -25,7 +25,31 @@ export function fmtMs(v: number | null | undefined): string {
 
 export function fmtPct(v: number | null | undefined): string {
   if (v === null || v === undefined || !Number.isFinite(v)) return '—';
-  return `${(v * 100).toFixed(1)}%`;
+  return `${(v * 100).toFixed(1).replace('.', ',')}%`;
+}
+
+/**
+ * Секунды вместо миллисекунд — для крупных показателей, которые читают
+ * с одного взгляда: «1,11 с» понятнее, чем «1113 мс». Разделитель —
+ * запятая: интерфейс русский, и точка в числе смотрится инородно.
+ */
+export function fmtSec(v: number | null | undefined, digits = 2): string {
+  if (v === null || v === undefined || !Number.isFinite(v)) return '—';
+  return `${(v / 1000).toFixed(digits).replace('.', ',')} с`;
+}
+
+/**
+ * Русское склонение при числе: plural(3, ['промах', 'промаха', 'промахов']).
+ * Формы — как в словаре: 1 промах, 2 промаха, 5 промахов.
+ */
+export function plural(n: number, forms: [string, string, string]): string {
+  const abs = Math.abs(Math.round(n));
+  const hundred = abs % 100;
+  if (hundred > 10 && hundred < 20) return forms[2];
+  const last = abs % 10;
+  if (last === 1) return forms[0];
+  if (last >= 2 && last <= 4) return forms[1];
+  return forms[2];
 }
 
 export function fmtNum(v: number | null | undefined, digits = 2): string {

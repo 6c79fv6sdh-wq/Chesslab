@@ -25,6 +25,52 @@ import type { Key } from 'chessground/types';
 // export: сверяется тестом с порогом полноценного завершения в today-plan.ts
 export const TASKS_PER_SESSION = 8;
 
+/** Сложность = сколько времени даётся, пока соперник «думает». */
+export type Difficulty = 'amateur' | 'pro' | 'extreme';
+
+export interface DifficultySpec {
+  label: string;
+  /** Нижняя граница раздумий соперника, мс. */
+  thinkMinMs: number;
+  /** Разброс сверх нижней границы, мс. */
+  thinkJitterMs: number;
+  /** Сколько даётся на снятие premove в задании «cancel», мс. */
+  cancelMs: number;
+  hint: string;
+}
+
+/**
+ * Разброс времени внутри режима намеренный: с фиксированной паузой ход
+ * соперника ловится по ритму, а не по позиции, и упражнение вырождается.
+ *
+ * «Профи» — ровно то, что было до появления переключателя: 1.2–2.2 с на
+ * ход и 3 с на снятие. Менять его нельзя, иначе прошлые замеры перестанут
+ * сравниваться с новыми.
+ */
+export const DIFFICULTIES: Record<Difficulty, DifficultySpec> = {
+  amateur: {
+    label: 'Любитель',
+    thinkMinMs: 4500,
+    thinkJitterMs: 1000,
+    cancelMs: 5000,
+    hint: 'Около 5 секунд на поиск хода и premove — можно спокойно посчитать.',
+  },
+  pro: {
+    label: 'Профи',
+    thinkMinMs: 1200,
+    thinkJitterMs: 1000,
+    cancelMs: 3000,
+    hint: 'Соперник думает 1,2–2,2 секунды. Обычный турнирный темп.',
+  },
+  extreme: {
+    label: 'Extreme',
+    thinkMinMs: 600,
+    thinkJitterMs: 500,
+    cancelMs: 1800,
+    hint: 'Около секунды на решение. Только на скорость реакции.',
+  },
+};
+
 interface Attempt {
   positionId: string;
   mode: PremoveMode;
@@ -51,6 +97,14 @@ export function shuffle<T>(items: T[], rnd: () => number): T[] {
 export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   const cal = ctx.calibration;
   let mode: PremoveMode = 'forced-capture';
+  let difficulty: Difficulty = 'pro';
+  /**
+   * Сложность, с которой началась текущая сессия. Отдельно от `difficulty`
+   * потому, что переключатель менять посреди сессии нельзя: половина
+   * попыток оказалась бы в других условиях, чем вторая, а в разборе они
+   * лежали бы вперемешку. Переключатель на время сессии блокируется.
+   */
+  let sessionDifficulty: Difficulty = difficulty;
   const cameFromPlan = consumePlanNavigation();
 
   root.append(el('h1', {}, ['Premove']));
@@ -162,8 +216,9 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     promptEl.textContent = promptFor(position);
     shownAt = performance.now();
 
-    // Соперник думает 1.2–2.2 секунды: за это время надо успеть решить.
-    const think = 1200 + Math.random() * 1000;
+    // Сколько соперник «думает» — и есть время на решение (см. DIFFICULTIES).
+    const spec = DIFFICULTIES[sessionDifficulty];
+    const think = spec.thinkMinMs + Math.random() * spec.thinkJitterMs;
     later(() => opponentMoves(), think);
   }
 
@@ -203,10 +258,10 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
         finishCancel(false, 'no-premove', premoveUci);
         return;
       }
-      // Если за 3 секунды не снял, считаем провалом.
+      // Не успел снять за отведённое режимом время — провал.
       later(() => {
         if (awaitingCancel) finishCancel(false, undefined, premoveUci);
-      }, 3000);
+      }, DIFFICULTIES[sessionDifficulty].cancelMs);
       return;
     }
 
@@ -288,7 +343,10 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
 
   function record(a: Attempt): void {
     attempts.push(a);
-    void session?.record({ ...a });
+    // Сложность пишем в каждый замер: время на решение у режимов разное,
+    // и без этой пометки быстрые попытки на «Любителе» смешались бы в
+    // разборе с попытками на «Extreme», где условия совсем другие.
+    void session?.record({ ...a, difficulty: sessionDifficulty });
     verdictEl.textContent = verdictText(a);
     verdictEl.className = a.correct ? 'prompt verdict-ok' : 'prompt verdict-bad';
     commentEl.textContent = current?.comment ?? '';
@@ -342,12 +400,14 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
       medianSetMs: median(setTimes),
       p90SetMs: p90(setTimes),
       medianCancelMs: median(cancelTimes),
+      difficulty: sessionDifficulty,
     });
     session = null;
     current = null;
     promptEl.textContent = 'Сессия закончена. Результат записан.';
     startBtn.disabled = false;
     stopBtn.disabled = true;
+    setDifficultyEnabled(true);
     renderPlanNext();
   }
 
@@ -418,6 +478,26 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     },
   );
 
+  const difficultyHint = el('p', { class: 'hint' }, [DIFFICULTIES[difficulty].hint]);
+  const difficultySeg = segmented<Difficulty>(
+    (Object.keys(DIFFICULTIES) as Difficulty[]).map((d) => ({
+      value: d,
+      label: DIFFICULTIES[d].label,
+    })),
+    difficulty,
+    (v) => {
+      difficulty = v;
+      difficultyHint.textContent = DIFFICULTIES[v].hint;
+    },
+  );
+
+  /** Пока идёт сессия, сложность не меняем — см. sessionDifficulty. */
+  function setDifficultyEnabled(on: boolean): void {
+    for (const b of difficultySeg.root.querySelectorAll('button')) {
+      (b as HTMLButtonElement).disabled = !on;
+    }
+  }
+
   const startBtn = el('button', { class: 'btn primary', type: 'button' }, ['Старт']);
   const stopBtn = el('button', { class: 'btn', type: 'button' }, ['Прервать']);
   stopBtn.disabled = true;
@@ -432,8 +512,10 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     }
     queue = queue.slice(0, TASKS_PER_SESSION);
     session = new Session('premove', mode, measuredCalibration(cal, board.size));
+    sessionDifficulty = difficulty;
     startBtn.disabled = true;
     stopBtn.disabled = false;
+    setDifficultyEnabled(false);
     renderLive();
     nextTask();
   });
@@ -444,6 +526,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
 
   root.append(
     panel('Режим', [modeSeg.root]),
+    panel('Сложность', [difficultySeg.root, difficultyHint]),
     panel('Тренировка', [
       el('div', { class: 'board-area' }, [
         boardHost,

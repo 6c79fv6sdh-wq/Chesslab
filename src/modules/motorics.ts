@@ -1,8 +1,8 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
-import { el, panel, statLine, table } from '../core/ui';
+import { el, metric, metrics, panel, table } from '../core/ui';
 import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
-import { fmtMs, fmtNum, fmtPct, groupBy, median, p90 } from '../core/stats';
+import { fmtMs, fmtNum, fmtPct, fmtSec, groupBy, median, p90, plural } from '../core/stats';
 import { directionBetween, squareDistance, type Direction } from '../core/chess';
 import { stepAfter } from './today-plan';
 import {
@@ -152,6 +152,9 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
   let sourceHitAt = 0;
   let firstMoveAt: number | null = null;
   let misses = 0;
+  // Границы сессии по настенным часам — для показателя «Общее время».
+  let startedAt: number | null = null;
+  let finishedAt: number | null = null;
   let samples: PointerSample[] = [];
   const results: RepResult[] = [];
 
@@ -272,17 +275,39 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     }, 350);
   }
 
+  /**
+   * Сколько идёт сессия. Пока она не закончена — считаем до «сейчас», после
+   * — замораживаем на моменте финиша, иначе итог продолжал бы расти, пока
+   * страница открыта.
+   */
+  function elapsedMs(): number | null {
+    if (startedAt === null) return null;
+    return (finishedAt ?? performance.now()) - startedAt;
+  }
+
+  /**
+   * Три равноправных показателя, которые читают с одного взгляда, а под
+   * ними — сухая расшифровка объёма. Раньше здесь строкой шли «Медиана
+   * полного» и «P90 полного»: медиана осталась, но уже как «Скорость» и в
+   * секундах (1,11 с понятнее, чем 1113 мс), а P90 виден только во
+   * внутренних данных сессии — на экране он ничего не решал.
+   */
   function renderLive(): void {
     const done = results.length;
     const totals = results.map((r) => r.totalMs);
     const hitRate = done ? results.filter((r) => r.misses === 0).length / done : null;
+    const missCount = results.reduce((sum, r) => sum + r.misses, 0);
+
     liveStats.innerHTML = '';
     liveStats.append(
-      statLine([
-        ['Повторов', `${done} / ${REPS}`],
-        ['Медиана полного', fmtMs(median(totals))],
-        ['P90 полного', fmtMs(p90(totals))],
-        ['Без промахов', fmtPct(hitRate)],
+      metrics([
+        metric('Скорость', fmtSec(median(totals))),
+        metric('Без промахов', fmtPct(hitRate)),
+        metric('Общее время', fmtSec(elapsedMs(), 1)),
+      ]),
+      el('p', { class: 'hint metrics-note' }, [
+        `${done} ${plural(done, ['повтор', 'повтора', 'повторов'])} · ` +
+          `${missCount} ${plural(missCount, ['промах', 'промаха', 'промахов'])}`,
       ]),
     );
     progressBar.style.width = `${(done / REPS) * 100}%`;
@@ -290,8 +315,11 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
 
   async function finish(): Promise<void> {
     phase = 'done';
+    finishedAt = performance.now();
     highlight([]);
     promptEl.textContent = 'Сессия закончена. Результат записан.';
+    // Заново, уже с замороженным «Общим временем».
+    renderLive();
     const totals = results.map((r) => r.totalMs);
     await session?.finish({
       reps: results.length,
@@ -373,6 +401,8 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     resultsHost.innerHTML = '';
     planNextHost.innerHTML = '';
     session = new Session('motorics', 'source-target', measuredCalibration(cal, board.size));
+    startedAt = performance.now();
+    finishedAt = null;
     startBtn.disabled = true;
     stopBtn.disabled = false;
     renderLive();

@@ -4,8 +4,9 @@ import { el, panel, segmented, statLine } from '../core/ui';
 import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
 import { fmtMs, fmtPct, median, p90 } from '../core/stats';
 import { stepAfter } from './today-plan';
-import { checkedColor, dests, fenOf, moveFromUci, posFromFen } from '../core/chess';
+import { checkedColor, dests, fenOf, moveFromUci, posFromFen, type Color } from '../core/chess';
 import {
+  deltaAnswer,
   generateDeltaTask,
   generateSafeCheckTask,
   matePuzzleQueue,
@@ -25,16 +26,30 @@ const EXERCISE_LABELS: Record<ReactionExercise, string> = {
   'free-capture': 'Бесплатное взятие',
   'mate-in-1': 'Мат в один ход',
   'safe-check': 'Безопасный шах',
-  delta: 'Дельта позиции',
+  delta: 'Изменения позиции',
 };
 
-/** Подсказка под доской. У «дельты» свой текст, задаётся отдельно по ходу упражнения. */
-const PROMPTS: Record<ReactionExercise, string> = {
-  'free-capture': 'Забери висящую фигуру. Отбить её нельзя.',
-  'mate-in-1': 'Поставь мат в один ход.',
-  'safe-check': 'Найди шах, при котором шахующую фигуру нельзя взять.',
-  delta: '',
-};
+/**
+ * Подсказка под доской. Цвет называем прямо, как в premove: позиции здесь
+ * случайные, и сторона меняется от задания к заданию. Без этой строчки
+ * ученик тыкает в чужие фигуры и решает, что «часть фигур не нажимается»,
+ * — хотя доска просто не даёт ходить за соперника.
+ *
+ * У «изменений позиции» свой текст: там кликают по клетке, а не ходят.
+ */
+function promptFor(ex: ReactionExercise, userColor: Color): string {
+  const side = userColor === 'white' ? 'белыми' : 'чёрными';
+  switch (ex) {
+    case 'free-capture':
+      return `Играешь ${side}. Забери висящую фигуру. Отбить её нельзя.`;
+    case 'mate-in-1':
+      return `Играешь ${side}. Поставь мат в один ход.`;
+    case 'safe-check':
+      return `Играешь ${side}. Найди шах, при котором шахующую фигуру нельзя взять.`;
+    case 'delta':
+      return '';
+  }
+}
 
 const EXPOSURE_LABELS: Record<Exposure, string> = {
   unlimited: 'Без лимита',
@@ -47,12 +62,37 @@ export function exposureMs(e: Exposure): number | null {
   return e === 'unlimited' ? null : Number(e);
 }
 
+/**
+ * Сколько даётся на решение. Это не то же самое, что экспозиция: та
+ * прячет фигуры, но отвечать можно сколько угодно, а здесь по истечении
+ * времени задание закрывается как несделанное. Настройки независимы —
+ * можно, например, показать позицию на 300 мс и дать 3 секунды на ответ
+ * по памяти.
+ */
+export type TimeLimit = 'unlimited' | '3000' | '1500' | '500' | '300' | '200';
+
+const TIME_LIMIT_LABELS: Record<TimeLimit, string> = {
+  unlimited: 'Без лимита',
+  '3000': '3 с',
+  '1500': '1,5 с',
+  '500': '0,5 с',
+  '300': '0,3 с',
+  '200': '0,2 с',
+};
+
+export function timeLimitMs(t: TimeLimit): number | null {
+  return t === 'unlimited' ? null : Number(t);
+}
+
 // export: сверяется тестом с порогом полноценного завершения в today-plan.ts
 export const TASKS_PER_SESSION = 10;
 
 interface Attempt {
   exercise: ReactionExercise;
   exposure: Exposure;
+  timeLimit: TimeLimit;
+  /** Не успел ответить до истечения лимита — засчитано как несделанное. */
+  timedOut?: boolean;
   correct: boolean;
   latencyMs: number;
   answer: string;
@@ -66,9 +106,10 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   const cal = ctx.calibration;
   let exercise: ReactionExercise = 'free-capture';
   let exposure: Exposure = 'unlimited';
+  let timeLimit: TimeLimit = 'unlimited';
   const cameFromPlan = consumePlanNavigation();
 
-  root.append(el('h1', {}, ['Реакция']));
+  root.append(el('h1', {}, ['Тактика']));
 
   const boardHost = el('div', { class: 'board-host' });
   const board = new Board(boardHost, {
@@ -114,6 +155,72 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     later(() => board.setPiecesHidden(true), ms);
   }
 
+  /**
+   * Запустить обратный отсчёт на решение. Вызывается ровно там же, где
+   * задание становится принимающим ответ, — иначе в «изменениях позиции»
+   * лимит съела бы пауза на запоминание исходной позиции.
+   */
+  function armTimeLimit(): void {
+    const ms = timeLimitMs(timeLimit);
+    if (ms === null) return;
+    later(() => onTimeUp(), ms);
+  }
+
+  /** Время вышло: закрываем задание как несделанное и показываем ответ. */
+  function onTimeUp(): void {
+    if (!accepting) return;
+    accepting = false;
+    const t = performance.now();
+    board.setPiecesHidden(false);
+
+    if (delta) {
+      const after = posFromFen(delta.afterFen);
+      board.setPosition({
+        fen: delta.afterFen,
+        orientation: delta.userColor,
+        turnColor: after.turn,
+        movableColor: undefined,
+        viewOnly: true,
+        lastMove: [delta.from as Key, delta.to as Key],
+        check: checkedColor(after),
+      });
+      record({
+        exercise,
+        exposure,
+        timeLimit,
+        timedOut: true,
+        correct: false,
+        latencyMs: t - shownAt,
+        answer: '—',
+        expected: deltaAnswer(delta),
+        fen: delta.fen,
+      });
+      return;
+    }
+
+    if (!current) return;
+    board.setPosition({
+      fen: current.fen,
+      orientation: current.userColor,
+      turnColor: current.pos.turn,
+      movableColor: undefined,
+      viewOnly: true,
+      check: checkedColor(current.pos),
+    });
+    record({
+      exercise,
+      exposure,
+      timeLimit,
+      timedOut: true,
+      correct: false,
+      latencyMs: t - shownAt,
+      answer: '—',
+      expected: current.solutions.map((s) => s.uci).join(' '),
+      fen: current.fen,
+      puzzleId: currentPuzzleId,
+    });
+  }
+
   function nextTask(): void {
     clearTimers();
     if (!session) return;
@@ -156,10 +263,14 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
           viewOnly: true,
           check: checkedColor(after),
         });
-        promptEl.textContent = 'Куда пришёл ход? Кликни по полю прихода.';
+        promptEl.textContent =
+          t.direction === 'to'
+            ? 'Куда переместилась фигура? Кликни по полю прихода.'
+            : 'Откуда переместилась фигура? Кликни по полю ухода.';
         shownAt = performance.now();
         accepting = true;
         applyExposure();
+        armTimeLimit();
       }, 900);
       return;
     }
@@ -192,10 +303,11 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
       dests: dests(t.pos),
       check: checkedColor(t.pos),
     });
-    promptEl.textContent = PROMPTS[exercise];
+    promptEl.textContent = promptFor(exercise, t.userColor);
     shownAt = performance.now();
     accepting = true;
     applyExposure();
+    armTimeLimit();
   }
 
   function onMove(orig: Key, dest: Key): void {
@@ -235,6 +347,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     record({
       exercise,
       exposure,
+      timeLimit,
       correct,
       latencyMs: t - shownAt,
       answer: uci,
@@ -251,7 +364,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     if (!key) return;
     accepting = false;
     const t = performance.now();
-    const correct = key === delta.to;
+    const correct = key === deltaAnswer(delta);
     board.setPiecesHidden(false);
     const after = posFromFen(delta.afterFen);
     board.setPosition({
@@ -266,10 +379,11 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     record({
       exercise,
       exposure,
+      timeLimit,
       correct,
       latencyMs: t - shownAt,
       answer: key,
-      expected: delta.to,
+      expected: deltaAnswer(delta),
       fen: delta.fen,
     });
   }
@@ -280,7 +394,9 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     void session?.record({ ...a });
     verdictEl.textContent = a.correct
       ? `Верно, ${fmtMs(a.latencyMs)}.`
-      : `Мимо. Правильно: ${a.expected}.`;
+      : a.timedOut
+        ? `Время вышло. Правильно: ${a.expected}.`
+        : `Мимо. Правильно: ${a.expected}.`;
     verdictEl.className = a.correct ? 'prompt verdict-ok' : 'prompt verdict-bad';
     renderLive();
     later(nextTask, 1200);
@@ -358,6 +474,17 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     },
   );
 
+  const timeLimitSeg = segmented<TimeLimit>(
+    (Object.keys(TIME_LIMIT_LABELS) as TimeLimit[]).map((k) => ({
+      value: k,
+      label: TIME_LIMIT_LABELS[k],
+    })),
+    timeLimit,
+    (v) => {
+      timeLimit = v;
+    },
+  );
+
   const startBtn = el('button', { class: 'btn primary', type: 'button' }, ['Старт']);
   const stopBtn = el('button', { class: 'btn', type: 'button' }, ['Прервать']);
   stopBtn.disabled = true;
@@ -368,7 +495,12 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     planNextHost.innerHTML = '';
     puzzles = exercise === 'free-capture' ? puzzleQueue(rnd, TASKS_PER_SESSION) : [];
     matePuzzles = exercise === 'mate-in-1' ? matePuzzleQueue(rnd, TASKS_PER_SESSION) : [];
-    session = new Session('reaction', `${exercise}:${exposure}`, measuredCalibration(cal, board.size));
+    // Лимит времени дописываем в режим, иначе в «Прогрессе» сессия на
+    // 0,2 с легла бы в одну строку с сессией без лимита — а это разные
+    // условия. Без лимита строка режима прежняя: так вся уже накопленная
+    // история продолжает совпадать с новыми записями.
+    const modeKey = timeLimit === 'unlimited' ? `${exercise}:${exposure}` : `${exercise}:${exposure}:lim${timeLimit}`;
+    session = new Session('reaction', modeKey, measuredCalibration(cal, board.size));
     startBtn.disabled = true;
     stopBtn.disabled = false;
     renderLive();
@@ -385,9 +517,13 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   root.append(
     panel('Упражнение', [
       exerciseSeg.root,
-      el('div', { class: 'row' }, [el('label', {}, ['Экспозиция']), exposureSeg.root]),
+      el('div', { class: 'row' }, [el('label', {}, ['Показ фигур']), exposureSeg.root]),
+      el('div', { class: 'row' }, [el('label', {}, ['Лимит времени']), timeLimitSeg.root]),
       el('p', { class: 'hint' }, [
-        'После лимита экспозиции фигуры скрываются, решение идёт по памяти.',
+        'Показ фигур — сколько времени видно позицию: после этого фигуры ',
+        'скрываются, и решение идёт по памяти. Лимит времени — сколько ',
+        'всего даётся на ответ: не успел, задание засчитывается как ',
+        'несделанное. Настройки независимы.',
       ]),
     ]),
     panel('Тренировка', [

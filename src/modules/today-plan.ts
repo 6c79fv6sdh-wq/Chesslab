@@ -42,7 +42,7 @@ const WARMUP: PlanStep = {
 
 const CORE: PlanStep = {
   module: 'reaction',
-  label: 'Реакция',
+  label: 'Тактика',
   detail: 'Скорость решения: серия заданий на время',
   tab: 'reaction',
 };

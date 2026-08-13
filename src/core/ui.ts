@@ -59,6 +59,25 @@ export function statLine(items: Array<[string, string]>): HTMLElement {
   return root;
 }
 
+/**
+ * Крупный показатель «подпись + число». В отличие от statLine это не
+ * строчка мелким шрифтом, а плитка: такие показатели читают с одного
+ * взгляда, и в ряду они равноправны между собой.
+ */
+export function metric(label: string, value: string, note?: string): HTMLElement {
+  const parts = [
+    el('span', { class: 'metric-k' }, [label]),
+    el('span', { class: 'metric-v' }, [value]),
+  ];
+  if (note) parts.push(el('span', { class: 'metric-note' }, [note]));
+  return el('div', { class: 'metric' }, parts);
+}
+
+/** Ряд равноправных плиток-показателей. */
+export function metrics(items: HTMLElement[]): HTMLElement {
+  return el('div', { class: 'metrics' }, items);
+}
+
 export function table(headers: string[], rows: string[][]): HTMLElement {
   const t = el('table', { class: 'tbl' });
   const thead = el('thead');

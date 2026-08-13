@@ -213,6 +213,9 @@ export function generateSafeCheckTask(rnd: Rng, tries = 400): ReactionTask | nul
   return null;
 }
 
+/** О чём спрашиваем: куда фигура пришла или откуда ушла. */
+export type DeltaDirection = 'to' | 'from';
+
 export interface DeltaTask {
   fen: string;
   pos: Chess;
@@ -224,10 +227,53 @@ export interface DeltaTask {
   afterFen: string;
   /** Пользователь смотрит с этой стороны. */
   userColor: Color;
+  direction: DeltaDirection;
 }
 
-/** Позиция плюс ход соперника: пользователь указывает поле прихода. */
-export function generateDeltaTask(rnd: Rng, tries = 400): DeltaTask | null {
+/** Клетка-ответ для задания: зависит от того, о чём спросили. */
+export function deltaAnswer(task: DeltaTask): string {
+  return task.direction === 'to' ? task.to : task.from;
+}
+
+/**
+ * Изменилось ровно одно поле «откуда» и одно «куда»?
+ *
+ * Опасны рокировка (двигает сразу две фигуры) и взятие на проходе (убирает
+ * пешку с третьего поля): на них вопрос «откуда переместилась?» честно
+ * неоднозначен — опустело два поля, и оба ответа осмысленны.
+ *
+ * Сейчас generatePosition такие ходы породить не может: он собирает
+ * позицию с пустыми castlingRights и без epSquare. Проверка тут на
+ * будущее — стоит генератору начать выдавать позиции с рокировкой, и
+ * упражнение молча начнёт спрашивать неразрешимое. Сравниваем сами доски,
+ * а не перечисляем частные случаи, чтобы не проглядеть ещё какой-нибудь.
+ */
+function movedExactlyOneSquare(before: Chess, after: Chess, from: string, to: string): boolean {
+  const vacated: string[] = [];
+  const changed: string[] = [];
+  for (let sq = 0 as Square; sq < 64; sq = (sq + 1) as Square) {
+    const a = before.board.get(sq);
+    const b = after.board.get(sq);
+    const same = a && b ? a.role === b.role && a.color === b.color : a === b;
+    if (same) continue;
+    if (a && !b) vacated.push(keyOf(sq));
+    else changed.push(keyOf(sq));
+  }
+  return (
+    vacated.length === 1 && vacated[0] === from && changed.length === 1 && changed[0] === to
+  );
+}
+
+/**
+ * Позиция плюс ход соперника: пользователь указывает поле прихода или
+ * ухода — что именно, задаёт `direction` (по умолчанию вопрос выбирается
+ * случайно, чтобы задания шли вперемешку).
+ */
+export function generateDeltaTask(
+  rnd: Rng,
+  tries = 400,
+  direction?: DeltaDirection,
+): DeltaTask | null {
   for (let i = 0; i < tries; i++) {
     const gen = generatePosition(rnd);
     if (!gen) continue;
@@ -237,6 +283,7 @@ export function generateDeltaTask(rnd: Rng, tries = 400): DeltaTask | null {
     const after = gen.pos.clone();
     after.play(move);
     const sol = toSolution(move);
+    if (!movedExactlyOneSquare(gen.pos, after, sol.from, sol.to)) continue;
     return {
       fen: gen.fen,
       pos: gen.pos,
@@ -246,6 +293,7 @@ export function generateDeltaTask(rnd: Rng, tries = 400): DeltaTask | null {
       afterFen: fenOf(after),
       // Ходит соперник, значит пользователь смотрит с другой стороны.
       userColor: gen.pos.turn === 'white' ? 'black' : 'white',
+      direction: direction ?? (rnd() < 0.5 ? 'to' : 'from'),
     };
   }
   return null;

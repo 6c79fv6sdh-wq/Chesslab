@@ -26,7 +26,7 @@ const SLIDES: Slide[] = [
   },
   {
     src: './showcase/reaction.webp',
-    title: 'Реакция',
+    title: 'Тактика',
     caption: 'Мат в один ход и бесплатное взятие на скорость, с ограничением показа фигур или без.',
   },
   {
@@ -392,7 +392,7 @@ export function mountGate(onUnlock: () => void, initialError?: string): void {
       el('p', { class: 'hero-lead' }, [
         'Тренажеры скорости, внимания и принятия решений в шахматах',
       ]),
-      el('p', { class: 'hero-modules' }, ['Моторика · Реакция · Premove · Дебюты · Цейтнот']),
+      el('p', { class: 'hero-modules' }, ['Моторика · Тактика · Premove · Дебюты · Цейтнот']),
     ]),
     panel('Тренировочные модули', [buildGallery(SLIDES)]),
     panel('Прогресс', [buildProgressBlock()]),

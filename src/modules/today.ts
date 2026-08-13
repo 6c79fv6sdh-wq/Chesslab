@@ -1,5 +1,5 @@
 import type { AppContext, Unmount } from '../main';
-import { el, panel } from '../core/ui';
+import { el, metric, metrics, panel } from '../core/ui';
 import { allMeasurements, allSessions } from '../core/db';
 import { fmtDuration } from '../core/stats';
 import { markPlanNavigation } from '../core/session';
@@ -93,7 +93,7 @@ export function mountToday(root: HTMLElement, _ctx: AppContext): Unmount {
     summaryHost.innerHTML = '';
     summaryHost.append(
       panel('Итог дня', [
-        el('div', { class: 'metrics' }, [
+        metrics([
           metric('Модулей', `${plan.doneCount} / ${total}`),
           metric('Заданий', String(todayMeasurements.length)),
           metric('Время тренировки', fmtDuration(totalMs)),
@@ -107,12 +107,6 @@ export function mountToday(root: HTMLElement, _ctx: AppContext): Unmount {
     );
   }
 
-  function metric(k: string, v: string): HTMLElement {
-    return el('div', { class: 'metric' }, [
-      el('span', { class: 'metric-k' }, [k]),
-      el('span', { class: 'metric-v' }, [v]),
-    ]);
-  }
 
   void render();
 

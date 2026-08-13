@@ -2,7 +2,7 @@ import { Chessground } from 'chessground';
 import type { Api } from 'chessground/api';
 import type { Config } from 'chessground/config';
 import type { Color, Key, Dests } from 'chessground/types';
-import { BOARD_HEIGHT_RESERVE, fitBoardSize } from '../core/settings';
+import { BOARD_SIZE_MAX, BOARD_HEIGHT_RESERVE, fitBoardSize } from '../core/settings';
 
 import 'chessground/assets/chessground.base.css';
 import 'chessground/assets/chessground.brown.css';
@@ -119,6 +119,16 @@ export class Board {
   /** Фактический размер доски: он же уходит в замеры, а не желаемый. */
   get size(): number {
     return this.rendered;
+  }
+
+  /**
+   * Наибольший размер, который вообще помещается на этом экране прямо
+   * сейчас. Нужен ползунку в настройках: без этого верхняя часть его хода
+   * — мёртвая, потому что дальше упирается в экран и доска не меняется,
+   * сколько ни тяни (см. mountCalibrationView).
+   */
+  maxFittingSize(): number {
+    return fitBoardSize(BOARD_SIZE_MAX, this.availWidth(), this.availHeight());
   }
 
   private baseConfig(): Config {

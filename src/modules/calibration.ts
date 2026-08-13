@@ -114,17 +114,47 @@ function mountCalibrationView(
     step: '8',
     value: String(cal.boardSize),
   }) as HTMLInputElement;
+
+  /**
+   * Верх ползунка — ровно то, что помещается на этом экране, а не общий
+   * потолок BOARD_SIZE_MAX. Иначе весь ход выше «влезающего» размера
+   * мёртвый: тянешь дальше, а доска упирается в экран и не меняется.
+   *
+   * Сохранённое значение при этом не трогаем: оно могло прийти с экрана
+   * покрупнее и переносится между устройствами. Ползунок просто встаёт на
+   * свой потолок, а расхождение объясняет подпись под ним (showSize).
+   * Перезапишется оно только если ползунок реально подвинут рукой.
+   */
+  function syncSizeBounds(): void {
+    const fits = Math.min(BOARD_SIZE_MAX, Math.max(BOARD_SIZE_MIN + 8, board.maxFittingSize()));
+    sizeInput.max = String(fits);
+    if (Number(sizeInput.value) > fits) sizeInput.value = String(fits);
+  }
+
   sizeInput.addEventListener('input', () => {
     cal.boardSize = clampBoardSize(Number(sizeInput.value));
     board.setOptions({ size: cal.boardSize });
     showSize();
     save();
   });
+  syncSizeBounds();
   showSize();
+
+  // Место под доску меняется от поворота экрана и появления клавиатуры —
+  // потолок ползунка должен ехать следом. onResize доски здесь не хватает:
+  // он срабатывает, только когда размер реально поменялся, а потолок
+  // зависит ещё и от того, сколько места есть сверх текущего размера.
+  const onViewport = () => {
+    syncSizeBounds();
+    showSize();
+  };
+  window.addEventListener('resize', onViewport);
+  window.addEventListener('orientationchange', onViewport);
+  const firstSync = requestAnimationFrame(onViewport);
 
   const inputSeg = segmented<InputMode>(
     [
-      { value: 'select', label: 'Клик-клик' },
+      { value: 'select', label: 'Клик' },
       { value: 'drag', label: 'Перетаскивание' },
       { value: 'both', label: 'Оба' },
     ],
@@ -208,5 +238,10 @@ function mountCalibrationView(
     root.append(doneBtn);
   }
 
-  return () => board.destroy();
+  return () => {
+    cancelAnimationFrame(firstSync);
+    window.removeEventListener('resize', onViewport);
+    window.removeEventListener('orientationchange', onViewport);
+    board.destroy();
+  };
 }

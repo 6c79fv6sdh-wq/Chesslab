@@ -4,7 +4,7 @@ import { groupBy, median, p90 } from '../core/stats';
 export const MODULE_LABELS: Record<ModuleId, string> = {
   motorics: 'Моторика',
   premove: 'Premove',
-  reaction: 'Реакция',
+  reaction: 'Тактика',
   openings: 'Дебюты',
   scramble: 'Цейтнот',
 };
