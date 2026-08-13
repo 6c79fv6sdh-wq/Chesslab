@@ -207,60 +207,41 @@ export default {
     }
 
     const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+    const rec = await readRateRecord(env, ip);
+    const now = Date.now();
 
-    // ВРЕМЕННО (диагностика 500-й): оборачиваем в try/catch, чтобы увидеть
-    // причину исключения в самом ответе, а не только "error code: 1101" от
-    // Cloudflare. Убрать после того, как вход снова заработает.
-    try {
-      const rec = await readRateRecord(env, ip);
-      const now = Date.now();
-
-      if (rec.lockedUntil > now) {
-        return json(
-          { error: 'rate_limited', retryAfterMs: rec.lockedUntil - now },
-          429,
-          { ...cors, 'Retry-After': String(Math.ceil((rec.lockedUntil - now) / 1000)) },
-        );
-      }
-
-      const normalized = code.trim().toLowerCase();
-      const correct = constantTimeEqual(normalized, env.ACCESS_CODE.trim().toLowerCase());
-
-      if (correct) {
-        if (rec.fails > 0) await clearRateRecord(env, ip);
-        const { token, exp } = await issueToken(env);
-        return json({ token, exp }, 200, cors);
-      }
-
-      const fails = rec.fails + 1;
-      const lockSeconds = lockDurationSeconds(fails);
-      const next: RateRecord = {
-        fails,
-        lockedUntil: lockSeconds > 0 ? now + lockSeconds * 1000 : 0,
-      };
-      await writeRateRecord(env, ip, next);
-
-      if (lockSeconds > 0) {
-        return json(
-          { error: 'rate_limited', retryAfterMs: lockSeconds * 1000 },
-          429,
-          { ...cors, 'Retry-After': String(lockSeconds) },
-        );
-      }
-      return json({ error: 'invalid_code' }, 401, cors);
-    } catch (err) {
+    if (rec.lockedUntil > now) {
       return json(
-        {
-          error: 'internal_error',
-          message: err instanceof Error ? err.message : String(err),
-          name: err instanceof Error ? err.name : undefined,
-          hasAccessCode: typeof env.ACCESS_CODE === 'string' && env.ACCESS_CODE.length > 0,
-          hasSigningKey: typeof env.SIGNING_PRIVATE_KEY_JWK === 'string' && env.SIGNING_PRIVATE_KEY_JWK.length > 0,
-          hasKv: typeof env.RATE_LIMIT_KV !== 'undefined',
-        },
-        500,
-        cors,
+        { error: 'rate_limited', retryAfterMs: rec.lockedUntil - now },
+        429,
+        { ...cors, 'Retry-After': String(Math.ceil((rec.lockedUntil - now) / 1000)) },
       );
     }
+
+    const normalized = code.trim().toLowerCase();
+    const correct = constantTimeEqual(normalized, env.ACCESS_CODE.trim().toLowerCase());
+
+    if (correct) {
+      if (rec.fails > 0) await clearRateRecord(env, ip);
+      const { token, exp } = await issueToken(env);
+      return json({ token, exp }, 200, cors);
+    }
+
+    const fails = rec.fails + 1;
+    const lockSeconds = lockDurationSeconds(fails);
+    const next: RateRecord = {
+      fails,
+      lockedUntil: lockSeconds > 0 ? now + lockSeconds * 1000 : 0,
+    };
+    await writeRateRecord(env, ip, next);
+
+    if (lockSeconds > 0) {
+      return json(
+        { error: 'rate_limited', retryAfterMs: lockSeconds * 1000 },
+        429,
+        { ...cors, 'Retry-After': String(lockSeconds) },
+      );
+    }
+    return json({ error: 'invalid_code' }, 401, cors);
   },
 };
