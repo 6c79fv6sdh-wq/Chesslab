@@ -184,11 +184,7 @@ function buildLoginDialog(onUnlock: () => void): { dialog: HTMLDialogElement; op
           showError(`Слишком много попыток. Попробуй через ${fmtRetry(result.retryAfterMs)}.`);
           break;
         case 'network':
-          // ВРЕМЕННО: показываем debug прямо в сообщении, уберу после починки.
-          showError(
-            'Не получилось проверить код — проверь соединение и попробуй ещё раз.' +
-              (result.debug ? ` [${result.debug}]` : ''),
-          );
+          showError('Не получилось проверить код — проверь соединение и попробуй ещё раз.');
           break;
         case 'not_configured':
           showError('Вход временно недоступен, зайди позже.');

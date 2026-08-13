@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
-import { STORAGE_KEY, loginTo, verifyTokenWithKey } from '../src/core/access';
+import { STORAGE_KEY, isLoginInFlight, loginTo, verifyTokenWithKey } from '../src/core/access';
 
 /**
  * Проверка кода теперь живёт на сервере (Cloudflare Worker, см.
@@ -187,6 +187,32 @@ describe('loginTo: разбор ответа воркера', () => {
     const result = await loginTo('https://gate.example', 'x');
     expect(result).toMatchObject({ ok: false, reason: 'network' });
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+  });
+
+  /**
+   * Регрессия: пока идёт проверка кода, страницу нельзя перезагружать по
+   * обновлению service worker'а (main.ts) — иначе запрос обрывается и вход
+   * падает с «network», хотя сеть и воркер исправны. Именно это ломало вход
+   * на телефоне после каждого свежего деплоя.
+   */
+  it('пока запрос в полёте, isLoginInFlight() — true, после — false', async () => {
+    expect(isLoginInFlight()).toBe(false);
+    let duringRequest: boolean | null = null;
+    globalThis.fetch = vi.fn().mockImplementation(async () => {
+      duringRequest = isLoginInFlight();
+      return new Response(JSON.stringify({ token: 't' }), { status: 200 });
+    }) as unknown as typeof fetch;
+
+    await loginTo('https://gate.example', '2000');
+
+    expect(duringRequest).toBe(true);
+    expect(isLoginInFlight()).toBe(false);
+  });
+
+  it('после неудачного запроса счётчик тоже обнуляется', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch')) as unknown as typeof fetch;
+    await loginTo('https://gate.example', 'x');
+    expect(isLoginInFlight()).toBe(false);
   });
 
   it('прочий код статуса (403, 500...) трактуется как invalid', async () => {

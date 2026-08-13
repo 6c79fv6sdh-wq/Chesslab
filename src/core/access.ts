@@ -127,8 +127,20 @@ export type LoginResult =
   | { ok: true }
   | { ok: false; reason: 'invalid' }
   | { ok: false; reason: 'rate_limited'; retryAfterMs: number }
-  | { ok: false; reason: 'network'; debug?: string } // debug: ВРЕМЕННО, для диагностики
+  | { ok: false; reason: 'network' }
   | { ok: false; reason: 'not_configured' };
+
+/**
+ * Сколько запросов к воркеру сейчас в полёте. Нужно наружу ровно одному
+ * месту — обработчику обновления service worker'а (main.ts): страницу
+ * нельзя перезагружать, пока идёт проверка кода, иначе запрос обрывается
+ * на полпути и вход падает с «не получилось проверить код», хотя и сеть,
+ * и воркер исправны. Ровно это и ломало вход после каждого нового деплоя.
+ */
+let inFlight = 0;
+export function isLoginInFlight(): boolean {
+  return inFlight > 0;
+}
 
 /**
  * Собственно запрос к воркеру — адрес параметром, чтобы можно было
@@ -138,34 +150,36 @@ export type LoginResult =
 export async function loginTo(workerUrl: string, code: string): Promise<LoginResult> {
   if (!workerUrl) return { ok: false, reason: 'not_configured' };
 
-  let res: Response;
+  inFlight++;
   try {
-    res = await fetch(`${workerUrl}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
-    });
-  } catch (err) {
-    // ВРЕМЕННО (диагностика): реальная причина в debug, уберу после починки.
-    const debug = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
-    return { ok: false, reason: 'network', debug };
-  }
+    let res: Response;
+    try {
+      res = await fetch(`${workerUrl}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+    } catch {
+      return { ok: false, reason: 'network' };
+    }
 
-  if (res.status === 200) {
-    const data = (await res.json().catch(() => null)) as { token?: unknown } | null;
-    if (typeof data?.token !== 'string')
-      return { ok: false, reason: 'network', debug: `status 200, data=${JSON.stringify(data)}` };
-    storeToken(data.token);
-    return { ok: true };
-  }
+    if (res.status === 200) {
+      const data = (await res.json().catch(() => null)) as { token?: unknown } | null;
+      if (typeof data?.token !== 'string') return { ok: false, reason: 'network' };
+      storeToken(data.token);
+      return { ok: true };
+    }
 
-  if (res.status === 429) {
-    const data = (await res.json().catch(() => null)) as { retryAfterMs?: unknown } | null;
-    const retryAfterMs = typeof data?.retryAfterMs === 'number' ? data.retryAfterMs : 60_000;
-    return { ok: false, reason: 'rate_limited', retryAfterMs };
-  }
+    if (res.status === 429) {
+      const data = (await res.json().catch(() => null)) as { retryAfterMs?: unknown } | null;
+      const retryAfterMs = typeof data?.retryAfterMs === 'number' ? data.retryAfterMs : 60_000;
+      return { ok: false, reason: 'rate_limited', retryAfterMs };
+    }
 
-  return { ok: false, reason: 'invalid' };
+    return { ok: false, reason: 'invalid' };
+  } finally {
+    inFlight--;
+  }
 }
 
 /**

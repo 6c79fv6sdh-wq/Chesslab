@@ -7,6 +7,7 @@ import {
 } from './core/db';
 import { DEFAULT_CALIBRATION, type Calibration } from './core/settings';
 import { el } from './core/ui';
+import { isLoginInFlight } from './core/access';
 import { hasAccess, mountGate } from './gate';
 
 import { firstRunSetup, mountCalibration } from './modules/calibration';
@@ -63,6 +64,11 @@ function reloadOnServiceWorkerUpdate(): void {
   let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (reloading) return;
+    // Но НЕ посреди проверки кода: перезагрузка обрывает запрос к воркеру,
+    // и вход падает с «не получилось проверить код» на ровном месте —
+    // причём тем вернее, чем свежее выкачена версия. В этом случае просто
+    // не перезагружаемся: новая версия подхватится при следующем заходе.
+    if (isLoginInFlight()) return;
     reloading = true;
     location.reload();
   });
