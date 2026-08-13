@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>diag</title>
+<style>
+  body { font: 16px/1.5 -apple-system, sans-serif; padding: 16px; background:#111; color:#eee; }
+  pre { white-space: pre-wrap; word-break: break-all; background:#222; padding:12px; border-radius:8px; }
+  h2 { font-size: 15px; opacity: .7; margin: 20px 0 6px; }
+</style>
+</head>
+<body>
+  <h1>Диагностика входа</h1>
+  <h2>Origin этой страницы</h2>
+  <pre id="origin"></pre>
+  <h2>POST /login (с заведомо неверным кодом)</h2>
+  <pre id="result">выполняю…</pre>
+
+  <script>
+    document.getElementById('origin').textContent = location.origin;
+    const out = document.getElementById('result');
+    fetch('https://chesslab.6c79fv6sdh.workers.dev/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: 'diag-probe-wrong' }),
+    })
+      .then(async (r) => {
+        const text = await r.text();
+        out.textContent = 'HTTP ' + r.status + '\n\n' + text;
+      })
+      .catch((e) => {
+        out.textContent = 'ИСКЛЮЧЕНИЕ (fetch не дошёл или заблокирован)\n\n' +
+          'name: ' + e.name + '\nmessage: ' + e.message;
+      });
+  </script>
+</body>
+</html>
