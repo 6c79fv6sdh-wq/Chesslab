@@ -136,11 +136,44 @@ function buildLoginDialog(onUnlock: () => void): { dialog: HTMLDialogElement; op
   const errorEl = el('p', { class: 'gate-error' }, ['']);
   const submitBtn = el('button', { class: 'btn primary gate-submit', type: 'submit' }, ['Войти']);
 
+  /**
+   * Аварийный выход, если сеть страницы «отравлена» старым service
+   * worker'ом: он перехватывает запросы, и в Safari после этого не
+   * работает ни fetch, ни XHR — вход становится невозможен, хотя сервер
+   * исправен. Сброс регистрации и кешей возвращает страницу в чистое
+   * состояние. Показываем кнопку только после сетевой ошибки, чтобы не
+   * пугать ей всех остальных.
+   */
+  const resetBtn = el('button', { class: 'gate-reset', type: 'button' }, [
+    'Не помогает? Сбросить кеш приложения',
+  ]) as HTMLButtonElement;
+  resetBtn.hidden = true;
+  resetBtn.addEventListener('click', () => {
+    resetBtn.disabled = true;
+    resetBtn.textContent = 'Сбрасываю…';
+    void (async () => {
+      try {
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map((r) => r.unregister()));
+        }
+        if ('caches' in window) {
+          const names = await caches.keys();
+          await Promise.all(names.map((n) => caches.delete(n)));
+        }
+      } catch {
+        // Не вышло — всё равно перезагружаемся: хуже точно не станет.
+      }
+      location.reload();
+    })();
+  });
+
   const form = el('form', { class: 'gate-form' }, [
     el('label', { for: 'gate-code', class: 'gate-label' }, ['Код доступа']),
     input,
     errorEl,
     submitBtn,
+    resetBtn,
   ]);
 
   const closeBtn = el('button', { class: 'gate-dialog-close', type: 'button', 'aria-label': 'Закрыть' }, ['×']);
@@ -185,6 +218,7 @@ function buildLoginDialog(onUnlock: () => void): { dialog: HTMLDialogElement; op
           break;
         case 'network':
           showError('Не получилось проверить код — проверь соединение и попробуй ещё раз.');
+          resetBtn.hidden = false;
           break;
         case 'not_configured':
           showError('Вход временно недоступен, зайди позже.');
