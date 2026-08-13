@@ -1,8 +1,8 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
-import { el, panel, segmented, statLine } from '../core/ui';
+import { el, metric, metrics, panel, segmented } from '../core/ui';
 import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
-import { fmtMs, fmtPct, median, p90 } from '../core/stats';
+import { fmtMs, fmtPct, fmtSec, median, p90, plural } from '../core/stats';
 import { stepAfter } from './today-plan';
 import { checkedColor, dests, fenOf, moveFromUci, posFromFen, type Color } from '../core/chess';
 import {
@@ -21,14 +21,23 @@ import {
 import { boardRect, keyFromPoint } from './motorics-geometry';
 import type { Key } from 'chessground/types';
 
-export type ReactionExercise = 'free-capture' | 'mate-in-1' | 'safe-check' | 'delta';
+/**
+ * 'delta-from'/'delta-to' — раньше было одно упражнение 'delta' со
+ * случайным направлением вопроса на каждое задание. Внутри сессии это
+ * значило, что тренируешь то «куда», то «откуда» вперемешку — и не
+ * получалось потренировать именно то, что не даётся. Разделили на два
+ * упражнения с фиксированным направлением; generateDeltaTask как был,
+ * так и остался общим — направление просто передаётся явно.
+ */
+export type ReactionExercise = 'free-capture' | 'mate-in-1' | 'safe-check' | 'delta-from' | 'delta-to';
 export type Exposure = 'unlimited' | '500' | '300' | '200';
 
 const EXERCISE_LABELS: Record<ReactionExercise, string> = {
-  'free-capture': 'Бесплатное взятие',
-  'mate-in-1': 'Мат в один ход',
-  'safe-check': 'Безопасный шах',
-  delta: 'Изменения позиции',
+  'free-capture': 'Что висит?',
+  'mate-in-1': 'Мат в 1',
+  'safe-check': 'Шах',
+  'delta-from': 'Откуда',
+  'delta-to': 'Куда',
 };
 
 /**
@@ -48,7 +57,8 @@ function promptFor(ex: ReactionExercise, userColor: Color): string {
       return `Играешь ${side}. Поставь мат в один ход.`;
     case 'safe-check':
       return `Играешь ${side}. Найди шах, при котором шахующую фигуру нельзя взять.`;
-    case 'delta':
+    case 'delta-from':
+    case 'delta-to':
       return '';
   }
 }
@@ -71,16 +81,36 @@ export function exposureMs(e: Exposure): number | null {
  * можно, например, показать позицию на 300 мс и дать 3 секунды на ответ
  * по памяти.
  */
-export type TimeLimit = 'unlimited' | '3000' | '1500' | '500' | '300' | '200';
+export type TimeLimit = 'unlimited' | '7000' | '5000' | '3000' | '1500' | '500' | '300' | '200';
 
 const TIME_LIMIT_LABELS: Record<TimeLimit, string> = {
   unlimited: 'Без лимита',
+  '7000': '7 с',
+  '5000': '5 с',
   '3000': '3 с',
   '1500': '1,5 с',
   '500': '0,5 с',
   '300': '0,3 с',
   '200': '0,2 с',
 };
+
+/**
+ * Порядок кнопок в переключателе — «Без лимита» первым, дальше от долгого
+ * лимита к короткому. Не Object.keys(TIME_LIMIT_LABELS): числовые на вид
+ * ключи объекта («7000», «200» …) JS сам сортирует по возрастанию перед
+ * остальными, независимо от порядка объявления — «Без лимита» уехал бы
+ * в конец списка.
+ */
+const TIME_LIMIT_ORDER: TimeLimit[] = [
+  'unlimited',
+  '7000',
+  '5000',
+  '3000',
+  '1500',
+  '500',
+  '300',
+  '200',
+];
 
 export function timeLimitMs(t: TimeLimit): number | null {
   return t === 'unlimited' ? null : Number(t);
@@ -128,6 +158,8 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
 
   let session: Session | null = null;
   let taskCount = 0;
+  let startedAt: number | null = null;
+  let finishedAt: number | null = null;
   // Очереди задач на текущую сессию, без повторов внутри сессии.
   let puzzles: ReturnType<typeof puzzleQueue> = [];
   let matePuzzles: ReturnType<typeof matePuzzleQueue> = [];
@@ -236,8 +268,8 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     current = null;
     delta = null;
 
-    if (exercise === 'delta') {
-      const t = generateDeltaTask(rnd);
+    if (exercise === 'delta-from' || exercise === 'delta-to') {
+      const t = generateDeltaTask(rnd, 400, exercise === 'delta-to' ? 'to' : 'from');
       if (!t) {
         promptEl.textContent = 'Не удалось собрать позицию, пробую ещё раз.';
         later(nextTask, 50);
@@ -410,16 +442,27 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     later(nextTask, 1200);
   }
 
+  /** Тот же расчёт, что в motorics.ts: без старта — пусто, после финиша — заморожено. */
+  function elapsedMs(): number | null {
+    if (startedAt === null) return null;
+    return (finishedAt ?? performance.now()) - startedAt;
+  }
+
+  /** Единый вид результатов — как в motorics.ts, premove.ts и openings.ts. */
   function renderLive(): void {
     const n = attempts.length;
     const correct = attempts.filter((a) => a.correct);
+    const missCount = n - correct.length;
     liveStats.innerHTML = '';
     liveStats.append(
-      statLine([
-        ['Заданий', `${n} / ${TASKS_PER_SESSION}`],
-        ['Точность', n ? fmtPct(correct.length / n) : '—'],
-        ['Медиана верных', fmtMs(median(correct.map((a) => a.latencyMs)))],
-        ['P90 верных', fmtMs(p90(correct.map((a) => a.latencyMs)))],
+      metrics([
+        metric('Скорость', fmtSec(median(correct.map((a) => a.latencyMs)))),
+        metric('Без ошибок', fmtPct(n ? correct.length / n : null)),
+        metric('Общее время', fmtSec(elapsedMs(), 1)),
+      ]),
+      el('p', { class: 'hint metrics-note' }, [
+        `${n} ${plural(n, ['задание', 'задания', 'заданий'])} · ` +
+          `${missCount} ${plural(missCount, ['промах', 'промаха', 'промахов'])}`,
       ]),
     );
   }
@@ -427,6 +470,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   async function finish(): Promise<void> {
     clearTimers();
     accepting = false;
+    finishedAt = performance.now();
     board.setPiecesHidden(false);
     const correct = attempts.filter((a) => a.correct);
     await session?.finish({
@@ -440,6 +484,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     promptEl.textContent = 'Сессия закончена. Результат записан.';
     startBtn.disabled = false;
     stopBtn.disabled = true;
+    renderLive();
     renderPlanNext();
   }
 
@@ -483,7 +528,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   );
 
   const timeLimitSeg = segmented<TimeLimit>(
-    (Object.keys(TIME_LIMIT_LABELS) as TimeLimit[]).map((k) => ({
+    TIME_LIMIT_ORDER.map((k) => ({
       value: k,
       label: TIME_LIMIT_LABELS[k],
     })),
@@ -500,6 +545,8 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   startBtn.addEventListener('click', () => {
     attempts.length = 0;
     taskCount = 0;
+    startedAt = performance.now();
+    finishedAt = null;
     planNextHost.innerHTML = '';
     puzzles = exercise === 'free-capture' ? puzzleQueue(rnd, TASKS_PER_SESSION) : [];
     matePuzzles = exercise === 'mate-in-1' ? matePuzzleQueue(rnd, TASKS_PER_SESSION) : [];

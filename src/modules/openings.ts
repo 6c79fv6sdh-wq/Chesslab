@@ -1,8 +1,8 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
-import { el, panel, segmented, statLine, table } from '../core/ui';
+import { el, metric, metrics, panel, segmented, table } from '../core/ui';
 import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
-import { fmtMs, fmtPct, median, p90 } from '../core/stats';
+import { fmtMs, fmtPct, fmtSec, median, p90, plural } from '../core/stats';
 import { getOpeningNodes, recordOpeningNode, type OpeningNodeStat } from '../core/db';
 import { REPERTOIRES, type OpeningLine, type Repertoire } from '../data/repertoire';
 import { stepAfter } from './today-plan';
@@ -62,6 +62,8 @@ export function mountOpenings(root: HTMLElement, ctx: AppContext): Unmount {
   const planNextHost = el('div', { class: 'plan-next-host' });
 
   let session: Session | null = null;
+  let startedAt: number | null = null;
+  let finishedAt: number | null = null;
   let hitchPaths = new Set<string>();
   let line: OpeningLine | null = null;
   let pos: Chess = posFromFen(INITIAL_FEN);
@@ -218,16 +220,27 @@ export function mountOpenings(root: HTMLElement, ctx: AppContext): Unmount {
     later(advance, 220);
   }
 
+  /** Тот же расчёт, что в motorics.ts: без старта — пусто, после финиша — заморожено. */
+  function elapsedMs(): number | null {
+    if (startedAt === null) return null;
+    return (finishedAt ?? performance.now()) - startedAt;
+  }
+
+  /** Единый вид результатов — как в motorics.ts, reaction.ts и premove.ts. */
   function renderLive(): void {
     const n = attempts.length;
     const correct = attempts.filter((a) => a.correct);
+    const missCount = n - correct.length;
     liveStats.innerHTML = '';
     liveStats.append(
-      statLine([
-        ['Узлов', String(n)],
-        ['Точность', n ? fmtPct(correct.length / n) : '—'],
-        ['Медиана', fmtMs(median(correct.map((a) => a.latencyMs)))],
-        ['P90', fmtMs(p90(correct.map((a) => a.latencyMs)))],
+      metrics([
+        metric('Скорость', fmtSec(median(correct.map((a) => a.latencyMs)))),
+        metric('Без ошибок', fmtPct(n ? correct.length / n : null)),
+        metric('Общее время', fmtSec(elapsedMs(), 1)),
+      ]),
+      el('p', { class: 'hint metrics-note' }, [
+        `${n} ${plural(n, ['узел', 'узла', 'узлов'])} · ` +
+          `${missCount} ${plural(missCount, ['промах', 'промаха', 'промахов'])}`,
       ]),
     );
   }
@@ -248,6 +261,7 @@ export function mountOpenings(root: HTMLElement, ctx: AppContext): Unmount {
   async function finish(): Promise<void> {
     clearTimers();
     acceptingUserMove = false;
+    finishedAt = performance.now();
     const correct = attempts.filter((a) => a.correct);
     await session?.finish({
       nodes: attempts.length,
@@ -264,6 +278,7 @@ export function mountOpenings(root: HTMLElement, ctx: AppContext): Unmount {
     promptEl.textContent = 'Сессия закончена. Результат записан.';
     startBtn.disabled = false;
     stopBtn.disabled = true;
+    renderLive();
     await renderHitches();
     renderPlanNext();
   }
@@ -308,6 +323,8 @@ export function mountOpenings(root: HTMLElement, ctx: AppContext): Unmount {
   startBtn.addEventListener('click', () => {
     attempts.length = 0;
     linesDone = 0;
+    startedAt = performance.now();
+    finishedAt = null;
     planNextHost.innerHTML = '';
     startBtn.disabled = true;
     stopBtn.disabled = false;

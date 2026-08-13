@@ -1,8 +1,8 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
-import { el, panel, segmented, statLine } from '../core/ui';
+import { el, metric, metrics, panel, segmented } from '../core/ui';
 import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
-import { fmtMs, fmtPct, median, p90 } from '../core/stats';
+import { fmtMs, fmtPct, fmtSec, median, p90, plural } from '../core/stats';
 import { stepAfter } from './today-plan';
 import {
   PREMOVE_MODE_LABELS,
@@ -125,6 +125,8 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   const planNextHost = el('div', { class: 'plan-next-host' });
 
   let session: Session | null = null;
+  let startedAt: number | null = null;
+  let finishedAt: number | null = null;
   let queue: PremovePosition[] = [];
   let current: PremovePosition | null = null;
   let pos: Chess | null = null;
@@ -367,28 +369,42 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     return a.correct ? `Верно, за ${fmtMs(a.setLatencyMs)}.` : 'Здесь premove ставить не стоило.';
   }
 
+  /** Тот же расчёт, что в motorics.ts: без старта — пусто, после финиша — заморожено. */
+  function elapsedMs(): number | null {
+    if (startedAt === null) return null;
+    return (finishedAt ?? performance.now()) - startedAt;
+  }
+
+  /**
+   * Единый вид результатов — как в motorics.ts, reaction.ts и openings.ts.
+   * «Скорость» — та же приоритетная задержка, что и в сводке «Прогресса»
+   * (см. primaryLatency в data-summary.ts): для снятого premove важно
+   * время снятия, иначе — время постановки.
+   */
   function renderLive(): void {
     const n = attempts.length;
-    const correct = attempts.filter((a) => a.correct).length;
-    const setTimes = attempts
-      .map((a) => a.setLatencyMs)
+    const correct = attempts.filter((a) => a.correct);
+    const primary = correct
+      .map((a) => a.cancelLatencyMs ?? a.setLatencyMs)
       .filter((v): v is number => v !== null);
-    const cancelTimes = attempts
-      .map((a) => a.cancelLatencyMs)
-      .filter((v): v is number => v !== null);
+    const missCount = n - correct.length;
     liveStats.innerHTML = '';
     liveStats.append(
-      statLine([
-        ['Заданий', `${n} / ${TASKS_PER_SESSION}`],
-        ['Точность', n ? fmtPct(correct / n) : '—'],
-        ['Медиана постановки', fmtMs(median(setTimes))],
-        ['Медиана снятия', fmtMs(median(cancelTimes))],
+      metrics([
+        metric('Скорость', fmtSec(median(primary))),
+        metric('Без ошибок', fmtPct(n ? correct.length / n : null)),
+        metric('Общее время', fmtSec(elapsedMs(), 1)),
+      ]),
+      el('p', { class: 'hint metrics-note' }, [
+        `${n} ${plural(n, ['задание', 'задания', 'заданий'])} · ` +
+          `${missCount} ${plural(missCount, ['промах', 'промаха', 'промахов'])}`,
       ]),
     );
   }
 
   async function finish(): Promise<void> {
     clearTimers();
+    finishedAt = performance.now();
     const n = attempts.length;
     const setTimes = attempts.map((a) => a.setLatencyMs).filter((v): v is number => v !== null);
     const cancelTimes = attempts
@@ -408,6 +424,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     startBtn.disabled = false;
     stopBtn.disabled = true;
     setDifficultyEnabled(true);
+    renderLive();
     renderPlanNext();
   }
 
@@ -504,6 +521,8 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
 
   startBtn.addEventListener('click', () => {
     attempts.length = 0;
+    startedAt = performance.now();
+    finishedAt = null;
     planNextHost.innerHTML = '';
     const pool = positionsOf(mode);
     queue = shuffle(pool, Math.random);
