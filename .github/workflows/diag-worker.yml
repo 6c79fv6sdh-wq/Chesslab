@@ -31,3 +31,4 @@ jobs:
             -d '{"code":"__diag_probe_wrong_code__"}' || true
           echo
           echo "=== exit code: $? ==="
+
