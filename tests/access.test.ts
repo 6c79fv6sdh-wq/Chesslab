@@ -178,13 +178,14 @@ describe('loginTo: разбор ответа воркера', () => {
   it('обрыв сети (fetch бросает) — network, не падает', async () => {
     globalThis.fetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch')) as unknown as typeof fetch;
     const result = await loginTo('https://gate.example', 'x');
-    expect(result).toEqual({ ok: false, reason: 'network' });
+    // debug — временное диагностическое поле, содержимое не проверяем строго.
+    expect(result).toMatchObject({ ok: false, reason: 'network' });
   });
 
   it('200, но тело без токена (некорректный ответ) — network, не ok', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({}), { status: 200 })) as unknown as typeof fetch;
     const result = await loginTo('https://gate.example', 'x');
-    expect(result).toEqual({ ok: false, reason: 'network' });
+    expect(result).toMatchObject({ ok: false, reason: 'network' });
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });
 
