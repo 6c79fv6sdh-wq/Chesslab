@@ -1,0 +1,33 @@
+name: diag-worker (временный, удалить после отладки)
+
+on:
+  push:
+    branches: ['claude/sciencechess-hyperlab-n3ng4f']
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GET /
+        run: |
+          curl -sS -i https://chesslab.6c79fv6sdh.workers.dev/ || true
+          echo
+          echo "=== exit code: $? ==="
+
+      - name: OPTIONS /login (preflight)
+        run: |
+          curl -sS -i -X OPTIONS https://chesslab.6c79fv6sdh.workers.dev/login \
+            -H "Origin: https://6c79fv6sdh-wq.github.io" \
+            -H "Access-Control-Request-Method: POST" \
+            -H "Access-Control-Request-Headers: Content-Type" || true
+          echo
+          echo "=== exit code: $? ==="
+
+      - name: POST /login (заведомо неверный код, только для диагностики)
+        run: |
+          curl -sS -i -X POST https://chesslab.6c79fv6sdh.workers.dev/login \
+            -H "Origin: https://6c79fv6sdh-wq.github.io" \
+            -H "Content-Type: application/json" \
+            -d '{"code":"__diag_probe_wrong_code__"}' || true
+          echo
+          echo "=== exit code: $? ==="
