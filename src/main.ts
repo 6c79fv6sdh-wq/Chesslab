@@ -8,8 +8,10 @@ import {
 import { DEFAULT_CALIBRATION, type Calibration } from './core/settings';
 import { el } from './core/ui';
 import { consumeLoginFromHash, isLoginInFlight } from './core/access';
+import { watchForUpdate } from './core/update';
 import { hasAccess, mountGate } from './gate';
 
+import { applyTheme } from './board/theme';
 import { firstRunSetup, mountCalibration } from './modules/calibration';
 import { mountToday } from './modules/today';
 import { mountMotorics } from './modules/motorics';
@@ -89,11 +91,16 @@ async function boot(): Promise<void> {
     console.warn('Настройки не загрузились, беру значения по умолчанию', e);
   }
 
+  // Оформление — первым делом, до монтирования вкладок: иначе доска
+  // мигнёт классической темой и только потом перекрасится.
+  applyTheme(calibration.boardTheme, calibration.pieceSet);
+
   const ctx: AppContext = {
     calibration,
     async setCalibration(c: Calibration) {
       ctx.calibration = c;
       calibration = c;
+      applyTheme(c.boardTheme, c.pieceSet);
       await saveCalibration(c);
     },
   };
@@ -204,6 +211,10 @@ if (buildEl) buildEl.textContent = `сборка ${__BUILD_ID__}`;
 // вернувшийся пользователь с устаревшим SW застрял бы на бандле, который
 // ходит не туда или не может проверить свежий токен.
 reloadOnServiceWorkerUpdate();
+
+// И сразу предлагаем обновиться, если свежая сборка уже скачана и ждёт:
+// сама собой новая версия открытую страницу не перехватывает.
+watchForUpdate();
 
 // Без доступа boot() вообще не вызывается: вкладки не монтируются,
 // IndexedDB не читается. Вместо них в #view — публичная витрина (gate.ts):

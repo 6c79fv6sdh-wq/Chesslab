@@ -1,4 +1,5 @@
 import type { InputMode } from '../board/board';
+import { BOARD_THEMES, DEFAULT_BOARD_THEME, DEFAULT_PIECE_SET, PIECE_SETS } from '../board/theme';
 
 export type DeviceProfile = 'ipad-mouse' | 'ipad-finger' | 'pc-mouse';
 
@@ -15,6 +16,9 @@ export interface Calibration {
   deviceProfile: DeviceProfile;
   /** Свободная метка настроек указателя, например «DPI 1600, скорость 5». */
   pointerLabel: string;
+  /** Оформление доски и набор фигур (см. board/theme.ts). */
+  boardTheme: string;
+  pieceSet: string;
 }
 
 export const BOARD_SIZE_MIN = 320;
@@ -26,6 +30,8 @@ export const DEFAULT_CALIBRATION: Calibration = {
   coordinates: true,
   deviceProfile: 'ipad-mouse',
   pointerLabel: '',
+  boardTheme: DEFAULT_BOARD_THEME,
+  pieceSet: DEFAULT_PIECE_SET,
 };
 
 export function clampBoardSize(v: number): number {
@@ -88,5 +94,11 @@ export function normalizeCalibration(raw: unknown): Calibration {
     coordinates: typeof c.coordinates === 'boolean' ? c.coordinates : DEFAULT_CALIBRATION.coordinates,
     deviceProfile,
     pointerLabel: typeof c.pointerLabel === 'string' ? c.pointerLabel : '',
+    // Неизвестное оформление (настройка из будущей версии или руками
+    // подправленная база) молча заменяется на классику.
+    boardTheme: BOARD_THEMES.some((t) => t.id === c.boardTheme)
+      ? (c.boardTheme as string)
+      : DEFAULT_BOARD_THEME,
+    pieceSet: PIECE_SETS.some((p) => p.id === c.pieceSet) ? (c.pieceSet as string) : DEFAULT_PIECE_SET,
   };
 }

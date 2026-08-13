@@ -10,6 +10,7 @@ import {
   clampBoardSize,
 } from '../core/settings';
 import { el, panel, segmented } from '../core/ui';
+import { applyTheme, BOARD_THEMES, PIECE_SETS, pieceSet } from '../board/theme';
 import {
   INITIAL_FEN,
   checkedColor,
@@ -196,6 +197,31 @@ function mountCalibrationView(
     save();
   });
 
+  // Оформление применяется ко всему приложению сразу, поэтому доска
+  // проверки наверху этой же страницы работает живым предпросмотром.
+  const creditEl = el('p', { class: 'hint' }, [pieceSet(cal.pieceSet).credit]);
+
+  const themeSeg = segmented<string>(
+    BOARD_THEMES.map((t) => ({ value: t.id, label: t.label })),
+    cal.boardTheme,
+    (v) => {
+      cal.boardTheme = v;
+      applyTheme(cal.boardTheme, cal.pieceSet);
+      save();
+    },
+  );
+
+  const pieceSeg = segmented<string>(
+    PIECE_SETS.map((p) => ({ value: p.id, label: p.label })),
+    cal.pieceSet,
+    (v) => {
+      cal.pieceSet = v;
+      applyTheme(cal.boardTheme, cal.pieceSet);
+      creditEl.textContent = pieceSet(v).credit;
+      save();
+    },
+  );
+
   const resetBtn = el('button', { class: 'btn', type: 'button' }, ['Сбросить позицию']);
   resetBtn.addEventListener('click', () => {
     pos = posFromFen(INITIAL_FEN);
@@ -209,6 +235,11 @@ function mountCalibrationView(
         'Доска здесь только для проверки ощущений от ввода, ходы не записываются.',
       ]),
       resetBtn,
+    ]),
+    panel('Оформление', [
+      el('div', { class: 'row' }, [el('label', {}, ['Доска']), themeSeg.root]),
+      el('div', { class: 'row' }, [el('label', {}, ['Фигуры']), pieceSeg.root]),
+      creditEl,
     ]),
     panel('Параметры', [
       el('div', { class: 'row' }, [

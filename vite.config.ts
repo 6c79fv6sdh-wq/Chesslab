@@ -25,11 +25,13 @@ export default defineConfig({
       // Не 'autoUpdate': тот режим принудительно включает
       // skipWaiting + clientsClaim (см. комментарий к workbox ниже), а
       // именно они ломали сеть на уже открытой странице в Safari.
-      // С 'prompt' новый SW спокойно ждёт своей очереди; отдельного
-      // диалога «обновиться?» не показываем — версия применится на
-      // следующем заходе сама.
+      // С 'prompt' новый SW спокойно ждёт своей очереди, а предложение
+      // обновиться показываем сами (core/update.ts) — и перезагружаемся
+      // тут же, так что живую страницу он не захватывает.
       registerType: 'prompt',
-      injectRegister: 'auto',
+      // Регистрируем worker сами (core/update.ts): нужен доступ к событию
+      // «новая версия готова», чтобы предложить обновиться.
+      injectRegister: null,
       includeAssets: ['icon-192.png', 'icon-512.png'],
       manifest: {
         name: 'ScienceChess Lab',
@@ -63,11 +65,22 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
         // Движок весит 7 МБ: в предзагрузку не кладём, иначе первое открытие
         // сайта стало бы неприлично тяжёлым. Кешируется при первом использовании.
-        globIgnores: ['**/engine/**'],
+        // Наборы фигур в предзагрузку не кладём: их четыре, а пользуются
+        // одним. Выбранный набор кешируется при первом показе (ниже).
+        globIgnores: ['**/engine/**', '**/piece/**'],
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/engine\//],
         runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.includes('/piece/'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'piece-sets',
+              expiration: { maxEntries: 64 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             urlPattern: ({ url }) => url.pathname.includes('/engine/'),
             handler: 'CacheFirst',
