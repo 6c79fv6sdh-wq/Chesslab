@@ -18,17 +18,25 @@ export const CONTACT_TELEGRAM_URL = 'https://t.me/vLdm56';
 export const CONTACT_WHATSAPP_URL = 'https://wa.me/79017002756';
 
 /**
- * ЗАПОЛНИ ПОСЛЕ ДЕПЛОЯ ВОРКЕРА (README → «Доступ»): адрес без слэша на
- * конце, например https://sciencechess-lab-gate.<твой-поддомен>.workers.dev
+ * Адрес задеплоенного воркера (worker/, деплой через Cloudflare Git-сборку
+ * из ветки claude/sciencechess-hyperlab-n3ng4f). Без слэша на конце.
  */
-const WORKER_URL = '';
+const WORKER_URL = 'https://chesslab.6c79fv6sdh.workers.dev';
 
 /**
- * ЗАПОЛНИ ПОСЛЕ ДЕПЛОЯ ВОРКЕРА: публичный ключ ECDSA P-256 (JWK), его
- * печатает worker/tools/generate-key.mjs. Не секрет — им нельзя
+ * Публичный ключ ECDSA P-256 (JWK) воркера — не секрет: им нельзя
  * подделать токен, только проверить настоящую подпись воркера.
+ * Приватная половина этой же пары — секрет SIGNING_PRIVATE_KEY_JWK
+ * воркера, здесь её нет и быть не должно.
  */
-const PUBLIC_KEY_JWK: JsonWebKey | null = null;
+const PUBLIC_KEY_JWK: JsonWebKey | null = {
+  crv: 'P-256',
+  ext: true,
+  key_ops: ['verify'],
+  kty: 'EC',
+  x: '3PKcewh-cg6u5ca4mP3D9mvR4Lmj72qFns5pS1tm-hA',
+  y: 'T8hy9GTPwe1Qdq5rGriiTVq3YqoIZokAyT5CtRCcWew',
+};
 
 /** Не секрет — просто ключ localStorage, экспортирован для тестов. */
 export const STORAGE_KEY = 'sciencechess-lab-access';
