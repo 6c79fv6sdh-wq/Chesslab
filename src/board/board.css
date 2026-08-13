@@ -1,15 +1,70 @@
 /*
- * Тема полей строго как в задании: светлое #f0d9b5, темное #b58863.
- * Ресурс chessground.brown.css рисует темные поля полупрозрачным чёрным
- * поверх светлого, что даёт другой оттенок, поэтому фон переопределяем.
- * Все подсветки (последний ход, выбор, premove, шах, точки/кольца)
- * остаются из официального brown-ресурса Lichess.
+ * Цвета полей и подсветок берутся из выбранной темы (board/theme.ts):
+ * переменные лежат на :root, поэтому смена оформления в настройках
+ * применяется сразу ко всем доскам. Значения по умолчанию здесь же —
+ * классическая тема, если тему ещё не применили.
+ *
+ * Ресурс chessground.brown.css рисует тёмные поля полупрозрачным чёрным
+ * поверх светлого, что даёт другой оттенок, поэтому фон переопределяем
+ * целиком, а не подкрашиваем.
  */
+:root {
+  --sq-light: #f0d9b5;
+  --sq-dark: #b58863;
+  --sq-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2' shape-rendering='crispEdges'%3E%3Crect x='1' y='0' width='1' height='1' fill='%23b58863'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%23b58863'/%3E%3C/svg%3E");
+  --sq-accent: 20, 85, 30;
+  --sq-last-move: rgba(155, 199, 0, 0.41);
+  --coord-on-light: rgba(72, 72, 72, 0.8);
+  --coord-on-dark: rgba(255, 255, 255, 0.8);
+}
+
 cg-board {
-  background-color: #f0d9b5;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2' shape-rendering='crispEdges'%3E%3Crect x='1' y='0' width='1' height='1' fill='%23b58863'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%23b58863'/%3E%3C/svg%3E");
+  background-color: var(--sq-light);
+  background-image: var(--sq-image);
   background-size: 25% 25%;
   background-repeat: repeat;
+}
+
+/* Подсветки того же тона, что и тема: иначе зелёные точки Lichess спорят
+   с синей или красной доской. Premove и шах оставляем узнаваемыми —
+   синий и красный несут смысл сами по себе. */
+.hl-board cg-board square.move-dest {
+  background: radial-gradient(
+    rgba(var(--sq-accent), 0.5) 22%,
+    rgb(var(--sq-accent)) 0,
+    rgba(0, 0, 0, 0.3) 0,
+    rgba(0, 0, 0, 0) 0
+  );
+}
+
+.hl-board cg-board square.oc.move-dest {
+  background: radial-gradient(transparent 0%, transparent 80%, rgba(var(--sq-accent), 0.3) 80%);
+}
+
+.hl-board cg-board square.move-dest:hover {
+  background: rgba(var(--sq-accent), 0.3);
+}
+
+.hl-board cg-board square.selected {
+  background-color: rgba(var(--sq-accent), 0.5);
+}
+
+.hl-board cg-board square.last-move {
+  background-color: var(--sq-last-move);
+}
+
+.hl-board.orientation-white .ranks :nth-child(odd),
+.hl-board.orientation-white .files :nth-child(even),
+.hl-board.orientation-black .ranks :nth-child(even),
+.hl-board.orientation-black .files :nth-child(odd) {
+  color: var(--coord-on-light);
+}
+
+.hl-board.orientation-white .ranks :nth-child(even),
+.hl-board.orientation-white .files :nth-child(odd),
+.hl-board.orientation-black .ranks :nth-child(odd),
+.hl-board.orientation-black .files :nth-child(even) {
+  color: var(--coord-on-dark);
 }
 
 .hl-board {

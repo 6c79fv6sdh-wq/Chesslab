@@ -9,6 +9,11 @@ export const BOUNDS = 800;
  * прямоугольник 800x800 — этого достаточно, чтобы проверить геометрию.
  */
 export function mockBounds(size = BOUNDS): void {
+  // jsdom не умеет прокрутку и на каждый вызов пишет «Not implemented» в
+  // консоль. Доске прокрутка нужна (Board.ensureVisible), так что просто
+  // подставляем заглушку — проверяет её отдельный тест board-visibility.
+  window.scrollBy = () => {};
+
   Element.prototype.getBoundingClientRect = function (): DOMRect {
     return {
       x: 0,

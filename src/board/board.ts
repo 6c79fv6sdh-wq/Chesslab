@@ -51,6 +51,26 @@ function viewportHeight(): number {
   return svhProbe.offsetHeight || fallback;
 }
 
+/** Немного воздуха между липкой полосой вкладок и доской. */
+const BOARD_AIR = 12;
+
+/**
+ * Высота липкой полосы вкладок: ровно на столько экрана доске нельзя
+ * рассчитывать, потому что этот кусок всегда перекрыт.
+ *
+ * Меряем, а не берём константой: на телефоне вкладки переносятся на две-три
+ * строки, и полоса становится втрое выше, чем на планшете. От размера доски
+ * высота полосы не зависит, так что обратной связи «доска ужалась → место
+ * изменилось» здесь нет.
+ */
+function stickyTop(): number {
+  const tabs = document.getElementById('tabs');
+  if (!tabs) return 0;
+  const pos = getComputedStyle(tabs).position;
+  if (pos !== 'sticky' && pos !== 'fixed') return 0;
+  return Math.round(tabs.getBoundingClientRect().height);
+}
+
 export interface BoardOptions {
   /** Ориентация: снизу этот цвет. Обязателен, умолчания нет. */
   orientation: Color;
@@ -222,7 +242,35 @@ export class Board {
    */
   private availHeight(): number {
     const h = viewportHeight();
-    return h > 0 ? h - BOARD_HEIGHT_RESERVE : 0;
+    const reserve = Math.max(BOARD_HEIGHT_RESERVE, stickyTop() + BOARD_AIR);
+    return h > 0 ? h - reserve : 0;
+  }
+
+  /**
+   * Подтянуть доску в видимую часть страницы, если она видна не целиком.
+   *
+   * Без этого упражнение на планшете начинается с доски, наполовину ушедшей
+   * под нижний край экрана: над ней — шапка, вкладки и карточка настроек
+   * упражнения, вместе легко за 400 px. А доска всегда развёрнута к игроку,
+   * то есть СВОИ фигуры стоят на нижних горизонталях — ровно в отрезанной
+   * части. Со стороны это выглядит как «часть фигур не нажимается»: тапы по
+   * ним просто не доходят до страницы. Клетка для ответа отрезается так же,
+   * поэтому иногда фигура выбирается, а ход сделать нечем.
+   *
+   * Прокручиваем только когда доска действительно вылезла за экран, так что
+   * посреди упражнения страница не дёргается.
+   */
+  private ensureVisible(): void {
+    if (typeof window.scrollBy !== 'function' || !this.wrap.isConnected) return;
+    const r = this.wrap.getBoundingClientRect();
+    if (!r.height) return;
+    const top = stickyTop();
+    const bottom = viewportHeight();
+    if (r.top >= top && r.bottom <= bottom) return;
+    // Ставим доску сразу под вкладки. Если она всё равно выше свободного
+    // места, воздух убираем: видимый верх важнее отступа.
+    const air = Math.max(0, Math.min(BOARD_AIR, (bottom - top - r.height) / 2));
+    window.scrollBy({ top: r.top - top - air, left: 0, behavior: 'auto' });
   }
 
   /**
@@ -266,6 +314,7 @@ export class Board {
     // разложены по старой сетке.
     this.api.redrawAll();
     this.opts.onResize?.(next);
+    this.ensureVisible();
   }
 
   /** Единственный способ выставить фигуры: из FEN. */
@@ -305,6 +354,10 @@ export class Board {
     // заданий. Тем же путём ломал доску и обычный ресайз окна, пока на
     // экране висел показанный ответ.
     if (wasViewOnly && !viewOnly) this.api.redrawAll();
+
+    // Новая позиция — новое задание: доска обязана быть на экране целиком,
+    // иначе по нижним горизонталям нечем попасть.
+    this.ensureVisible();
   }
 
   setDests(dests: Dests, movableColor: Color | undefined): void {
