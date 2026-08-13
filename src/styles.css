@@ -1133,3 +1133,23 @@ code {
     grid-area: note;
   }
 }
+
+/* Полоса «есть новая версия»: снизу, поверх всего, но не на всю ширину —
+   она не должна перекрывать доску во время упражнения. */
+#update-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 24px);
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 45%);
+  font-size: 14px;
+}
