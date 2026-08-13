@@ -339,6 +339,7 @@ Stockfish распространяется по GPLv3, текст лицензи
 | merida («Мерида») | Armando Hernandez Marroquin | GPLv2+ |
 | chessnut («Чесснат») | Alexis Luengas | Apache 2.0 |
 | spatial («Объёмные») | Maurizio Monge | MIT |
+| glossy («Глянцевые») | по мотивам mpchess (Maxime Chupin), заливка и тень добавлены отдельно | GPLv3+ |
 
 ## Запуск в Codespaces
 

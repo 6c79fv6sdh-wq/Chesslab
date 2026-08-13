@@ -93,6 +93,12 @@ export const PIECE_SETS: PieceSet[] = [
   { id: 'merida', label: 'Мерида', credit: 'Armando Hernandez Marroquin, GPLv2+', dir: 'merida' },
   { id: 'chessnut', label: 'Чесснат', credit: 'Alexis Luengas, Apache 2.0', dir: 'chessnut' },
   { id: 'spatial', label: 'Объёмные', credit: 'Maurizio Monge, MIT', dir: 'spatial' },
+  {
+    id: 'glossy',
+    label: 'Глянцевые',
+    credit: 'по мотивам Maxime Chupin (mpchess), GPLv3+',
+    dir: 'glossy',
+  },
 ];
 
 export const DEFAULT_BOARD_THEME = BOARD_THEMES[0].id;
