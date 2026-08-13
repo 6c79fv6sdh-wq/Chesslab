@@ -190,6 +190,70 @@ describe('loginTo: разбор ответа воркера', () => {
   });
 
   /**
+   * Регрессия на живой баг: в Safari внутри встроенного браузера обычный
+   * fetch падал с «TypeError: Load failed», хотя тот же запрос с той же
+   * страницы проходил другим способом. Вход обязан пережить отказ любого
+   * одного транспорта.
+   */
+  it('первый fetch упал — второй (без заголовков) выручает', async () => {
+    const fetchSpy = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError('Load failed'))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ token: 'via-plain-fetch' }), { status: 200 }));
+    globalThis.fetch = fetchSpy as unknown as typeof fetch;
+
+    const result = await loginTo('https://gate.example', '2000');
+
+    expect(result).toEqual({ ok: true });
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('via-plain-fetch');
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+    // Второй заход — «простой» запрос: без своих заголовков, без preflight.
+    expect(fetchSpy.mock.calls[1][1]).not.toHaveProperty('headers');
+  });
+
+  it('оба fetch упали — выручает XMLHttpRequest', async () => {
+    globalThis.fetch = vi.fn().mockRejectedValue(new TypeError('Load failed')) as unknown as typeof fetch;
+
+    const sent: string[] = [];
+    class FakeXhr {
+      status = 200;
+      responseText = JSON.stringify({ token: 'via-xhr' });
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      ontimeout: (() => void) | null = null;
+      open(): void {}
+      setRequestHeader(): void {}
+      send(body: string): void {
+        sent.push(body);
+        this.onload?.();
+      }
+    }
+    const realXhr = globalThis.XMLHttpRequest;
+    globalThis.XMLHttpRequest = FakeXhr as unknown as typeof XMLHttpRequest;
+
+    try {
+      const result = await loginTo('https://gate.example', '2000');
+      expect(result).toEqual({ ok: true });
+      expect(localStorage.getItem(STORAGE_KEY)).toBe('via-xhr');
+      expect(sent).toEqual([JSON.stringify({ code: '2000' })]);
+    } finally {
+      globalThis.XMLHttpRequest = realXhr;
+    }
+  });
+
+  it('полученный 401 не заставляет пробовать другие способы', async () => {
+    const fetchSpy = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({ error: 'invalid_code' }), { status: 401 }));
+    globalThis.fetch = fetchSpy as unknown as typeof fetch;
+
+    const result = await loginTo('https://gate.example', 'wrong');
+
+    expect(result).toEqual({ ok: false, reason: 'invalid' });
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  /**
    * Регрессия: пока идёт проверка кода, страницу нельзя перезагружать по
    * обновлению service worker'а (main.ts) — иначе запрос обрывается и вход
    * падает с «network», хотя сеть и воркер исправны. Именно это ломало вход

@@ -142,6 +142,78 @@ export function isLoginInFlight(): boolean {
   return inFlight > 0;
 }
 
+/** Ответ воркера, приведённый к общему виду для всех трёх способов связи. */
+interface RawResponse {
+  status: number;
+  text: string;
+}
+
+/** Последний способ связи: XMLHttpRequest мимо fetch целиком. */
+function postViaXhr(url: string, body: string): Promise<RawResponse> {
+  return new Promise((resolve, reject) => {
+    if (typeof XMLHttpRequest === 'undefined') {
+      reject(new Error('XMLHttpRequest недоступен'));
+      return;
+    }
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = () => resolve({ status: xhr.status, text: xhr.responseText });
+    xhr.onerror = () => reject(new Error('XHR: сетевая ошибка'));
+    xhr.ontimeout = () => reject(new Error('XHR: таймаут'));
+    xhr.send(body);
+  });
+}
+
+/**
+ * Достучаться до воркера, перебирая способы связи, пока один не сработает.
+ *
+ * Казалось бы, хватило бы обычного fetch — но на живом телефоне (Safari во
+ * встроенном браузере) он падал с «TypeError: Load failed», хотя ровно тот
+ * же запрос с той же страницы через XMLHttpRequest проходил и возвращал
+ * честный 401. Причину на стороне браузера воспроизвести не удалось, а
+ * вход должен работать, поэтому пробуем по очереди:
+ *
+ *   1. обычный fetch с Content-Type (нужен preflight);
+ *   2. fetch без своих заголовков — «простой» запрос, preflight не нужен;
+ *   3. XMLHttpRequest — мимо fetch целиком.
+ *
+ * Воркер разбирает тело через request.json() и к Content-Type не
+ * придирается, поэтому все три варианта для него одинаковы. Переходим к
+ * следующему только при обрыве связи: любой полученный HTTP-ответ (401,
+ * 429, 500) — это уже ответ, повторять запрос незачем.
+ */
+async function postToWorker(url: string, body: string): Promise<RawResponse> {
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+    });
+    return { status: r.status, text: await r.text() };
+  } catch {
+    // дальше — способ 2
+  }
+
+  try {
+    const r = await fetch(url, { method: 'POST', body });
+    return { status: r.status, text: await r.text() };
+  } catch {
+    // дальше — способ 3
+  }
+
+  return postViaXhr(url, body);
+}
+
+function parseJson(text: string): Record<string, unknown> | null {
+  try {
+    const parsed: unknown = JSON.parse(text);
+    return typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Собственно запрос к воркеру — адрес параметром, чтобы можно было
  * протестировать разбор ответа (200/401/429/битый JSON/обрыв сети) без
@@ -152,28 +224,23 @@ export async function loginTo(workerUrl: string, code: string): Promise<LoginRes
 
   inFlight++;
   try {
-    let res: Response;
+    let res: RawResponse;
     try {
-      res = await fetch(`${workerUrl}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
-      });
+      res = await postToWorker(`${workerUrl}/login`, JSON.stringify({ code }));
     } catch {
       return { ok: false, reason: 'network' };
     }
 
     if (res.status === 200) {
-      const data = (await res.json().catch(() => null)) as { token?: unknown } | null;
-      if (typeof data?.token !== 'string') return { ok: false, reason: 'network' };
-      storeToken(data.token);
+      const token = parseJson(res.text)?.token;
+      if (typeof token !== 'string') return { ok: false, reason: 'network' };
+      storeToken(token);
       return { ok: true };
     }
 
     if (res.status === 429) {
-      const data = (await res.json().catch(() => null)) as { retryAfterMs?: unknown } | null;
-      const retryAfterMs = typeof data?.retryAfterMs === 'number' ? data.retryAfterMs : 60_000;
-      return { ok: false, reason: 'rate_limited', retryAfterMs };
+      const retry = parseJson(res.text)?.retryAfterMs;
+      return { ok: false, reason: 'rate_limited', retryAfterMs: typeof retry === 'number' ? retry : 60_000 };
     }
 
     return { ok: false, reason: 'invalid' };
