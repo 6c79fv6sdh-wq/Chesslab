@@ -256,6 +256,9 @@ function buildLoginDialog(onUnlock: () => void): {
           showError('Не получилось проверить код — проверь соединение и попробуй ещё раз.');
           resetBtn.hidden = false;
           break;
+        case 'server':
+          showError('Код верный, но сервер не смог выдать пропуск: проверь ключ подписи.');
+          break;
         case 'not_configured':
           showError('Вход временно недоступен, зайди позже.');
           break;

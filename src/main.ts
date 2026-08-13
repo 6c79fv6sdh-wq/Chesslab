@@ -226,6 +226,8 @@ void (async () => {
 
   let message: string | undefined;
   if (fromHash.kind === 'invalid') message = 'Код не подошёл. Проверьте и попробуйте ещё раз.';
+  if (fromHash.kind === 'server')
+    message = 'Код верный, но сервер не смог выдать пропуск: проверь ключ подписи.';
   if (fromHash.kind === 'rate_limited') {
     const min = Math.ceil(fromHash.retryAfterMs / 60000);
     message = `Слишком много попыток. Попробуй через ${min} мин.`;

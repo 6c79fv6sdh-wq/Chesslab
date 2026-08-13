@@ -117,6 +117,7 @@ export type HashLoginOutcome =
   | { kind: 'none' }
   | { kind: 'ok' }
   | { kind: 'invalid' }
+  | { kind: 'server' }
   | { kind: 'rate_limited'; retryAfterMs: number };
 
 /**
@@ -144,6 +145,7 @@ export async function consumeLoginFromHash(): Promise<HashLoginOutcome> {
     return { kind: 'invalid' };
   }
 
+  if (error === 'server') return { kind: 'server' };
   if (error === 'rate') {
     const retry = Number(params.get('retry'));
     return { kind: 'rate_limited', retryAfterMs: Number.isFinite(retry) && retry > 0 ? retry : 60_000 };
@@ -176,6 +178,8 @@ export type LoginResult =
   | { ok: false; reason: 'invalid' }
   | { ok: false; reason: 'rate_limited'; retryAfterMs: number }
   | { ok: false; reason: 'network' }
+  /** Код верный, но сервер не смог выдать пропуск — см. signing_key_invalid. */
+  | { ok: false; reason: 'server' }
   | { ok: false; reason: 'not_configured' };
 
 /**
@@ -290,6 +294,11 @@ export async function loginTo(workerUrl: string, code: string): Promise<LoginRes
       const retry = parseJson(res.text)?.retryAfterMs;
       return { ok: false, reason: 'rate_limited', retryAfterMs: typeof retry === 'number' ? retry : 60_000 };
     }
+
+    // Код верный, но воркер не смог подписать пропуск. Отдельная причина:
+    // иначе это выглядело бы как «код не подошёл», и владелец сайта искал
+    // бы проблему не там, где она есть (в секрете с ключом подписи).
+    if (parseJson(res.text)?.error === 'signing_key_invalid') return { ok: false, reason: 'server' };
 
     return { ok: false, reason: 'invalid' };
   } finally {

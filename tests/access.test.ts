@@ -346,3 +346,35 @@ describe('consumeLoginFromHash: возврат от воркера через #-
     expect(location.hash).toBe('');
   });
 });
+
+/**
+ * Регрессия на настоящую причину всей истории со входом: в секрет
+ * SIGNING_PRIVATE_KEY_JWK попал публичный ключ, воркер падал уже ПОСЛЕ
+ * верного кода — на выдаче пропуска. Cloudflare отдавал страницу ошибки
+ * без CORS-заголовков, и браузер показывал это как сетевой сбой, полностью
+ * пряча причину. Теперь такой отказ виден отдельной причиной.
+ */
+describe('loginTo: сервер не смог подписать пропуск', () => {
+  const realFetch = globalThis.fetch;
+  afterEach(() => {
+    globalThis.fetch = realFetch;
+    vi.restoreAllMocks();
+  });
+
+  it('500 signing_key_invalid — reason server, а не invalid', async () => {
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({ error: 'signing_key_invalid' }), { status: 500 }));
+    expect(await loginTo('https://gate.example', '2000')).toEqual({ ok: false, reason: 'server' });
+  });
+
+  it('прочие 500 по-прежнему invalid', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(new Response('', { status: 500 }));
+    expect(await loginTo('https://gate.example', 'x')).toEqual({ ok: false, reason: 'invalid' });
+  });
+
+  it('возврат формой с lab-error=server — kind server', async () => {
+    location.hash = '#lab-error=server';
+    expect(await consumeLoginFromHash()).toEqual({ kind: 'server' });
+  });
+});

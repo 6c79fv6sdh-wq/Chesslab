@@ -213,7 +213,12 @@ async function handleLoginForm(request, env, allowed) {
 
   if (correct) {
     if (rec.fails > 0) await clearRateRecord(env, ip);
-    const { token } = await issueToken(env);
+    let token;
+    try {
+      ({ token } = await issueToken(env));
+    } catch {
+      return redirectBack(returnUrl, 'lab-error=server');
+    }
     return redirectBack(returnUrl, `lab-token=${token}`);
   }
 
@@ -297,8 +302,18 @@ export default {
 
     if (correct) {
       if (rec.fails > 0) await clearRateRecord(env, ip);
-      const { token, exp } = await issueToken(env);
-      return json({ token, exp }, 200, cors);
+      // Подпись — единственное место, где воркер может упасть уже ПОСЛЕ
+      // верного кода: например, если в секрет SIGNING_PRIVATE_KEY_JWK
+      // попал публичный ключ вместо приватного (им подписывать нельзя).
+      // Без этого перехвата Cloudflare отдаёт свою страницу ошибки 1101
+      // без CORS-заголовков, и в браузере это выглядит как «сетевая
+      // ошибка» — то есть настоящая причина полностью маскируется.
+      try {
+        const { token, exp } = await issueToken(env);
+        return json({ token, exp }, 200, cors);
+      } catch {
+        return json({ error: 'signing_key_invalid' }, 500, cors);
+      }
     }
 
     const fails = rec.fails + 1;
