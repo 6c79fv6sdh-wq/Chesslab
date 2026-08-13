@@ -169,6 +169,65 @@ function json(data, status, extraHeaders = {}) {
   });
 }
 
+// --- Запасной вход через отправку формы -----------------------------------
+
+/** Вернуться на страницу приложения, добавив результат в #-часть адреса. */
+function redirectBack(returnUrl, fragment) {
+  // 303: браузер обязан продолжить обычным GET, а не повторить POST.
+  return new Response(null, { status: 303, headers: { Location: `${returnUrl}#${fragment}` } });
+}
+
+/**
+ * Тот же вход, что и /login, но результат отдаётся не JSON'ом, а
+ * перенаправлением обратно на приложение. Токен кладём в #-часть адреса
+ * (её браузер не отправляет на сервер), ошибку — тоже.
+ */
+async function handleLoginForm(request, env, allowed) {
+  let form;
+  try {
+    form = await request.formData();
+  } catch {
+    return new Response('bad_request', { status: 400 });
+  }
+
+  const returnUrl = String(form.get('return') ?? '');
+  // Куда возвращаемся — проверяем строго: иначе это открытый редирект, а
+  // вместе с ним и утечка токена на чужой сайт. Свой origin, без своей
+  // #-части (её мы добавляем сами).
+  const returnOk =
+    !returnUrl.includes('#') && allowed.some((o) => returnUrl === o || returnUrl.startsWith(`${o}/`));
+  if (!returnOk) return new Response('forbidden_return', { status: 403 });
+
+  const code = String(form.get('code') ?? '');
+  if (!code.trim()) return redirectBack(returnUrl, 'lab-error=invalid');
+
+  const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown';
+  const rec = await readRateRecord(env, ip);
+  const now = Date.now();
+
+  if (rec.lockedUntil > now) {
+    return redirectBack(returnUrl, `lab-error=rate&retry=${rec.lockedUntil - now}`);
+  }
+
+  const correct = constantTimeEqual(code.trim().toLowerCase(), env.ACCESS_CODE.trim().toLowerCase());
+
+  if (correct) {
+    if (rec.fails > 0) await clearRateRecord(env, ip);
+    const { token } = await issueToken(env);
+    return redirectBack(returnUrl, `lab-token=${token}`);
+  }
+
+  const fails = rec.fails + 1;
+  const lockSeconds = lockDurationSeconds(fails);
+  await writeRateRecord(env, ip, {
+    fails,
+    lockedUntil: lockSeconds > 0 ? now + lockSeconds * 1000 : 0,
+  });
+
+  if (lockSeconds > 0) return redirectBack(returnUrl, `lab-error=rate&retry=${lockSeconds * 1000}`);
+  return redirectBack(returnUrl, 'lab-error=invalid');
+}
+
 // --- Обработчик ------------------------------------------------------------
 
 export default {
@@ -186,6 +245,16 @@ export default {
       // Без CORS-проверки: просто сигнал живости для ручной проверки деплоя,
       // ничего чувствительного не отдаёт.
       return new Response('sciencechess-lab-gate: ok', { status: 200 });
+    }
+
+    // Запасной вход — обычной отправкой формы, без fetch и без CORS.
+    // Нужен потому, что на живом телефоне (Safari во встроенном браузере)
+    // фоновый запрос к воркеру падал с «Load failed» и через fetch, и
+    // через XHR, хотя обычный переход по адресу работал безотказно. Здесь
+    // браузер просто уходит на воркер и возвращается обратно с токеном в
+    // #-части адреса — она на сервер не отправляется и в логах не оседает.
+    if (url.pathname === '/login-form' && request.method === 'POST') {
+      return handleLoginForm(request, env, allowed);
     }
 
     if (url.pathname !== '/login' || request.method !== 'POST') {

@@ -41,6 +41,15 @@ const PUBLIC_KEY_JWK: JsonWebKey | null = {
 /** Не секрет — просто ключ localStorage, экспортирован для тестов. */
 export const STORAGE_KEY = 'sciencechess-lab-access';
 
+/**
+ * Куда отправлять форму запасного входа (см. gate.ts). Обычная отправка
+ * формы — это переход, а не фоновый запрос: ни fetch, ни CORS в нём не
+ * участвуют. Понадобилось потому, что на живом телефоне фоновый запрос
+ * падал с «Load failed» и через fetch, и через XHR, а переход по адресу
+ * работал безотказно.
+ */
+export const LOGIN_FORM_ACTION = WORKER_URL ? `${WORKER_URL}/login-form` : '';
+
 interface TokenPayload {
   /** unix-секунды */
   exp: number;
@@ -101,6 +110,45 @@ export async function verifyTokenWithKey(token: string, jwk: JsonWebKey | null):
     // нет», а не падение приложения.
     return false;
   }
+}
+
+/** Что вернул запасной вход, если возвращались через него. */
+export type HashLoginOutcome =
+  | { kind: 'none' }
+  | { kind: 'ok' }
+  | { kind: 'invalid' }
+  | { kind: 'rate_limited'; retryAfterMs: number };
+
+/**
+ * Разобрать #-часть адреса после возврата от воркера: там либо свежий
+ * токен, либо причина отказа. В любом случае сразу вычищаем её из адреса,
+ * чтобы токен не остался в строке браузера и в истории.
+ */
+export async function consumeLoginFromHash(): Promise<HashLoginOutcome> {
+  const raw = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
+  if (!raw) return { kind: 'none' };
+
+  const params = new URLSearchParams(raw);
+  const token = params.get('lab-token');
+  const error = params.get('lab-error');
+  if (!token && !error) return { kind: 'none' };
+
+  // Чистим адрес до любых await: пусть токен исчезнет из строки сразу.
+  history.replaceState(null, '', location.pathname + location.search);
+
+  if (token) {
+    if (await verifyTokenWithKey(token, PUBLIC_KEY_JWK)) {
+      storeToken(token);
+      return { kind: 'ok' };
+    }
+    return { kind: 'invalid' };
+  }
+
+  if (error === 'rate') {
+    const retry = Number(params.get('retry'));
+    return { kind: 'rate_limited', retryAfterMs: Number.isFinite(retry) && retry > 0 ? retry : 60_000 };
+  }
+  return { kind: 'invalid' };
 }
 
 /** Уже входили на этом устройстве и токен ещё не истёк? */

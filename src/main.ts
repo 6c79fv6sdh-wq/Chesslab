@@ -7,7 +7,7 @@ import {
 } from './core/db';
 import { DEFAULT_CALIBRATION, type Calibration } from './core/settings';
 import { el } from './core/ui';
-import { isLoginInFlight } from './core/access';
+import { consumeLoginFromHash, isLoginInFlight } from './core/access';
 import { hasAccess, mountGate } from './gate';
 
 import { firstRunSetup, mountCalibration } from './modules/calibration';
@@ -215,9 +215,20 @@ reloadOnServiceWorkerUpdate();
 // полностью офлайн, сети эта проверка не требует, задержка на глаз не
 // заметна.
 void (async () => {
-  if (await hasAccess()) {
+  // Сначала — вернулись ли мы сюда запасным входом (переходом через
+  // воркер): тогда в #-части адреса лежит свежий токен или причина
+  // отказа. consumeLoginFromHash сразу вычищает адрес.
+  const fromHash = await consumeLoginFromHash();
+  if (fromHash.kind === 'ok' || (await hasAccess())) {
     void boot();
-  } else {
-    mountGate(() => void boot());
+    return;
   }
+
+  let message: string | undefined;
+  if (fromHash.kind === 'invalid') message = 'Код не подошёл. Проверьте и попробуйте ещё раз.';
+  if (fromHash.kind === 'rate_limited') {
+    const min = Math.ceil(fromHash.retryAfterMs / 60000);
+    message = `Слишком много попыток. Попробуй через ${min} мин.`;
+  }
+  mountGate(() => void boot(), message);
 })();

@@ -1,5 +1,5 @@
 import { el, panel } from './core/ui';
-import { CONTACT_TELEGRAM_URL, hasAccess, login } from './core/access';
+import { CONTACT_TELEGRAM_URL, LOGIN_FORM_ACTION, hasAccess, login } from './core/access';
 
 /**
  * Публичная витрина Lab — то, что видит посетитель БЕЗ доступа. Рендерится
@@ -121,7 +121,11 @@ function buildGallery(slides: Slide[]): HTMLElement {
   return el('div', { class: 'carousel' }, [viewport, controls]);
 }
 
-function buildLoginDialog(onUnlock: () => void): { dialog: HTMLDialogElement; open: () => void } {
+function buildLoginDialog(onUnlock: () => void): {
+  dialog: HTMLDialogElement;
+  /** @param message — сразу показать причину отказа (возврат от воркера). */
+  open: (message?: string) => void;
+} {
   const input = el('input', {
     id: 'gate-code',
     type: 'text',
@@ -200,6 +204,31 @@ function buildLoginDialog(onUnlock: () => void): { dialog: HTMLDialogElement; op
     return `${Math.ceil(s / 60)} мин`;
   }
 
+  /**
+   * Запасной вход: уходим на воркер обычной отправкой формы и
+   * возвращаемся с токеном в #-части адреса (его подхватит main.ts).
+   * Это переход, а не фоновый запрос, — ни fetch, ни CORS не участвуют.
+   */
+  function submitViaForm(code: string): boolean {
+    if (!LOGIN_FORM_ACTION) return false;
+    const returnUrl = location.origin + location.pathname + location.search;
+    const form = el('form', {
+      method: 'POST',
+      action: LOGIN_FORM_ACTION,
+      hidden: 'hidden',
+    }) as HTMLFormElement;
+    const add = (name: string, value: string) => {
+      const f = el('input', { type: 'hidden', name }) as HTMLInputElement;
+      f.value = value;
+      form.append(f);
+    };
+    add('code', code);
+    add('return', returnUrl);
+    document.body.append(form);
+    form.submit();
+    return true;
+  }
+
   async function attemptLogin(value: string): Promise<void> {
     clearError();
     input.disabled = true;
@@ -217,6 +246,13 @@ function buildLoginDialog(onUnlock: () => void): { dialog: HTMLDialogElement; op
           showError(`Слишком много попыток. Попробуй через ${fmtRetry(result.retryAfterMs)}.`);
           break;
         case 'network':
+          // Фоновый запрос не прошёл — уходим на запасной путь, через
+          // обычный переход. Страница сейчас уедет и вернётся уже с
+          // ответом, поэтому ни ошибку, ни кнопки показывать не нужно.
+          if (submitViaForm(value)) {
+            submitBtn.textContent = 'Проверяю…';
+            return;
+          }
           showError('Не получилось проверить код — проверь соединение и попробуй ещё раз.');
           resetBtn.hidden = false;
           break;
@@ -256,9 +292,10 @@ function buildLoginDialog(onUnlock: () => void): { dialog: HTMLDialogElement; op
 
   document.body.append(dialog);
 
-  function open(): void {
+  function open(message?: string): void {
     if (typeof dialog.showModal === 'function') dialog.showModal();
     else dialog.setAttribute('open', ''); // старые браузеры без <dialog> — просто показываем
+    if (message) showError(message);
     input.focus({ preventScroll: true });
   }
 
@@ -307,7 +344,12 @@ function buildProgressBlock(): HTMLElement {
   ]);
 }
 
-export function mountGate(onUnlock: () => void): void {
+/**
+ * @param initialError — если мы только что вернулись от воркера запасным
+ *   входом и он отказал, сразу открываем диалог с причиной, а не молча
+ *   показываем витрину: иначе непонятно, что попытка вообще была.
+ */
+export function mountGate(onUnlock: () => void, initialError?: string): void {
   const view = document.getElementById('view');
   if (!view) return;
   view.innerHTML = '';
@@ -335,7 +377,8 @@ export function mountGate(onUnlock: () => void): void {
   );
 
   const loginBtn = el('button', { class: 'btn', type: 'button' }, ['Уже есть код? Войти']);
-  loginBtn.addEventListener('click', openLogin);
+  // Без сообщения: обычное открытие по кнопке, а не возврат с ошибкой.
+  loginBtn.addEventListener('click', () => openLogin());
 
   view.append(
     el('header', { class: 'hero' }, [
@@ -355,6 +398,8 @@ export function mountGate(onUnlock: () => void): void {
       el('p', { class: 'cta-note' }, ['Lab доступен ученикам ScienceChess.']),
     ]),
   );
+
+  if (initialError) openLogin(initialError);
 }
 
 export { hasAccess };

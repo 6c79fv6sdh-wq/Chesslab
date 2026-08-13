@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
-import { STORAGE_KEY, isLoginInFlight, loginTo, verifyTokenWithKey } from '../src/core/access';
+import {
+  STORAGE_KEY,
+  consumeLoginFromHash,
+  isLoginInFlight,
+  loginTo,
+  verifyTokenWithKey,
+} from '../src/core/access';
 
 /**
  * Проверка кода теперь живёт на сервере (Cloudflare Worker, см.
@@ -283,5 +289,60 @@ describe('loginTo: разбор ответа воркера', () => {
     globalThis.fetch = vi.fn().mockResolvedValue(new Response('', { status: 500 })) as unknown as typeof fetch;
     const result = await loginTo('https://gate.example', 'x');
     expect(result).toEqual({ ok: false, reason: 'invalid' });
+  });
+});
+
+/**
+ * Запасной вход: страница уходит на воркер обычной отправкой формы и
+ * возвращается с результатом в #-части адреса. Понадобился потому, что на
+ * живом телефоне фоновый запрос падал и через fetch, и через XHR, а
+ * обычный переход по адресу работал безотказно.
+ */
+describe('consumeLoginFromHash: возврат от воркера через #-часть адреса', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    location.hash = '';
+  });
+
+  it('без #-части — none, адрес не трогаем', async () => {
+    expect(await consumeLoginFromHash()).toEqual({ kind: 'none' });
+  });
+
+  it('чужая #-часть (например #today) — none, вкладку не ломаем', async () => {
+    location.hash = '#today';
+    expect(await consumeLoginFromHash()).toEqual({ kind: 'none' });
+    expect(location.hash).toBe('#today');
+  });
+
+  it('lab-error=invalid — invalid, адрес вычищен', async () => {
+    location.hash = '#lab-error=invalid';
+    expect(await consumeLoginFromHash()).toEqual({ kind: 'invalid' });
+    expect(location.hash).toBe('');
+  });
+
+  it('lab-error=rate — rate_limited с задержкой из адреса', async () => {
+    location.hash = '#lab-error=rate&retry=45000';
+    expect(await consumeLoginFromHash()).toEqual({ kind: 'rate_limited', retryAfterMs: 45000 });
+  });
+
+  it('lab-error=rate без retry — запасное значение', async () => {
+    location.hash = '#lab-error=rate';
+    const r = await consumeLoginFromHash();
+    expect(r.kind).toBe('rate_limited');
+    if (r.kind === 'rate_limited') expect(r.retryAfterMs).toBeGreaterThan(0);
+  });
+
+  it('подделанный токен не проходит и в localStorage не попадает', async () => {
+    // PUBLIC_KEY_JWK модуля здесь настоящий, а токен — выдуманный:
+    // подпись не сойдётся, доступа быть не должно.
+    location.hash = '#lab-token=' + encodeURIComponent('поддельный.токен');
+    expect(await consumeLoginFromHash()).toEqual({ kind: 'invalid' });
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+  });
+
+  it('токен убирается из адреса в любом случае — он не должен осесть в истории', async () => {
+    location.hash = '#lab-token=' + encodeURIComponent('поддельный.токен');
+    await consumeLoginFromHash();
+    expect(location.hash).toBe('');
   });
 });
