@@ -3,55 +3,58 @@ import { Board } from '../board/board';
 import { el, panel, segmented, statLine } from '../core/ui';
 import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
 import { fmtMs, median, p90 } from '../core/stats';
+import { Clocks, OUTCOME_LABELS, botDelay, chooseMove, formatClock, type Outcome } from './scramble-logic';
 import {
-  BOT_LABELS,
-  Clocks,
-  ENGINE_LEVELS,
-  OPPONENT_LABELS,
-  OUTCOME_LABELS,
-  botDelay,
-  chooseMove,
-  eloOfLevel,
-  formatClock,
-  levelLabel,
-  type BotProfile,
-  type EngineLevel,
-  type OpponentKind,
-  type Outcome,
-} from './scramble-logic';
+  BOTS,
+  DEFAULT_BOT,
+  MAX_CANDIDATES,
+  bot as botOf,
+  sampleByTemperature,
+  type BotDef,
+} from '../core/bots';
+import { DEFAULT_TIME_CONTROL, TIME_CONTROLS, timeControl } from '../core/timecontrol';
+import { GameAutosave, buildPgn, newGameRecord, type GameRecord } from '../core/games';
+import { getGame } from '../core/db';
+import { maiaAvailable, maiaCandidates, warmUpMaia } from '../core/maia';
 import { engineSupported, sharedEngine } from '../core/engine';
+import { consumeResumeGame } from './resume';
 import {
   INITIAL_FEN,
   checkedColor,
   dests,
   fenOf,
   keyOf,
+  makeSan,
   moveFromKeys,
   moveFromUci,
   opposite,
   posFromFen,
+  uciOf,
   type Chess,
+  type NormalMove,
 } from '../core/chess';
 import type { Color, Key } from 'chessground/types';
 import { stepAfter } from './today-plan';
 
-type ClockSetting = '15' | '10' | '5';
-
-const CLOCK_LABELS: Record<ClockSetting, string> = {
-  '15': '15 секунд',
-  '10': '10 секунд',
-  '5': '5 секунд',
-};
+/**
+ * Задержка «раздумья» бота. Раньше это был отдельный переключатель темпа,
+ * но с человекоподобными соперниками темп — часть характера бота, а не
+ * независимая настройка: Maia думает как человек и «стрелять» ходами
+ * ей незачем. Оставили одну спокойную вилку.
+ */
+const THINK_MIN_MS = 260;
+const THINK_MAX_MS = 900;
 
 export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   const cal = ctx.calibration;
-  let clockSetting: ClockSetting = '15';
-  let profile: BotProfile = 'fast';
+  let tcId = DEFAULT_TIME_CONTROL;
+  let botId = DEFAULT_BOT;
   let userColor: Color = 'white';
-  let opponent: OpponentKind = engineSupported() ? 'engine' : 'simple';
-  let level: EngineLevel = 2200;
   const cameFromPlan = consumePlanNavigation();
 
+  // Название вкладки не трогаем: под ним лежит вся накопленная история,
+  // на него ссылается план дня и витрина. Контроли теперь длиннее, но
+  // сам режим остался тем же — партия с ботом.
   root.append(el('h1', {}, ['Цейтнот']));
 
   const boardHost = el('div', { class: 'board-host' });
@@ -65,7 +68,7 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
   const userClockEl = el('div', { class: 'clock' }, ['—']);
   const botClockEl = el('div', { class: 'clock' }, ['—']);
-  const promptEl = el('div', { class: 'prompt' }, ['Выбери часы и соперника, потом «Старт».']);
+  const promptEl = el('div', { class: 'prompt' }, ['Выбери соперника и контроль, потом «Старт».']);
   const engineStatusEl = el('div', { class: 'hint' }, ['']);
   const liveStats = el('div', {});
   const planNextHost = el('div', { class: 'plan-next-host' });
@@ -78,8 +81,13 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   const userMoveTimes: number[] = [];
   let tickHandle: number | null = null;
   const timers: number[] = [];
-  /** Номер попытки старта: отменяет отсчёт, если нажали «Отмена» или ушли со вкладки. */
   let startToken = 0;
+
+  /** Текущая сохраняемая партия. Пишется после каждого хода. */
+  let game: GameRecord | null = null;
+  const autosave = new GameAutosave();
+
+  const rnd = () => Math.random();
 
   function later(fn: () => void, ms: number): void {
     timers.push(window.setTimeout(fn, ms));
@@ -94,10 +102,12 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     return opposite(userColor);
   }
 
+  function currentBot(): BotDef {
+    return botOf(botId);
+  }
+
   function paint(lastMove?: Key[]): void {
     const userToMove = running && pos.turn === userColor;
-    // Цвет задаём всегда, иначе premove на часах соперника не поставить:
-    // Chessground проверяет movable.color при выборе фигуры для премува.
     board.setPosition({
       fen: fenOf(pos),
       orientation: userColor,
@@ -112,7 +122,11 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   }
 
   function renderClocks(): void {
-    if (!clocks) return;
+    if (!clocks || clocks.untimed) {
+      userClockEl.textContent = '—';
+      botClockEl.textContent = '—';
+      return;
+    }
     userClockEl.textContent = formatClock(clocks.get(userColor));
     botClockEl.textContent = formatClock(clocks.get(botColor()));
     const active = clocks.activeColor();
@@ -124,14 +138,13 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
   function startTicking(): void {
     stopTicking();
+    if (clocks?.untimed) return;
     tickHandle = window.setInterval(() => {
       if (!clocks || !running) return;
       clocks.tick();
       renderClocks();
       const flagged = clocks.flagged();
-      if (flagged) {
-        void end(flagged === userColor ? 'flag-user' : 'flag-bot');
-      }
+      if (flagged) void end(flagged === userColor ? 'flag-user' : 'flag-bot');
     }, 50);
   }
 
@@ -144,7 +157,6 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
   function checkGameEnd(): boolean {
     if (pos.isCheckmate()) {
-      // Мат поставила сторона, которая только что сходила.
       void end(pos.turn === userColor ? 'mate-bot' : 'mate-user');
       return true;
     }
@@ -155,6 +167,37 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     return false;
   }
 
+  /**
+   * Записать сделанный ход в сохраняемую партию.
+   *
+   * Вызывается ДО pos.play: SAN считается по позиции перед ходом.
+   * Сохранение идёт после каждого полухода — партию бросают на середине
+   * постоянно, и именно недоигранные потом доигрывают.
+   */
+  function recordMove(move: NormalMove, spentMs: number): void {
+    if (!game) return;
+    const san = makeSan(pos, move);
+    const mover = pos.turn;
+    game.moves.push({
+      uci: uciOf(move),
+      san,
+      spentMs: Math.round(spentMs),
+      clockLeftMs: clocks && !clocks.untimed ? Math.round(clocks.get(mover)) : null,
+    });
+  }
+
+  /** Обновить снимок партии в базе: позиция, часы, PGN. */
+  function persist(): void {
+    if (!game) return;
+    game.fen = fenOf(pos);
+    game.clockLeftMs =
+      clocks && !clocks.untimed
+        ? { white: Math.round(clocks.get('white')), black: Math.round(clocks.get('black')) }
+        : null;
+    game.pgn = buildPgn(game);
+    autosave.save(game);
+  }
+
   function onMove(orig: Key, dest: Key): void {
     if (!running || !clocks || pos.turn !== userColor) return;
     const move = moveFromKeys(pos, orig, dest);
@@ -162,24 +205,27 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
       paint();
       return;
     }
-    // Время думанья пользователя списывается с его часов в этот момент.
     const spent = performance.now() - userMoveStartedAt;
     userMoveTimes.push(spent);
+
+    recordMove(move, spent);
     clocks.switchTo(botColor());
     renderClocks();
-
     pos.play(move);
     paint([orig, dest]);
+    persist();
+
     void session?.record({
       side: 'user',
       moveMs: spent,
       ply: userMoveTimes.length,
-      clockLeftMs: clocks.get(userColor),
+      clockLeftMs: clocks.untimed ? null : clocks.get(userColor),
     });
     renderLive();
 
-    if (clocks.flagged()) {
-      void end(clocks.flagged() === userColor ? 'flag-user' : 'flag-bot');
+    const flagged = clocks.flagged();
+    if (flagged) {
+      void end(flagged === userColor ? 'flag-user' : 'flag-bot');
       return;
     }
     if (checkGameEnd()) return;
@@ -189,59 +235,86 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
   function scheduleBotMove(): void {
     if (!running || !clocks) return;
     promptEl.textContent = 'Ход соперника.';
-    const delay = botDelay(profile, Math.random);
-    later(() => {
-      void playBotMove();
-    }, delay);
+    const delay = botDelay('human2200', rnd);
+    later(() => void playBotMove(), Math.min(THINK_MAX_MS, Math.max(THINK_MIN_MS, delay)));
   }
 
-  /** Ход соперника: движком либо простым ботом. */
+  /**
+   * Ход бота.
+   *
+   * Maia: берём кандидатов из политики сети и сэмплируем по температуре
+   * бота. Никакого «ухудшения движка» — все кандидаты уже человеческие.
+   * Stockfish: обычный поиск с ограничением силы.
+   * Если Maia недоступна (нет изоляции страницы) — честно откатываемся
+   * на Stockfish и говорим об этом, а не молчим.
+   */
   async function playBotMove(): Promise<void> {
     if (!running || !clocks || pos.turn !== botColor()) return;
-    let move = null as ReturnType<typeof chooseMove>;
+    const def = currentBot();
+    let move: NormalMove | null = null;
+    const thinkStartedAt = performance.now();
 
-    if (opponent === 'engine') {
+    const tryUci = (uci: string | null | undefined): NormalMove | null => {
+      if (!uci || uci === '(none)') return null;
+      try {
+        const parsed = moveFromUci(uci);
+        return pos.isLegal(parsed) ? parsed : null;
+      } catch {
+        return null;
+      }
+    };
+
+    if (def.kind === 'maia' && maiaAvailable()) {
+      try {
+        const width = def.temperature ? (def.candidates ?? MAX_CANDIDATES) : 1;
+        const cands = await maiaCandidates(fenOf(pos), def.net!, width);
+        if (!running || pos.turn !== botColor()) return;
+        move = tryUci(sampleByTemperature(cands, def.temperature ?? 0, rnd, width));
+      } catch (e) {
+        engineStatusEl.textContent = `Maia не запустилась (${(e as Error).message}), играю движком.`;
+      }
+    }
+
+    if (!move && (def.kind === 'stockfish' || def.kind === 'maia') && engineSupported()) {
       try {
         const engine = sharedEngine();
-        await engine.setStrength(eloOfLevel(level));
-        // Времени на счёт даём не больше, чем осталось у бота на часах.
-        const budget = Math.max(40, Math.min(300, clocks.get(botColor()) * 0.15));
+        await engine.setStrength(def.kind === 'stockfish' ? (def.elo ?? null) : 1400);
+        const budget = clocks.untimed
+          ? 300
+          : Math.max(40, Math.min(600, clocks.get(botColor()) * 0.05));
         const uci = await engine.bestMove(fenOf(pos), { movetimeMs: Math.round(budget) });
         if (!running || pos.turn !== botColor()) return;
-        if (uci) {
-          const parsed = moveFromUci(uci);
-          if (pos.isLegal(parsed)) move = parsed;
-        }
+        move = tryUci(uci);
       } catch (e) {
         engineStatusEl.textContent = `Движок недоступен, играю простым ботом: ${(e as Error).message}`;
-        move = chooseMove(pos, profile, Math.random);
       }
     }
-    if (!move) move = chooseMove(pos, profile, Math.random);
 
-    {
-      if (!running || !clocks || pos.turn !== botColor()) return;
-      if (!move) {
-        checkGameEnd();
-        return;
-      }
-      // Время бота списывается с часов бота.
-      clocks.switchTo(userColor);
-      renderClocks();
-      if (clocks.flagged()) {
-        void end(clocks.flagged() === userColor ? 'flag-user' : 'flag-bot');
-        return;
-      }
-      pos.play(move);
-      paint([keyOf(move.from), keyOf(move.to)]);
-      userMoveStartedAt = performance.now();
-      promptEl.textContent = 'Твой ход.';
-      if (checkGameEnd()) return;
-      // Заранее поставленный premove играется сразу, как на Lichess.
-      later(() => {
-        if (running && pos.turn === userColor) board.playPremove();
-      }, 20);
+    if (!move) move = chooseMove(pos, 'human2200', rnd);
+
+    if (!running || !clocks || pos.turn !== botColor()) return;
+    if (!move) {
+      checkGameEnd();
+      return;
     }
+
+    recordMove(move, performance.now() - thinkStartedAt);
+    clocks.switchTo(userColor);
+    renderClocks();
+    const flagged = clocks.flagged();
+    if (flagged) {
+      void end(flagged === userColor ? 'flag-user' : 'flag-bot');
+      return;
+    }
+    pos.play(move);
+    paint([keyOf(move.from), keyOf(move.to)]);
+    persist();
+    userMoveStartedAt = performance.now();
+    promptEl.textContent = 'Твой ход.';
+    if (checkGameEnd()) return;
+    later(() => {
+      if (running && pos.turn === userColor) board.playPremove();
+    }, 20);
   }
 
   function renderLive(): void {
@@ -255,6 +328,16 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     );
   }
 
+  /** Итог партии в терминах PGN, со стороны белых. */
+  function pgnResult(outcome: Outcome): GameRecord['result'] {
+    const userWon = outcome === 'mate-user' || outcome === 'flag-bot';
+    const botWon = outcome === 'mate-bot' || outcome === 'flag-user';
+    if (outcome === 'draw') return '1/2-1/2';
+    if (userWon) return userColor === 'white' ? '1-0' : '0-1';
+    if (botWon) return userColor === 'white' ? '0-1' : '1-0';
+    return '*';
+  }
+
   async function end(outcome: Outcome): Promise<void> {
     if (!running) return;
     running = false;
@@ -264,13 +347,24 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     renderClocks();
     paint();
     promptEl.textContent = `Партия окончена: ${OUTCOME_LABELS[outcome]}.`;
+
+    if (game) {
+      game.status = outcome === 'aborted' ? 'live' : 'finished';
+      game.result = pgnResult(outcome);
+      game.resultLabel = OUTCOME_LABELS[outcome];
+      persist();
+      await autosave.flush();
+    }
+
+    const def = currentBot();
     await session?.finish({
       outcome,
       outcomeLabel: OUTCOME_LABELS[outcome],
-      opponent,
-      engineElo: opponent === 'engine' ? (eloOfLevel(level) ?? 'max') : '',
-      bot: profile,
-      clockMs: Number(clockSetting) * 1000,
+      opponent: def.kind,
+      bot: def.id,
+      botRating: def.rating,
+      clockMs: timeControl(tcId).initialMs,
+      timeControl: tcId,
       userColor,
       moves: userMoveTimes.length,
       medianMoveMs: median(userMoveTimes),
@@ -282,7 +376,6 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     renderPlanNext();
   }
 
-  /** Часть дневной тренировки «Сегодня» — см. пояснение в motorics.ts. */
   function renderPlanNext(): void {
     planNextHost.innerHTML = '';
     if (!cameFromPlan) return;
@@ -301,55 +394,42 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     }
   }
 
-  const clockSeg = segmented<ClockSetting>(
-    (Object.keys(CLOCK_LABELS) as ClockSetting[]).map((k) => ({ value: k, label: CLOCK_LABELS[k] })),
-    clockSetting,
+  const tcSeg = segmented<string>(
+    TIME_CONTROLS.map((t) => ({ value: t.id, label: t.label })),
+    tcId,
     (v) => {
-      if (!running) clockSetting = v;
+      if (!running) tcId = v;
     },
   );
 
-  const opponentSeg = segmented<OpponentKind>(
-    (Object.keys(OPPONENT_LABELS) as OpponentKind[]).map((k) => ({ value: k, label: OPPONENT_LABELS[k] })),
-    opponent,
-    (v) => {
-      if (running) return;
-      opponent = v;
-      levelRow.style.display = v === 'engine' ? '' : 'none';
-      updateEngineHint();
-    },
-  );
-
-  const parseLevel = (v: string): EngineLevel => (v === 'max' ? 'max' : (Number(v) as EngineLevel));
-
-  const levelSeg = segmented<string>(
-    [
-      ...ENGINE_LEVELS.map((e) => ({ value: String(e), label: levelLabel(e) })),
-      { value: 'max', label: levelLabel('max') },
-    ],
-    String(level),
+  const botSeg = segmented<string>(
+    BOTS.map((b) => ({ value: b.id, label: b.name })),
+    botId,
     (v) => {
       if (running) return;
-      level = parseLevel(v);
-      updateEngineHint();
+      botId = v;
+      updateBotHint();
     },
   );
 
-  const levelRow = el('div', { class: 'row' }, [el('label', {}, ['Сила движка']), levelSeg.root]);
+  const botNoteEl = el('p', { class: 'hint' }, ['']);
 
-  // engineStatusEl зарезервирован под реальные ошибки движка (не загрузился,
-  // недоступен), поэтому при обычном переключении настроек просто чистим его.
-  function updateEngineHint(): void {
-    engineStatusEl.textContent = '';
+  /**
+   * Подпись под выбором бота. Здесь же — единственное место, где человек
+   * узнаёт, что Maia пока не поднялась: молча подсовывать вместо неё
+   * Stockfish нечестно, вся суть выбора именно в том, кто ходит.
+   */
+  function updateBotHint(): void {
+    const def = currentBot();
+    const parts = [def.note];
+    if (def.kind === 'maia' && !maiaAvailable()) {
+      parts.push(
+        'Сейчас недоступен: для него нужна изоляция страницы. Перезагрузи вкладку — ',
+        'после обновления она включается сама. До этого сыграю движком.',
+      );
+    }
+    botNoteEl.textContent = parts.join(' ');
   }
-
-  const botSeg = segmented<BotProfile>(
-    (Object.keys(BOT_LABELS) as BotProfile[]).map((k) => ({ value: k, label: BOT_LABELS[k] })),
-    profile,
-    (v) => {
-      if (!running) profile = v;
-    },
-  );
 
   const colorSeg = segmented<Color>(
     [
@@ -371,57 +451,11 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
   const wait = (ms: number) => new Promise<void>((resolve) => later(() => resolve(), ms));
 
-  /**
-   * Партия начинается с отсчёта готовности.
-   *
-   * Раньше часы включались прямо по нажатию «Старт»: на пятнадцати секундах
-   * достаточно было замешкаться на пару мгновений, чтобы флаг упал до первого
-   * хода. Доска после этого замирала, и выглядело так, будто ходить нельзя.
-   * Заодно дожидаемся загрузки движка, чтобы соперник не думал о вечном.
-   */
-  async function beginGame(): Promise<void> {
-    const token = ++startToken;
-    const cancelled = () => token !== startToken;
-    clearTimers();
-    userMoveTimes.length = 0;
-    planNextHost.innerHTML = '';
-    pos = posFromFen(INITIAL_FEN);
-    clocks = new Clocks(Number(clockSetting) * 1000);
-    running = false;
-    startBtn.disabled = true;
-    resignBtn.disabled = false;
-    board.cancelPremove();
-    paint();
-    renderClocks();
-    renderLive();
-
-    if (opponent === 'engine') {
-      promptEl.textContent = 'Загружаю движок…';
-      try {
-        await sharedEngine().start();
-        await sharedEngine().setStrength(eloOfLevel(level));
-        await sharedEngine().newGame();
-      } catch (e) {
-        engineStatusEl.textContent = `Движок не загрузился, играю простым ботом: ${(e as Error).message}`;
-        opponent = 'simple';
-      }
-    }
-    // Партию могли отменить, пока грузился движок.
-    if (cancelled()) return;
-
-    for (const n of [3, 2, 1]) {
-      promptEl.textContent = `Готовность… ${n}`;
-      await wait(600);
-      if (cancelled()) return;
-    }
-
-    const mode =
-      opponent === 'engine' ? `sf${eloOfLevel(level) ?? 'max'}:${clockSetting}s` : `${profile}:${clockSetting}s`;
-    session = new Session('scramble', mode, measuredCalibration(cal, board.size));
-
+  /** Общая часть старта новой партии и доигрывания сохранённой. */
+  function beginRunning(): void {
     running = true;
     paint();
-    clocks.start('white');
+    clocks?.start(pos.turn);
     startTicking();
     if (pos.turn === userColor) {
       userMoveStartedAt = performance.now();
@@ -431,16 +465,128 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     }
   }
 
-  startBtn.addEventListener('click', () => {
-    void beginGame();
-  });
+  async function prepareEngines(def: BotDef): Promise<void> {
+    if (def.kind === 'maia' && maiaAvailable()) {
+      promptEl.textContent = 'Загружаю Maia…';
+      try {
+        await warmUpMaia();
+        return;
+      } catch (e) {
+        engineStatusEl.textContent = `Maia не загрузилась: ${(e as Error).message}`;
+      }
+    }
+    if (engineSupported()) {
+      promptEl.textContent = 'Загружаю движок…';
+      try {
+        await sharedEngine().start();
+        await sharedEngine().setStrength(def.kind === 'stockfish' ? (def.elo ?? null) : 1400);
+        await sharedEngine().newGame();
+      } catch (e) {
+        engineStatusEl.textContent = `Движок не загрузился, играю простым ботом: ${(e as Error).message}`;
+      }
+    }
+  }
+
+  async function beginGame(): Promise<void> {
+    const token = ++startToken;
+    const cancelled = () => token !== startToken;
+    clearTimers();
+    userMoveTimes.length = 0;
+    planNextHost.innerHTML = '';
+    const tc = timeControl(tcId);
+    const def = currentBot();
+
+    pos = posFromFen(INITIAL_FEN);
+    clocks = new Clocks(tc.initialMs, () => performance.now(), tc.incrementMs);
+    running = false;
+    startBtn.disabled = true;
+    resignBtn.disabled = false;
+    board.cancelPremove();
+    paint();
+    renderClocks();
+    renderLive();
+
+    game = newGameRecord({
+      profileId: ctx.profile.id,
+      userColor,
+      bot: { id: def.id, name: def.name, rating: def.rating, kind: def.kind },
+      timeControl: tc,
+    });
+    persist();
+
+    await prepareEngines(def);
+    if (cancelled()) return;
+
+    // Короткий отсчёт остаётся только там, где он спасает от мгновенного
+    // флага: на секундных контролях. В партии на пять минут он лишний.
+    if ((tc.initialMs ?? Infinity) <= 60_000) {
+      for (const n of [3, 2, 1]) {
+        promptEl.textContent = `Готовность… ${n}`;
+        await wait(600);
+        if (cancelled()) return;
+      }
+    }
+
+    session = new Session('scramble', `${def.id}:${tc.id}`, measuredCalibration(cal, board.size));
+    beginRunning();
+  }
+
+  /** Доиграть сохранённую партию: восстановить позицию, ходы и часы. */
+  async function resumeGame(saved: GameRecord): Promise<void> {
+    const token = ++startToken;
+    const cancelled = () => token !== startToken;
+    clearTimers();
+    userMoveTimes.length = 0;
+    planNextHost.innerHTML = '';
+
+    game = saved;
+    userColor = saved.userColor;
+    botId = saved.bot.id;
+    tcId = saved.timeControl.id;
+    botSeg.set(botId);
+    tcSeg.set(tcId);
+    colorSeg.set(userColor);
+    updateBotHint();
+
+    pos = posFromFen(saved.fen);
+    board.setOrientation(userColor);
+    clocks = new Clocks(
+      saved.timeControl.initialMs,
+      () => performance.now(),
+      saved.timeControl.incrementMs,
+    );
+    if (saved.clockLeftMs) clocks.restore(saved.clockLeftMs.white, saved.clockLeftMs.black);
+
+    running = false;
+    startBtn.disabled = true;
+    resignBtn.disabled = false;
+    board.cancelPremove();
+    paint();
+    renderClocks();
+    renderLive();
+
+    await prepareEngines(currentBot());
+    if (cancelled()) return;
+
+    promptEl.textContent = 'Партия восстановлена.';
+    await wait(400);
+    if (cancelled()) return;
+
+    session = new Session(
+      'scramble',
+      `${saved.bot.id}:${saved.timeControl.id}`,
+      measuredCalibration(cal, board.size),
+    );
+    beginRunning();
+  }
+
+  startBtn.addEventListener('click', () => void beginGame());
 
   resignBtn.addEventListener('click', () => {
     if (running) {
       void end('aborted');
       return;
     }
-    // Отмена во время отсчёта готовности: партия ещё не началась.
     startToken++;
     clearTimers();
     startBtn.disabled = false;
@@ -451,15 +597,20 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
   board.setOptions({ onMove });
 
+  // Партию бросают закрытием вкладки — дописываем последнее состояние.
+  const onHide = () => {
+    if (game) persist();
+    void autosave.flush();
+  };
+  window.addEventListener('pagehide', onHide);
+
   root.append(
-    panel('Настройки партии', [
-      el('div', { class: 'row' }, [el('label', {}, ['Часы']), clockSeg.root]),
-      el('div', { class: 'row' }, [el('label', {}, ['Соперник']), opponentSeg.root]),
-      levelRow,
-      el('div', { class: 'row' }, [el('label', {}, ['Темп хода']), botSeg.root]),
+    panel('Соперник', [
+      botSeg.root,
+      botNoteEl,
+      el('div', { class: 'row' }, [el('label', {}, ['Контроль']), tcSeg.root]),
       el('div', { class: 'row' }, [el('label', {}, ['Играю']), colorSeg.root]),
       engineStatusEl,
-      el('p', { class: 'hint' }, ['Без добавления времени, обеим сторонам поровну.']),
     ]),
     panel('Партия', [
       el('div', { class: 'board-area' }, [
@@ -483,16 +634,28 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
   paint();
   renderLive();
-  levelRow.style.display = opponent === 'engine' ? '' : 'none';
-  updateEngineHint();
-  // Прогреваем движок заранее, чтобы первый ход не ждал загрузки 7 МБ.
-  if (opponent === 'engine') void sharedEngine().start().catch(() => undefined);
+  updateBotHint();
+
+  // Пришли из «Моих партий» по кнопке «Продолжить» — сразу восстанавливаем.
+  const resumeId = consumeResumeGame();
+  if (resumeId) {
+    void getGame(resumeId).then((saved) => {
+      if (saved && saved.profileId === ctx.profile.id && saved.status === 'live') {
+        void resumeGame(saved);
+      }
+    });
+  } else if (currentBot().kind === 'maia' && maiaAvailable()) {
+    void warmUpMaia().catch(() => undefined);
+  }
 
   return () => {
     startToken++;
     stopTicking();
     clearTimers();
+    window.removeEventListener('pagehide', onHide);
     if (running) void end('aborted');
+    if (game) persist();
+    autosave.dispose();
     board.destroy();
   };
 }

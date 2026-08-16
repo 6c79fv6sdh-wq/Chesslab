@@ -62,12 +62,19 @@ export default defineConfig({
         // видна в подписи внизу, так что понять, доехала ли она, легко.
         skipWaiting: false,
         clientsClaim: false,
+        // Изоляция страницы для SharedArrayBuffer: без неё не стартует
+        // lc0 с сетью Maia. Подробности — в public/coi.js. Подключаем
+        // первым, до маршрутов Workbox: обработчик там аккуратный и
+        // берёт на себя только навигации.
+        importScripts: ['coi.js'],
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2}'],
         // Движок весит 7 МБ: в предзагрузку не кладём, иначе первое открытие
         // сайта стало бы неприлично тяжёлым. Кешируется при первом использовании.
         // Наборы фигур в предзагрузку не кладём: их четыре, а пользуются
         // одним. Выбранный набор кешируется при первом показе (ниже).
-        globIgnores: ['**/engine/**', '**/piece/**'],
+        // lc0 с весами Maia — ещё 2,5 МБ, и нужны они только тем, кто
+        // сядет играть с ботом. Тоже мимо предзагрузки.
+        globIgnores: ['**/engine/**', '**/piece/**', '**/lc0/**'],
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/engine\//],
@@ -90,6 +97,9 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          // Правила для /lc0/ здесь нет намеренно: эти запросы забирает на
+          // себя coi.js — ему нужно дописать к ответу заголовки изоляции,
+          // а Workbox так не умеет. Кеширование там своё, тоже cache-first.
         ],
       },
       devOptions: { enabled: false },

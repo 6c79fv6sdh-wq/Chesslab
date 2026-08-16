@@ -12,7 +12,15 @@ import { watchForUpdate } from './core/update';
 import { hasAccess, mountGate } from './gate';
 
 import { applyTheme } from './board/theme';
+import type { Profile } from './core/profiles';
+import {
+  currentProfile,
+  mountProfileGate,
+  renameProfile,
+  signOut as signOutProfile,
+} from './modules/profile-gate';
 import { firstRunSetup, mountCalibration } from './modules/calibration';
+import { mountGames } from './modules/games';
 import { mountToday } from './modules/today';
 import { mountMotorics } from './modules/motorics';
 import { mountPremove } from './modules/premove';
@@ -24,6 +32,12 @@ import { mountData } from './modules/data';
 export interface AppContext {
   calibration: Calibration;
   setCalibration(c: Calibration): Promise<void>;
+  /** Кто сейчас занимается. Все замеры и партии пишутся на него. */
+  profile: Profile;
+  /** Сменить имя своего профиля (переименование, не переключение). */
+  setProfileName(name: string): Promise<void>;
+  /** Выйти к экрану ввода имени. */
+  signOut(): Promise<void>;
 }
 
 export type Unmount = () => void;
@@ -48,6 +62,7 @@ const TABS: Tab[] = [
   { id: 'reaction', label: 'Тактика', mount: mountReaction },
   { id: 'openings', label: 'Дебюты', mount: mountOpenings },
   { id: 'scramble', label: 'Цейтнот', mount: mountScramble },
+  { id: 'games', label: 'Мои партии', mount: mountGames },
   // id 'data' сохраняем: по нему уже есть закладки и ссылки в хеше.
   { id: 'data', label: 'Прогресс', mount: mountData },
 ];
@@ -84,6 +99,21 @@ async function boot(): Promise<void> {
   // не вычистил базу через неделю простоя.
   void requestPersistentStorage();
 
+  // Кто занимается. Без профиля дальше не идём: к нему привязаны и
+  // замеры, и партии, а на планшете за приложением сидят по очереди.
+  let profile = await currentProfile();
+  if (!profile) {
+    nav.classList.add('setup-mode');
+    await new Promise<void>((resolve) => {
+      mountProfileGate(view, (p) => {
+        profile = p;
+        resolve();
+      });
+    });
+    nav.classList.remove('setup-mode');
+  }
+  const signedIn = profile as Profile;
+
   let calibration: Calibration = { ...DEFAULT_CALIBRATION };
   try {
     calibration = await loadCalibration();
@@ -97,11 +127,19 @@ async function boot(): Promise<void> {
 
   const ctx: AppContext = {
     calibration,
+    profile: signedIn,
     async setCalibration(c: Calibration) {
       ctx.calibration = c;
       calibration = c;
       applyTheme(c.boardTheme, c.pieceSet);
       await saveCalibration(c);
+    },
+    async setProfileName(name: string) {
+      ctx.profile = await renameProfile(ctx.profile, name);
+    },
+    async signOut() {
+      await signOutProfile();
+      location.reload();
     },
   };
 

@@ -228,7 +228,56 @@ function mountCalibrationView(
     paint();
   });
 
+  /**
+   * Профиль. Только своё: переименовать и выйти. Списка чужих профилей
+   * здесь нет и не будет — вход к другому ученику идёт через «Выйти» и
+   * набор его имени, чтобы на общем планшете нельзя было подсмотреть,
+   * кто ещё занимается.
+   */
+  const nameInput = el('input', {
+    type: 'text',
+    maxlength: '24',
+    autocomplete: 'off',
+    spellcheck: 'false',
+  }) as HTMLInputElement;
+  nameInput.value = ctx.profile.name;
+  const profileMsg = el('p', { class: 'hint' }, ['']);
+
+  const saveNameBtn = el('button', { class: 'btn', type: 'button' }, ['Переименовать']);
+  saveNameBtn.addEventListener('click', () => {
+    saveNameBtn.disabled = true;
+    void ctx
+      .setProfileName(nameInput.value)
+      .then(() => {
+        profileMsg.textContent = 'Имя изменено.';
+      })
+      .catch((e: Error) => {
+        profileMsg.textContent = e.message;
+        nameInput.value = ctx.profile.name;
+      })
+      .finally(() => {
+        saveNameBtn.disabled = false;
+      });
+  });
+
+  const signOutBtn = el('button', { class: 'btn', type: 'button' }, ['Выйти']);
+  signOutBtn.addEventListener('click', () => {
+    if (!confirm('Выйти из профиля? Данные останутся на устройстве.')) return;
+    void ctx.signOut();
+  });
+
   root.append(
+    panel('Профиль', [
+      el('div', { class: 'row' }, [
+        el('div', { class: 'col grow' }, [el('label', {}, ['Имя']), nameInput]),
+      ]),
+      el('div', { class: 'row' }, [saveNameBtn, signOutBtn]),
+      profileMsg,
+      el('p', { class: 'hint' }, [
+        'Тренировки и партии сохраняются под этим именем. Чтобы сесть заниматься ',
+        'другому — «Выйти» и набрать своё имя.',
+      ]),
+    ]),
     panel('Проверка доски', [
       el('div', { class: 'board-area' }, [boardHost]),
       el('p', { class: 'hint' }, [

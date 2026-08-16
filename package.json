@@ -11,6 +11,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@lichess-org/zerofish": "^0.0.40",
     "chessground": "^9.2.1",
     "chessops": "^0.15.1",
     "idb": "^8.0.3"

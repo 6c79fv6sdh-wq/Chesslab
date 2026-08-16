@@ -1173,3 +1173,136 @@ code {
   box-shadow: 0 6px 24px rgb(0 0 0 / 45%);
   font-size: 14px;
 }
+
+/* --- Профили и «Мои партии» ------------------------------------------ */
+
+/* Экран входа по имени. Он первый, что видит ученик, поэтому по центру
+   и без лишнего: одно поле и одна кнопка. */
+.profile-gate {
+  max-width: 34rem;
+  margin: 8vh auto 0;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0 6px;
+}
+
+.profile-error:not(:empty) {
+  color: var(--danger);
+}
+
+/* Список партий: строка-кнопка на всю ширину. Колонки задаются гридом,
+   а не таблицей, — на телефоне таблица уехала бы вбок. */
+.game-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.game-row {
+  display: grid;
+  grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr) auto auto minmax(0, 8rem);
+  gap: 10px;
+  align-items: baseline;
+  width: 100%;
+  text-align: left;
+  font-size: 13px;
+}
+
+.game-row .game-when {
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.game-row .game-bot {
+  color: var(--fg-strong);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game-row .game-tc,
+.game-row .game-moves {
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.game-row .game-result {
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Недоигранную партию видно сразу: её можно продолжить, и это главное,
+   что человек ищет глазами в списке. */
+.game-row .game-result.live {
+  color: var(--warn);
+}
+
+/* Лента ходов разбора. Прокручивается сама, чтобы длинная партия не
+   растягивала страницу на два экрана. */
+.game-moves-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-height: 11rem;
+  overflow-y: auto;
+  margin: 8px 0;
+}
+
+.move-chip {
+  background: var(--panel2);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.move-chip.current {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.pgn-details {
+  margin-top: 10px;
+}
+
+.pgn-details summary {
+  cursor: pointer;
+  color: var(--fg);
+  font-size: 13px;
+}
+
+.pgn-box {
+  margin-top: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  white-space: pre;
+}
+
+@media (max-width: 520px) {
+  /* На телефоне пять колонок не помещаются: оставляем главное —
+     соперника и итог, остальное уходит во вторую строку. */
+  .game-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 2px;
+  }
+
+  .game-row .game-when {
+    grid-column: 1 / -1;
+    font-size: 12px;
+  }
+
+  .profile-gate {
+    margin-top: 4vh;
+  }
+}

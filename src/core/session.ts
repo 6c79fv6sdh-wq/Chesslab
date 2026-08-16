@@ -2,6 +2,7 @@ import {
   type ModuleId,
   type MeasurementRecord,
   type SessionRecord,
+  activeProfileId,
   putMeasurement,
   putSession,
   uid,
@@ -39,7 +40,21 @@ export class Session {
     return this.count;
   }
 
+  /**
+   * Владелец записей. Читается из базы при первом обращении: сессия
+   * создаётся в разных модулях, и таскать профиль через каждый
+   * конструктор — лишний параметр в десяти местах ради одного и того же
+   * значения.
+   */
+  private ownerPromise: Promise<string | null> | null = null;
+
+  private owner(): Promise<string | null> {
+    if (!this.ownerPromise) this.ownerPromise = activeProfileId();
+    return this.ownerPromise;
+  }
+
   async record(data: Record<string, unknown>): Promise<void> {
+    const profileId = (await this.owner()) ?? undefined;
     const rec: MeasurementRecord = {
       id: uid(),
       sessionId: this.id,
@@ -48,6 +63,7 @@ export class Session {
       ts: Date.now(),
       calibration: this.calibration,
       data,
+      profileId,
     };
     this.count++;
     await putMeasurement(rec);
@@ -56,6 +72,7 @@ export class Session {
   async finish(summary: Record<string, number | string | null>): Promise<void> {
     if (this.ended) return;
     this.ended = true;
+    const profileId = (await this.owner()) ?? undefined;
     const rec: SessionRecord = {
       id: this.id,
       module: this.module,
@@ -64,6 +81,7 @@ export class Session {
       endedAt: Date.now(),
       calibration: this.calibration,
       summary,
+      profileId,
     };
     await putSession(rec);
   }

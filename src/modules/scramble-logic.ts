@@ -176,11 +176,23 @@ export class Clocks {
   private active: Color | null = null;
   private lastTick = 0;
 
+  /**
+   * `initialMs = null` — партия без часов. Класс в этом случае остаётся
+   * рабочим, но время не списывает и флаг не роняет: так вызывающему коду
+   * не нужно обкладывать каждое обращение к часам проверкой на null.
+   */
   constructor(
-    readonly initialMs: number,
+    readonly initialMs: number | null,
     private now: () => number = () => performance.now(),
+    /** Добавка за сделанный ход, мс. */
+    readonly incrementMs = 0,
   ) {
-    this.remaining = { white: initialMs, black: initialMs };
+    const start = initialMs ?? Infinity;
+    this.remaining = { white: start, black: start };
+  }
+
+  get untimed(): boolean {
+    return this.initialMs === null;
   }
 
   start(color: Color): void {
@@ -190,16 +202,24 @@ export class Clocks {
 
   /** Списать прошедшее время с активной стороны. */
   tick(): void {
-    if (this.active === null) return;
+    if (this.active === null || this.untimed) return;
     const t = this.now();
     const delta = t - this.lastTick;
     this.lastTick = t;
     this.remaining[this.active] = Math.max(0, this.remaining[this.active] - delta);
   }
 
-  /** Ход сделан: добираем время думавшей стороны и передаём часы. */
+  /**
+   * Ход сделан: добираем время думавшей стороны, начисляем ей добавку и
+   * передаём часы. Добавка идёт ТОЛЬКО если сторона не просрочила: иначе
+   * упавший флаг воскресал бы сам собой на инкременте.
+   */
   switchTo(color: Color): void {
+    const moved = this.active;
     this.tick();
+    if (!this.untimed && moved !== null && this.incrementMs > 0 && this.remaining[moved] > 0) {
+      this.remaining[moved] += this.incrementMs;
+    }
     this.active = color;
     this.lastTick = this.now();
   }
@@ -219,9 +239,17 @@ export class Clocks {
 
   /** Сторона, у которой кончилось время, либо null. */
   flagged(): Color | null {
+    if (this.untimed) return null;
     if (this.remaining.white <= 0) return 'white';
     if (this.remaining.black <= 0) return 'black';
     return null;
+  }
+
+  /** Восстановить остатки — для доигрывания сохранённой партии. */
+  restore(white: number, black: number): void {
+    if (this.untimed) return;
+    this.remaining.white = white;
+    this.remaining.black = black;
   }
 
   /** Сколько времени потрачено на последний ход стороной. */
@@ -230,9 +258,7 @@ export class Clocks {
   }
 }
 
-export function formatClock(ms: number): string {
-  const clamped = Math.max(0, ms);
-  const seconds = clamped / 1000;
-  if (seconds >= 10) return seconds.toFixed(1);
-  return seconds.toFixed(2);
-}
+// Формат часов переехал в core/timecontrol.ts вместе с контролями времени:
+// с появлением минутных партий «показать секунды» перестало быть
+// свойством одного «Цейтнота». Ре-экспорт — чтобы не переписывать импорты.
+export { formatClock } from '../core/timecontrol';
