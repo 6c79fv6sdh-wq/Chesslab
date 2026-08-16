@@ -32,7 +32,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PREVIEW_REF: ${{ inputs.ref || 'claude/sciencechess-hyperlab-n3ng4f' }}
+  # Именно github.event.inputs, а не inputs: контекст inputs существует
+  # только у workflow_dispatch и workflow_call, и при push обращение к
+  # нему роняет разбор всего файла. Здесь путь есть всегда, при push он
+  # просто пуст — и берётся значение по умолчанию.
+  PREVIEW_REF: ${{ github.event.inputs.ref || 'claude/sciencechess-hyperlab-n3ng4f' }}
 
 jobs:
   build:
