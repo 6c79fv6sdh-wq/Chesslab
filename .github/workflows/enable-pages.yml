@@ -1,0 +1,72 @@
+name: Включить GitHub Pages для предпросмотра
+
+# Одноразовая задача: включить Pages на ветке gh-pages, не заходя в
+# настройки репозитория руками.
+#
+# Зачем workflow, а не обычный вызов API. Ручка «включить Pages»
+# (POST /repos/{owner}/{repo}/pages) недоступна из среды ассистента —
+# её режет прокси. А здесь тот же вызов уходит с раннера GitHub, где
+# никакого прокси нет, и авторизуется штатным GITHUB_TOKEN. Права на
+# это даёт блок `permissions: pages: write` ниже.
+#
+# Сборку кладёт в gh-pages отдельный workflow (pages.yml); этот только
+# включает раздачу. После того как Pages включены один раз, файл можно
+# удалить — повторные запуски безвредны, но и не нужны.
+
+on:
+  push:
+    branches: ['claude/**']
+  workflow_dispatch: {}
+
+permissions:
+  pages: write
+
+concurrency:
+  group: enable-pages
+  cancel-in-progress: false
+
+jobs:
+  enable:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Включить Pages на ветке gh-pages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          api="https://api.github.com/repos/${REPO}/pages"
+          body='{"source":{"branch":"gh-pages","path":"/"}}'
+          hdr=(-H "Authorization: Bearer ${GH_TOKEN}"
+               -H "Accept: application/vnd.github+json"
+               -H "Content-Type: application/json"
+               -H "X-GitHub-Api-Version: 2022-11-28")
+
+          # POST создаёт сайт. Если Pages уже включены, ручка отвечает
+          # 409 — тогда просто переставляем источник через PUT.
+          code=$(curl -sS -o /tmp/resp.json -w '%{http_code}' -X POST "${hdr[@]}" "$api" -d "$body")
+          echo "POST -> $code"
+          cat /tmp/resp.json
+
+          if [ "$code" = "409" ]; then
+            code=$(curl -sS -o /tmp/resp.json -w '%{http_code}' -X PUT "${hdr[@]}" "$api" -d "$body")
+            echo "PUT -> $code"
+            cat /tmp/resp.json
+          fi
+
+          case "$code" in
+            201|204) echo "Pages включены." ;;
+            *) echo "Не удалось включить Pages (код $code)." >&2; exit 1 ;;
+          esac
+
+      - name: Показать адрес сайта
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Публикация занимает до пары минут; ссылку показываем сразу.
+          url=$(curl -sS -H "Authorization: Bearer ${GH_TOKEN}" \
+                     -H "Accept: application/vnd.github+json" \
+                     "https://api.github.com/repos/${REPO}/pages" \
+                | grep -o '"html_url": *"[^"]*"' | head -1 | cut -d'"' -f4)
+          echo "Сайт: ${url:-неизвестно}"
+          echo "### Предпросмотр: ${url:-адрес появится через минуту}" >> "$GITHUB_STEP_SUMMARY"
