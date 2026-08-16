@@ -8,8 +8,13 @@ name: Предпросмотр ветки разработки в Pages
 # «Branch is not allowed to deploy to github-pages due to environment
 # protection rules». Поэтому workflow живёт на main, а код берёт из
 # ветки ниже: в сам main исходники не попадают.
+#
+# Триггер push нужен потому, что ручной запуск через API недоступен
+# (403 на ручке dispatches), а первый запуск чем-то начать надо.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       ref:
