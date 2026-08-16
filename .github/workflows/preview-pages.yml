@@ -7,7 +7,7 @@ name: Предпросмотр ветки разработки в Pages
 # деплой только с ветки по умолчанию — запуск с claude/** отбивается с
 # «Branch is not allowed to deploy to github-pages due to environment
 # protection rules». Поэтому workflow живёт на main, а код берёт из
-# ветки ниже: в сам main исходники не попадают.
+# ветки разработки: в сам main исходники не попадают.
 #
 # Триггер push нужен потому, что ручной запуск через API недоступен
 # (403 на ручке dispatches), а первый запуск чем-то начать надо.
@@ -31,20 +31,16 @@ concurrency:
   group: preview-pages
   cancel-in-progress: true
 
-env:
-  # Именно github.event.inputs, а не inputs: контекст inputs существует
-  # только у workflow_dispatch и workflow_call, и при push обращение к
-  # нему роняет разбор всего файла. Здесь путь есть всегда, при push он
-  # просто пуст — и берётся значение по умолчанию.
-  PREVIEW_REF: ${{ github.event.inputs.ref || 'claude/sciencechess-hyperlab-n3ng4f' }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # Ветка подставляется здесь же, без промежуточной переменной:
+      # обращение к env внутри with роняло разбор всего файла.
+      # При push github.event.inputs пуст — берётся значение по умолчанию.
       - uses: actions/checkout@v4
         with:
-          ref: ${{ env.PREVIEW_REF }}
+          ref: ${{ github.event.inputs.ref || 'claude/sciencechess-hyperlab-n3ng4f' }}
 
       - uses: actions/setup-node@v4
         with:
@@ -75,6 +71,3 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Адрес предпросмотра
-        run: echo "### Предпросмотр: ${{ steps.deployment.outputs.page_url }}" >> "$GITHUB_STEP_SUMMARY"
