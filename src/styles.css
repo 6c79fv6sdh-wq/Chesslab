@@ -700,6 +700,44 @@ input[type='checkbox'] {
   align-items: flex-start;
 }
 
+/*
+ * Моторика — единственный экран, где над доской есть переключатель
+ * упражнений («Вектор»/«Сигнал»). Раньше он был отдельной строкой во всю
+ * ширину панели, а доска — своего откалиброванного размера, никак с этой
+ * шириной не связанного: шов между кнопками случайно попадал где-то
+ * поверх доски, у части пользователей — прямо на угол. Grid-колонка
+ * auto решает это раз и навсегда: она сама подстраивается под
+ * фактическую ширину доски (inline-block, сколько напечатал board.ts),
+ * а переключатель — обычный grid-item той же колонки — растягивается
+ * ровно на неё же, какой бы размер доски ни был откалиброван.
+ */
+.board-area:has(.exercise-seg) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 16px;
+  row-gap: 10px;
+  align-items: start;
+}
+
+.board-area:has(.exercise-seg) > .exercise-seg {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.board-area:has(.exercise-seg) > .board-host {
+  grid-column: 1;
+  grid-row: 2;
+  /* Без этого доска как grid-item растянулась бы на всю колонку, если
+     переключателю вдруг понадобится больше места, чем доске, — а доска
+     должна оставаться ровно откалиброванного размера, не шире. */
+  justify-self: start;
+}
+
+.board-area:has(.exercise-seg) > .side {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
 .board-host {
   position: relative;
   display: inline-block;
@@ -835,6 +873,17 @@ code {
 
   .board-area {
     gap: 12px;
+  }
+
+  /* На телефоне доска и так занимает всю ширину — вторая grid-колонка
+     не нужна, боковая панель просто идёт под доской, как раньше. */
+  .board-area:has(.exercise-seg) {
+    grid-template-columns: 1fr;
+  }
+
+  .board-area:has(.exercise-seg) > .side {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .tabs-row {

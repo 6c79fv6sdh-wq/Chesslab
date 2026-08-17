@@ -778,8 +778,13 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
 
   root.append(
     panel('Тренировка', [
-      exerciseSeg.root,
-      el('div', { class: 'board-area' }, [boardHost, sideHost]),
+      // exerciseSeg — ребёнок .board-area, а не отдельная строка над ней:
+      // .board-area:has(.exercise-seg) в styles.css кладёт его в ту же
+      // grid-колонку, что и доску, поэтому переключатель всегда ровно той
+      // же ширины, что и доска, каким бы ни был откалиброванный размер.
+      // Раньше переключатель растягивался на всю ширину панели, и шов
+      // между кнопками случайно попадал поверх угла доски.
+      el('div', { class: 'board-area' }, [exerciseSeg.root, boardHost, sideHost]),
     ]),
     el('section', { class: 'panel' }, [resultsTitleEl, resultsBodyHost]),
   );
