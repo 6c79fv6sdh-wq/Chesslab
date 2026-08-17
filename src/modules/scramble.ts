@@ -16,7 +16,8 @@ import { DEFAULT_TIME_CONTROL, TIME_CONTROLS, timeControl } from '../core/timeco
 import { GameAutosave, buildPgn, newGameRecord, type GameRecord } from '../core/games';
 import { getGame } from '../core/db';
 import { maiaAvailable, maiaCandidates, warmUpMaia } from '../core/maia';
-import { engineSupported, sharedEngine } from '../core/engine';
+import { engineSupported, sharedEngine, type Analyser } from '../core/engine';
+import { chooseBlindMove, BEGINNER_PROFILE } from '../core/blind-bot';
 import { consumeResumeGame } from './resume';
 import {
   INITIAL_FEN,
@@ -244,6 +245,8 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
    *
    * Maia: берём кандидатов из политики сети и сэмплируем по температуре
    * бота. Никакого «ухудшения движка» — все кандидаты уже человеческие.
+   * Blind: движок полной силы, но с намеренно малой глубиной поиска —
+   * решение принимает chooseBlindMove (core/blind-bot.ts), не движок.
    * Stockfish: обычный поиск с ограничением силы.
    * Если Maia недоступна (нет изоляции страницы) — честно откатываемся
    * на Stockfish и говорим об этом, а не молчим.
@@ -272,6 +275,18 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
         move = tryUci(sampleByTemperature(cands, def.temperature ?? 0, rnd, width));
       } catch (e) {
         engineStatusEl.textContent = `Maia не запустилась (${(e as Error).message}), играю движком.`;
+      }
+    }
+
+    if (!move && def.kind === 'blind' && engineSupported()) {
+      try {
+        const engine = sharedEngine();
+        const analyser: Analyser = (fen, opts) => engine.analyse(fen, opts);
+        const blindMove = await chooseBlindMove(analyser, pos, def.blindProfile ?? BEGINNER_PROFILE, rnd);
+        if (!running || pos.turn !== botColor()) return;
+        move = blindMove;
+      } catch (e) {
+        engineStatusEl.textContent = `Движок недоступен, играю простым ботом: ${(e as Error).message}`;
       }
     }
 
@@ -479,7 +494,12 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
       promptEl.textContent = 'Загружаю движок…';
       try {
         await sharedEngine().start();
-        await sharedEngine().setStrength(def.kind === 'stockfish' ? (def.elo ?? null) : 1400);
+        // «Слепой» бот (kind: 'blind') слабеет не через UCI_Elo — там сила
+        // ограничена глубиной поиска (blind-bot.ts), а сам движок должен
+        // оценивать честно. Elo-ограничение здесь было бы двойной, и
+        // разной по природе, слабостью поверх уже заложенной.
+        const elo = def.kind === 'stockfish' ? (def.elo ?? null) : def.kind === 'blind' ? null : 1400;
+        await sharedEngine().setStrength(elo);
         await sharedEngine().newGame();
       } catch (e) {
         engineStatusEl.textContent = `Движок не загрузился, играю простым ботом: ${(e as Error).message}`;

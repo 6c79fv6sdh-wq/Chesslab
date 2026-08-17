@@ -29,6 +29,21 @@ export interface SearchLimits {
   depth?: number;
 }
 
+/** Один вариант из анализа позиции. */
+export interface AnalysisLine {
+  move: string;
+  /** Оценка в сантипешках с точки зрения того, чей ход в переданной позиции. */
+  score: number;
+  /** Мат в N полуходов той стороне, чей ход. undefined — форсированного мата не нашли. */
+  mate?: number;
+}
+
+/** Анализ позиции: fen + сколько смотреть → варианты ходов с оценкой. */
+export type Analyser = (
+  fen: string,
+  opts: { depth: number; multipv: number },
+) => Promise<AnalysisLine[]>;
+
 type Listener = (line: string) => void;
 
 function engineUrl(): URL {
@@ -43,6 +58,7 @@ export class Engine {
   private buffer: string[] = [];
   private booting: Promise<void> | null = null;
   private currentElo: number | null = null;
+  private currentMultiPv = 1;
 
   /** Готов ли движок принимать команды. */
   get ready(): boolean {
@@ -146,6 +162,53 @@ export class Engine {
     const m = await this.until(/^bestmove (\S+)/, 60000);
     const uci = m[1];
     return uci === '(none)' ? null : uci;
+  }
+
+  /**
+   * Несколько вариантов с оценкой — а не просто лучший ход. Нужно
+   * «слепому» боту (core/blind-bot.ts): он сам решает, брать ли лучший
+   * вариант, поэтому ему нужны варианты и оценки, а не готовое решение
+   * движка.
+   *
+   * Парсим строки `info ... multipv N score cp/mate V ... pv MOVE ...`,
+   * которые движок шлёт по ходу поиска, и на `bestmove` берём последнюю
+   * (то есть самую свежую и глубокую) строку на каждый multipv-индекс.
+   */
+  async analyse(fen: string, limits: SearchLimits & { multipv?: number } = {}): Promise<AnalysisLine[]> {
+    await this.start();
+    const multipv = Math.max(1, limits.multipv ?? 1);
+    if (multipv !== this.currentMultiPv) {
+      this.send(`setoption name MultiPV value ${multipv}`);
+      this.currentMultiPv = multipv;
+    }
+    this.buffer.length = 0;
+    this.send(`position fen ${fen}`);
+
+    const lines = new Map<number, AnalysisLine>();
+    const onLine = (line: string) => {
+      const m =
+        /^info .*\bmultipv (\d+) .*?\bscore (cp|mate) (-?\d+) .*?\bpv (\S+)/.exec(line);
+      if (!m) return;
+      const idx = Number(m[1]);
+      const kind = m[2];
+      const value = Number(m[3]);
+      lines.set(idx, {
+        move: m[4],
+        score: kind === 'cp' ? value : value > 0 ? 10000 : -10000,
+        mate: kind === 'mate' ? value : undefined,
+      });
+    };
+    this.listeners.push(onLine);
+
+    const limit = limits.depth ? `depth ${limits.depth}` : `movetime ${limits.movetimeMs ?? 100}`;
+    this.send(`go ${limit}`);
+    try {
+      await this.until(/^bestmove/, 60000);
+    } finally {
+      const i = this.listeners.indexOf(onLine);
+      if (i >= 0) this.listeners.splice(i, 1);
+    }
+    return [...lines.entries()].sort(([a], [b]) => a - b).map(([, v]) => v);
   }
 
   /** Прервать текущий поиск. */

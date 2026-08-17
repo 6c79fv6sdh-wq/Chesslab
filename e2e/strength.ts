@@ -12,7 +12,23 @@
  */
 import makeZerofish, { type Zerofish } from '@lichess-org/zerofish';
 import { BOTS, MAX_CANDIDATES, sampleByTemperature } from '../src/core/bots';
-import { INITIAL_FEN, fenOf, moveFromUci, posFromFen, type Chess } from '../src/core/chess';
+import { BEGINNER_PROFILE, chooseBlindMove } from '../src/core/blind-bot';
+import { Engine } from '../src/core/engine';
+import { INITIAL_FEN, fenOf, moveFromUci, posFromFen, uciOf, type Chess } from '../src/core/chess';
+
+// Один движок на весь стенд: kind: 'blind' в проде тоже играет обычным
+// (не Elo-ограниченным) Stockfish, только с малой глубиной поиска —
+// используем тот же core/engine.ts, а не отдельный Stockfish из zerofish,
+// чтобы замер бил по тому же коду, что действительно выполняется в игре.
+let blindEngine: Engine | null = null;
+async function engineForBlind(): Promise<Engine> {
+  if (!blindEngine) {
+    blindEngine = new Engine();
+    await blindEngine.start();
+    await blindEngine.setStrength(null);
+  }
+  return blindEngine;
+}
 
 const out = document.getElementById('out')!;
 const log = (s: string) => {
@@ -92,6 +108,15 @@ async function runBot(
             .map((l) => ({ move: l.moves?.[0], score: l.score }))
             .filter((c): c is { move: string; score: number } => !!c.move);
           uci = sampleByTemperature(cands, def.temperature ?? 0, Math.random, width) ?? r.bestmove;
+        } else if (def.kind === 'blind') {
+          const engine = await engineForBlind();
+          const mv = await chooseBlindMove(
+            (f, opts) => engine.analyse(f, opts),
+            pos,
+            def.blindProfile ?? BEGINNER_PROFILE,
+            Math.random,
+          );
+          uci = mv ? uciOf(mv) : null;
         } else {
           const r = await zf.goFish({ fen }, { multipv: 1, by: { depth: 6 }, level: 8 });
           uci = r.bestmove;
