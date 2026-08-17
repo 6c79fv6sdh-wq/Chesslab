@@ -6,20 +6,32 @@
  * коричневого, зелёный глубже и спокойнее салатового: вместе они дают
  * собственное лицо, не мешая доске (её поля не трогаем — классические
  * #f0d9b5/#b58863 узнаются всеми и менять их во вред тренировке).
+ *
+ * --accent-glow/--surface-soft/--border-soft и --radius* — общие токены
+ * «премиального» слоя (панели, кнопки, метрики, доска), собранные при
+ * полише всего интерфейса под референс упражнения «Сигнал»: свечение и
+ * скругления берутся из одного набора переменных, а не заводятся заново
+ * в каждом разделе.
  */
 :root {
-  --bg: #101316;
-  --panel: #191d21;
-  --panel2: #222831;
+  --bg: #0e1114;
+  --panel: #15191d;
+  --panel2: #1c2228;
   --fg: #a7b1ba;
   --fg-strong: #eef2f5;
   --accent: #1d7a52;
-  --accent-hi: #249464;
+  --accent-hi: #26a473;
   --accent2: #4a90c4;
+  --accent-glow: rgba(31, 150, 96, 0.45);
+  --accent-soft: rgba(38, 164, 115, 0.12);
+  --surface-soft: rgba(255, 255, 255, 0.025);
+  --border: #262d35;
+  --border-soft: rgba(255, 255, 255, 0.07);
   --danger: #a63d3d;
-  --border: #2c333b;
   --ok: #4fb87a;
   --warn: #d9a05b;
+  --radius-lg: 10px;
+  --radius: 8px;
   color-scheme: dark;
 }
 
@@ -31,7 +43,11 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--bg);
+  /* Едва заметное свечение сверху страницы — глубина без второго слоя
+     разметки: полупрозрачный зелёный радиальный градиент поверх сплошного
+     фона, виден только на тёмных областях, доску и текст не подкрашивает. */
+  background: radial-gradient(1100px 560px at 50% -8%, var(--accent-soft), transparent 60%), var(--bg);
+  background-attachment: fixed;
   color: var(--fg);
   font: 15px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overscroll-behavior: none;
@@ -196,8 +212,9 @@ body {
 }
 
 .tab-primary.active {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent-hi), var(--accent));
   color: #fff;
+  box-shadow: 0 3px 14px -6px var(--accent-glow);
 }
 
 /*
@@ -236,7 +253,7 @@ body {
 
 .tab-secondary.active {
   color: var(--fg-strong);
-  border-color: var(--accent);
+  border-color: var(--accent-hi);
   opacity: 1;
 }
 
@@ -264,6 +281,7 @@ body {
 }
 
 .icon-btn:hover {
+  background: var(--panel2);
   color: var(--fg-strong);
   border-color: var(--fg);
 }
@@ -276,31 +294,42 @@ body {
 
 h1 {
   font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--fg-strong);
   margin: 14px 0 8px;
 }
 
 h2 {
   font-size: 15px;
+  font-weight: 600;
   color: var(--fg-strong);
   margin: 0 0 10px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  opacity: 0.85;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
 }
 
 h3 {
   font-size: 14px;
+  font-weight: 600;
   color: var(--fg-strong);
   margin: 14px 0 6px;
 }
 
+/*
+ * Панель — базовая единица «лаборатории»: у всех разделов один уровень
+ * глубины (тонкая рамка + едва заметный внутренний блик сверху + мягкая
+ * тень вниз), поэтому набор панелей на странице читается одной системой,
+ * а не блоками из разных версий интерфейса.
+ */
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   padding: 12px;
   margin: 12px 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025), 0 14px 32px -26px rgba(0, 0, 0, 0.7);
 }
 
 .row {
@@ -331,23 +360,38 @@ label {
   background: var(--panel2);
   color: var(--fg-strong);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
   padding: 9px 14px;
   font-size: 14px;
   text-decoration: none; /* на случай <a class="btn"> — кнопки не подчёркиваются */
   text-align: center;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.05s;
 }
 
 .btn:hover {
   border-color: #3c454f;
+  background: #232a32;
 }
 
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Живой, но не кричащий: мягкий зелёный градиент вместо плоской заливки
+   плюс едва заметное свечение под кнопкой — тот же язык, что и у активных
+   сегментов и вкладок ниже. */
 .btn.primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--accent-hi), var(--accent));
+  border-color: transparent;
   color: #fff;
+  box-shadow: 0 3px 14px -6px var(--accent-glow);
+}
+
+.btn.primary:hover {
+  filter: brightness(1.06);
+  box-shadow: 0 5px 18px -6px var(--accent-glow);
 }
 
 .btn.danger {
@@ -359,6 +403,7 @@ label {
 .btn:disabled {
   opacity: 0.45;
   cursor: default;
+  transform: none;
 }
 
 /*
@@ -401,17 +446,27 @@ label {
   background: var(--panel2);
   color: var(--fg);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
   padding: 8px 12px;
   font-size: 13px;
   text-align: center;
   cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s, color 0.15s;
 }
 
+.seg-btn:hover {
+  border-color: var(--border-soft);
+  color: var(--fg-strong);
+}
+
+/* Тот же градиент + свечение, что у .btn.primary — активный сегмент любого
+   переключателя на сайте (сложность, лимит времени, упражнение) собран из
+   одного визуального языка. */
 .seg-btn.active {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--accent-hi), var(--accent));
+  border-color: transparent;
   color: #fff;
+  box-shadow: 0 3px 14px -6px var(--accent-glow);
 }
 
 input[type='text'],
@@ -421,11 +476,20 @@ select {
   background: var(--panel2);
   color: var(--fg-strong);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
   padding: 8px 10px;
   font-size: 14px;
   font-family: inherit;
   width: 100%;
+  transition: border-color 0.15s;
+}
+
+input[type='text']:focus,
+input[type='number']:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 textarea {
@@ -606,7 +670,7 @@ input[type='checkbox'] {
   flex: 1;
   background: var(--panel2);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
   padding: 8px 12px;
   font-size: 26px;
   font-variant-numeric: tabular-nums;
@@ -638,7 +702,7 @@ input[type='checkbox'] {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   background: var(--panel2);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius);
   padding: 8px;
 }
 
@@ -656,7 +720,7 @@ input[type='checkbox'] {
 
 .progress > div {
   height: 100%;
-  background: var(--accent);
+  background: linear-gradient(90deg, var(--accent), var(--accent-hi));
   transition: width 0.15s;
 }
 
@@ -831,7 +895,7 @@ code {
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   background: #000;
 }
@@ -923,7 +987,7 @@ code {
 }
 
 .carousel-dot.active {
-  background: var(--accent);
+  background: var(--accent-hi);
 }
 
 /* --- Диалог входа: карточка кода доступа ------------------------------ */
@@ -982,7 +1046,7 @@ code {
   background: var(--panel2);
   color: var(--fg-strong);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding: 11px 12px;
   font-size: 16px; /* 16px не даёт Safari на iPhone зумить при фокусе */
   letter-spacing: 0.03em;
@@ -1049,28 +1113,30 @@ code {
   gap: 10px;
 }
 
+/* Лёгкая карточка вместо плотной заливки: набор цифр читается быстро,
+   не спорит за внимание с доской и не выглядит панелью админки. */
 .metric {
   display: flex;
   flex-direction: column;
   gap: 3px;
   padding: 14px;
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
 }
 
 .metric-k {
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   color: var(--fg);
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
 .metric-v {
   font-size: 25px;
   line-height: 1.15;
-  font-weight: 600;
+  font-weight: 650;
   color: var(--fg-strong);
   font-variant-numeric: tabular-nums;
 }
@@ -1088,10 +1154,11 @@ code {
 }
 
 /*
- * --- Полиш упражнения «Сигнал» (Тренировки → Моторика) -----------------
- * Точечные правки только под .side--signal / .exercise-seg — «Клик по
- * клеткам» и остальные модули эти карточки и этот сегмент не используют,
- * их собственный вид (.metric, .seg) не меняется ни на волос.
+ * --- Упражнение «Сигнал» (Тренировки → Моторика) -----------------------
+ * .metric и .seg-btn уже несут общий премиальный вид (см. токены выше) —
+ * здесь только то, что действительно специфично для этого упражнения:
+ * затемнение колонки на вспышке и более лёгкий («ghost») переключатель
+ * упражнений, раз это верхний, более заметный элемент экрана.
  */
 
 /* Во время вспышки правая колонка чуть гаснет — доска на миг главная. */
@@ -1100,45 +1167,20 @@ code {
   transition: opacity 0.12s ease-out;
 }
 
-/* Карточки метрик здесь легче обычных: без плотной заливки и рамки —
-   набор чисел читается быстро, но не спорит с доской за внимание. */
-.side--signal .metric {
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.side--signal .metric-k {
-  opacity: 0.5;
-  letter-spacing: 0.1em;
-}
-
-.side--signal .metric-v {
-  font-weight: 650;
-}
-
-/* Переключатель упражнений «Тренировки → Моторика»: тоньше и спокойнее
-   обычного .seg — неактивная кнопка почти прозрачная, активная — мягкий
-   градиент с лёгким свечением вместо плоской заливки. */
-.exercise-seg .seg-btn {
+/* Переключатель упражнений «Тренировки → Моторика»: неактивная кнопка
+   почти прозрачная — сам переключатель заметнее обычного .seg, поэтому
+   не нужна рамка на каждой кнопке. Активное состояние наследует общий
+   градиент+свечение .seg-btn.active — :not(.active) нужен, чтобы это
+   правило (та же специфичность, что у .seg-btn.active) не перебивало
+   его порядком в файле. */
+.exercise-seg .seg-btn:not(.active) {
   background: transparent;
   border-color: transparent;
   font-weight: 500;
-  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.exercise-seg .seg-btn:hover {
+.exercise-seg .seg-btn:not(.active):hover {
   background: var(--panel2);
-}
-
-.exercise-seg .seg-btn.active {
-  background: linear-gradient(135deg, var(--accent-hi), var(--accent));
-  border-color: transparent;
-  color: #fff;
-  box-shadow: 0 3px 14px -4px rgba(29, 122, 82, 0.6);
-}
-
-.exercise-seg .seg-btn.active:hover {
-  background: linear-gradient(135deg, var(--accent-hi), var(--accent));
 }
 
 /* Маленькая живая точка на активной кнопке, пока идёт сессия — без
@@ -1197,7 +1239,7 @@ code {
   padding: 12px 14px;
   background: var(--panel2);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
 }
 
 /* Пройденный шаг гасим, но не прячем: видно и что сделано, и что дальше. */
@@ -1219,9 +1261,10 @@ code {
 }
 
 .plan-mark.done {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--accent-hi), var(--accent));
+  border-color: transparent;
   color: #fff;
+  box-shadow: 0 2px 10px -5px var(--accent-glow);
 }
 
 .plan-text {
@@ -1350,7 +1393,7 @@ code {
   max-width: calc(100vw - 24px);
   padding: 10px 14px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--panel);
   box-shadow: 0 6px 24px rgb(0 0 0 / 45%);
   font-size: 14px;
@@ -1441,16 +1484,17 @@ code {
   background: var(--panel2);
   color: var(--fg);
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: 6px;
   padding: 3px 7px;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .move-chip.current {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--accent-hi), var(--accent));
+  border-color: transparent;
   color: #fff;
 }
 
