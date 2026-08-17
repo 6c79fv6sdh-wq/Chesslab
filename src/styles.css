@@ -916,6 +916,111 @@ code {
   }
 }
 
+/*
+ * --- Соперник (Спарринг → Цейтнот): аватары ботов ----------------------
+ * Ряд не переносится (nowrap) — десять аватаров умещаются в одну строку
+ * на обычном экране без переноса; на телефоне лента просто скроллится
+ * вбок тем же приёмом, что и витрина скриншотов (.carousel-viewport):
+ * overflow-x: auto и спрятанный скроллбар, а не сетка в несколько рядов.
+ */
+.bot-picker {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 4px 2px 8px;
+  margin: 0 0 2px;
+  scrollbar-width: none;
+}
+
+.bot-picker::-webkit-scrollbar {
+  display: none;
+}
+
+.bot-avatar {
+  appearance: none;
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 2px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Кольцо — не декор, а доля шкалы силы (--bot-pct ставит JS по месту
+   бота в BOTS, от Дебютанта до Движка максимум): виден порядок силы
+   ещё до того, как прочитана подпись. */
+.bot-avatar-ring {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  padding: 3px;
+  background: conic-gradient(var(--led) 0% var(--bot-pct, 0%), rgba(255, 255, 255, 0.08) var(--bot-pct, 0%) 100%);
+  transition: box-shadow 0.15s;
+}
+
+.bot-avatar-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--well);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Заглушка всегда в разметке, просто под картинкой — если <img> не
+   нашла файл (аватар ещё не готов или не завезён), она себя удаляет по
+   onerror, и вместо сломанной иконки браузера видна буква. */
+.bot-avatar-fallback {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--fg);
+  opacity: 0.5;
+}
+
+.bot-avatar-face img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bot-avatar-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fg);
+  white-space: nowrap;
+  /* 112px — ровно под самое длинное имя в ростере, «Движок максимум»;
+     остальные короче и это ограничение не задевает. Обрезка остаётся
+     подстраховкой на случай будущих длинных имён, а не рабочим режимом
+     для тех, что есть сейчас. */
+  max-width: 112px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bot-avatar.active .bot-avatar-ring {
+  box-shadow: 0 0 10px -1px var(--led-glow);
+}
+
+.bot-avatar.active .bot-avatar-face {
+  background: linear-gradient(180deg, rgba(52, 201, 138, 0.2), rgba(52, 201, 138, 0.06));
+}
+
+.bot-avatar.active .bot-avatar-name {
+  color: var(--fg-strong);
+  font-weight: 650;
+}
+
 /* --- Витрина Lab (без доступа) ---------------------------------------
    Публичная страница живёт по своим типографским правилам: крупнее и
    с большим воздухом, чем рабочий интерфейс. Внутренние экраны

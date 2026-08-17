@@ -103,7 +103,12 @@ check('вкладка «Мои партии» на месте', tabs.includes('�
 const tab = (name) => page.locator('#tabs .tab-primary', { hasText: new RegExp(`^${name}$`) });
 await tab('Спарринг').click();
 await page.waitForTimeout(600);
-const botNames = await page.locator('.panel', { hasText: 'СОПЕРНИК' }).locator('.seg-btn').allInnerTexts();
+// Соперник — аватары (.bot-avatar-name), не .seg-btn: тот же список
+// ботов теперь рисует botPicker() в scramble.ts.
+const botNames = await page
+  .locator('.panel', { hasText: 'СОПЕРНИК' })
+  .locator('.bot-avatar-name')
+  .allInnerTexts();
 check('в списке соперников есть Maia-боты', botNames.some((n) => /Майя|Новичок/.test(n)), botNames.join(' / '));
 
 const tcNames = await page.locator('.row', { hasText: 'Контроль' }).locator('.seg-btn').allInnerTexts();
