@@ -32,20 +32,22 @@ describe('роспись ботов', () => {
     expect(bot('нет-такого').id).toBe(DEFAULT_BOT);
   });
 
-  it('есть два новых слабых бота на Maia', () => {
+  it('есть три слабых бота на Maia (температурой, не сетью)', () => {
     const weak = BOTS.filter((b) => b.kind === 'maia' && (b.rating === null || b.rating <= 1000));
-    expect(weak.length).toBe(2);
-    // Оба обязаны иметь сеть и температуру: без неё это была бы обычная Maia.
+    expect(weak.length).toBe(3);
+    // Все обязаны иметь сеть и температуру: без неё это была бы обычная Maia.
     for (const b of weak) {
       expect(b.net, b.id).toBeTruthy();
       expect(b.temperature ?? 0, b.id).toBeGreaterThan(0);
     }
   });
 
-  it('слабейший бот разболтаннее, чем 1000', () => {
+  it('температура убывает по всей лестнице Maia: Новичок > 800 > 1000', () => {
     const novice = bot('maia-novice');
+    const eight = bot('maia-800');
     const thousand = bot('maia-1000');
-    expect(novice.temperature!).toBeGreaterThan(thousand.temperature!);
+    expect(novice.temperature!).toBeGreaterThan(eight.temperature!);
+    expect(eight.temperature!).toBeGreaterThan(thousand.temperature!);
   });
 
   it('у каждого бота есть человеческое имя и пояснение', () => {
