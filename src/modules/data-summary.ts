@@ -6,7 +6,7 @@ export const MODULE_LABELS: Record<ModuleId, string> = {
   premove: 'Premove',
   reaction: 'Тактика',
   openings: 'Дебюты',
-  scramble: 'Цейтнот',
+  scramble: 'Спарринг',
 };
 
 /**

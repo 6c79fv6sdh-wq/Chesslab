@@ -62,7 +62,7 @@ const ROTATION: PlanStep[] = [
   },
   {
     module: 'scramble',
-    label: 'Цейтнот',
+    label: 'Спарринг',
     detail: 'Партия на флажке против бота',
     tab: 'scramble',
   },

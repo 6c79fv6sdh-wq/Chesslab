@@ -41,7 +41,7 @@ const SLIDES: Slide[] = [
   },
   {
     src: './showcase/scramble.webp',
-    title: 'Цейтнот',
+    title: 'Спарринг',
     caption: 'Решения и управление временем в экстремальном цейтноте.',
   },
   {
@@ -392,7 +392,7 @@ export function mountGate(onUnlock: () => void, initialError?: string): void {
       el('p', { class: 'hero-lead' }, [
         'Тренажеры скорости, внимания и принятия решений в шахматах',
       ]),
-      el('p', { class: 'hero-modules' }, ['Моторика · Тактика · Premove · Дебюты · Цейтнот']),
+      el('p', { class: 'hero-modules' }, ['Моторика · Тактика · Premove · Дебюты · Спарринг']),
     ]),
     panel('Тренировочные модули', [buildGallery(SLIDES)]),
     panel('Прогресс', [buildProgressBlock()]),

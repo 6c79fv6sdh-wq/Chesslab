@@ -99,7 +99,7 @@ const tabs = await page.locator('#tabs .tab-primary').allInnerTexts();
 check('после имени открылось приложение', tabs.length > 0, tabs.join(' / '));
 check('вкладка «Мои партии» на месте', tabs.includes('Мои партии'));
 
-// --- партия с ботом: верхний уровень навигации, «Спарринг» = «Цейтнот» ---
+// --- партия с ботом: верхний уровень навигации «Спарринг» ---
 const tab = (name) => page.locator('#tabs .tab-primary', { hasText: new RegExp(`^${name}$`) });
 await tab('Спарринг').click();
 await page.waitForTimeout(600);
