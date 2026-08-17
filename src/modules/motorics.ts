@@ -754,7 +754,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
 
   const exerciseSeg = segmented<Exercise>(
     [
-      { value: 'click', label: 'Клик по клеткам' },
+      { value: 'click', label: 'Вектор' },
       { value: 'signal', label: 'Сигнал' },
     ],
     exercise,
