@@ -129,3 +129,64 @@ cg-board {
   pointer-events: none;
   z-index: 10;
 }
+
+/*
+ * Световой сигнал упражнения «Сигнал» (modules/motorics-signal.ts).
+ * Смонтирован один раз на весь срок жизни экрана — между сигналами JS
+ * меняет только CSS-переменные --signal-base/--signal-glow/--signal-
+ * duration и перезапускает класс .signal-pulse, сам импульс целиком на
+ * CSS (opacity + transform, без blur и без анимации box-shadow по
+ * кадрам — только opacity/transform, GPU-friendly).
+ *
+ * В покое непрозрачность 0 — слоя не видно вообще, доска остаётся
+ * обычной тёмной. Мягкий градиент к центру + внутреннее/внешнее
+ * свечение через box-shadow дают ощущение подсветки самой доски, а не
+ * плоской заливки квадратом одного цвета.
+ */
+.signal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+  border-radius: 4px;
+  opacity: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    var(--signal-glow, transparent) 0%,
+    var(--signal-base, transparent) 46%,
+    transparent 80%
+  );
+  box-shadow:
+    inset 0 0 clamp(28px, 8%, 64px) clamp(4px, 1.5%, 12px) var(--signal-base, transparent),
+    0 0 clamp(24px, 7%, 56px) clamp(2px, 1%, 8px) var(--signal-glow, transparent);
+}
+
+.signal-overlay.signal-pulse {
+  animation: signal-pulse-kf var(--signal-duration, 250ms) cubic-bezier(0.16, 0.7, 0.3, 1) 1;
+}
+
+@keyframes signal-pulse-kf {
+  0% {
+    opacity: 0;
+    transform: scale(0.978);
+  }
+  14% {
+    opacity: 0.92;
+    transform: scale(1.006);
+  }
+  55% {
+    opacity: 0.78;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.992);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-overlay.signal-pulse {
+    animation: none;
+    opacity: 0.85;
+  }
+}

@@ -1,9 +1,10 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
-import { el, metric, metrics, panel, table } from '../core/ui';
+import { el, metric, metrics, panel, segmented, statLine, table } from '../core/ui';
 import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
 import { fmtMs, fmtNum, fmtPct, fmtSec, groupBy, median, p90, plural } from '../core/stats';
 import { directionBetween, squareDistance, type Direction } from '../core/chess';
+import { measurementsOf } from '../core/db';
 import { stepAfter } from './today-plan';
 import {
   EMPTY_BOARD_FEN,
@@ -12,6 +13,20 @@ import {
   squareCenter,
   type PointerSample,
 } from './motorics-geometry';
+import {
+  DEFAULT_SIGNAL_TIMINGS,
+  SIGNAL_TRIALS,
+  accuracy as signalAccuracy,
+  classifyReaction,
+  classifyTimeout,
+  countBy as signalCountBy,
+  falseStart as signalFalseStart,
+  planNextStimulus,
+  reactionTimes,
+  type SignalColor,
+  type StimulusPlan,
+  type TrialResult,
+} from './motorics-signal';
 
 export const REPS = 30;
 
@@ -102,6 +117,23 @@ export function randomPair(rnd: () => number): { source: string; target: string 
 
 type Phase = 'idle' | 'to-source' | 'to-target' | 'done';
 
+/** Какое из упражнений раздела сейчас на экране. */
+type Exercise = 'click' | 'signal';
+
+/**
+ * Цвета сигнала: [база, свечение]. Подобраны по примерно равной
+ * воспринимаемой яркости (формула относительной яркости sRGB), чтобы
+ * зелёный не бросался в глаза просто потому, что он светлее остальных —
+ * различать его нужно по СМЫСЛУ (это цель), а не потому что он ярче.
+ */
+const SIGNAL_PALETTE: Record<SignalColor, [base: string, glow: string]> = {
+  green: ['#198b52', '#36e28c'],
+  blue: ['#1a79e6', '#5fa3f2'],
+  purple: ['#9557db', '#ba8eeb'],
+  amber: ['#9b6508', '#f9a006'],
+  red: ['#ec3c4b', '#f67983'],
+};
+
 export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
   const cal = ctx.calibration;
   // Считываем сразу на маунте: если позже переключиться на другую
@@ -133,6 +165,29 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     viewOnly: true,
   });
   boardHost.append(trace);
+
+  // Слой светового сигнала — смонтирован сразу и на весь срок жизни
+  // экрана, независимо от того, какое упражнение выбрано сейчас: между
+  // сигналами меняются только CSS-переменные и класс, а не сам узел.
+  const signalOverlay = el('div', { class: 'signal-overlay' });
+  boardHost.append(signalOverlay);
+
+  function flashSignal(color: SignalColor, showMs: number): void {
+    const [base, glow] = SIGNAL_PALETTE[color];
+    signalOverlay.style.setProperty('--signal-base', base);
+    signalOverlay.style.setProperty('--signal-glow', glow);
+    signalOverlay.style.setProperty('--signal-duration', `${showMs}ms`);
+    // Перезапуск CSS-анимации с нуля: снять класс, форсировать reflow,
+    // поставить обратно. Дешёвая операция, без нового узла и без layout
+    // всей страницы — только для .signal-overlay.
+    signalOverlay.classList.remove('signal-pulse');
+    void signalOverlay.offsetWidth;
+    signalOverlay.classList.add('signal-pulse');
+  }
+
+  function hideSignal(): void {
+    signalOverlay.classList.remove('signal-pulse');
+  }
 
   const promptEl = el('div', { class: 'prompt' }, ['Нажми «Старт».']);
   const progressBar = el('div', {});
@@ -416,31 +471,304 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
   board.wrap.addEventListener('pointermove', onPointerMove);
   board.wrap.addEventListener('pointerdown', onPointerDown);
 
-  root.append(
-    panel('Тренировка', [
-      el('div', { class: 'board-area' }, [
-        boardHost,
-        el('div', { class: 'side' }, [
-          promptEl,
-          progress,
-          liveStats,
-          el('div', { class: 'row' }, [startBtn, stopBtn]),
-          el('p', { class: 'hint' }, [
-            '30 повторов. Сначала кликни по зелёной клетке, потом по новой зелёной.',
-          ]),
-          planNextHost,
-        ]),
+  /**
+   * ---------------------------------------------------------------------
+   * «Сигнал» — Go/No-Go на реакцию и торможение. Доска остаётся тёмной и
+   * пустой (тот же board, что и у «Клика»), клик разрешён в любой её
+   * точке — упражнение меряет реакцию и торможение, не наведение.
+   *
+   * Планирование стимулов — в motorics-signal.ts (чистое, без DOM и
+   * таймеров, проверено тестами). Здесь только таймеры, рендер и запись
+   * в сессию. Следующий стимул (sigNext) готовится в момент показа
+   * текущего — его появление не ждёт никакой генерации «на лету».
+   * ---------------------------------------------------------------------
+   */
+
+  type SignalPhase = 'idle' | 'waiting' | 'active' | 'done';
+
+  let sigPhase: SignalPhase = 'idle';
+  let sigSession: Session | null = null;
+  let sigTrials: TrialResult[] = [];
+  let sigTrialIndex = 0;
+  let sigStreak = 0;
+  let sigCurrent: StimulusPlan | null = null;
+  let sigNext: StimulusPlan | null = null;
+  let sigShownAt = 0;
+  let sigResolved = false;
+  let sigTimer: number | null = null;
+  let sigPriorBestMs: number | null = null;
+
+  const sigPromptEl = el('div', { class: 'prompt' }, ['Нажми «Старт».']);
+  const sigProgressBar = el('div', {});
+  const sigProgress = el('div', { class: 'progress' }, [sigProgressBar]);
+  const sigLiveStats = el('div', {});
+  const sigResultsHost = el('div', {});
+
+  /** Личный рекорд среди уже сохранённых сессий — до старта этой. */
+  async function historicalBestReactionMs(): Promise<number | null> {
+    const all = await measurementsOf('motorics');
+    const values = all
+      .filter((m) => m.mode === 'signal' && m.data.outcome === 'hit')
+      .map((m) => m.data.reactionMs)
+      .filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
+    return values.length ? Math.min(...values) : null;
+  }
+
+  function sigClearTimer(): void {
+    if (sigTimer !== null) {
+      window.clearTimeout(sigTimer);
+      sigTimer = null;
+    }
+  }
+
+  function sigRenderLive(): void {
+    const hits = signalCountBy(sigTrials, 'hit');
+    const errors =
+      signalCountBy(sigTrials, 'miss') +
+      signalCountBy(sigTrials, 'falseAlarm') +
+      signalCountBy(sigTrials, 'falseStart');
+    const remaining = Math.max(0, SIGNAL_TRIALS - sigTrialIndex);
+
+    sigLiveStats.innerHTML = '';
+    sigLiveStats.append(
+      metrics([
+        metric('Серия', String(sigStreak)),
+        metric('Верно', String(hits)),
+        metric('Осталось', String(remaining)),
       ]),
+      el('p', { class: 'hint metrics-note' }, [
+        `${sigTrialIndex} ${plural(sigTrialIndex, ['сигнал', 'сигнала', 'сигналов'])} · ` +
+          `${errors} ${plural(errors, ['ошибка', 'ошибки', 'ошибок'])}`,
+      ]),
+    );
+    sigProgressBar.style.width = `${(sigTrialIndex / SIGNAL_TRIALS) * 100}%`;
+  }
+
+  function sigRecordTrial(result: TrialResult): void {
+    sigTrials.push(result);
+    sigStreak = result.outcome === 'hit' || result.outcome === 'correctIgnore' ? sigStreak + 1 : 0;
+    void sigSession?.record({
+      signal: result.color,
+      isTarget: result.isTarget,
+      outcome: result.outcome,
+      reactionMs: result.reactionMs,
+      // Тот же смысл, что totalMs у «Клика» — единая метрика для
+      // сводки в data-summary.ts: «сколько заняла попытка».
+      totalMs: result.reactionMs,
+      misses: result.outcome === 'hit' || result.outcome === 'correctIgnore' ? 0 : 1,
+    });
+  }
+
+  function sigScheduleNext(gapMs: number): void {
+    sigPhase = 'waiting';
+    sigClearTimer();
+    sigTimer = window.setTimeout(() => sigShowStimulus(), gapMs);
+  }
+
+  function sigShowStimulus(): void {
+    if (sigPhase === 'idle' || sigPhase === 'done' || !sigNext) return;
+    if (sigTrialIndex >= SIGNAL_TRIALS) {
+      void sigFinish();
+      return;
+    }
+    const stim = sigNext;
+    sigCurrent = stim;
+    // Следующий стимул — сразу же, чтобы его появление никогда не ждало
+    // генерации в момент показа текущего.
+    sigNext = planNextStimulus(DEFAULT_SIGNAL_TIMINGS, rnd);
+    sigResolved = false;
+    sigPhase = 'active';
+    sigShownAt = performance.now();
+    flashSignal(stim.color, DEFAULT_SIGNAL_TIMINGS.showMs);
+    sigClearTimer();
+    sigTimer = window.setTimeout(() => sigResolveTimeout(), DEFAULT_SIGNAL_TIMINGS.reactionWindowMs);
+  }
+
+  function sigResolveTimeout(): void {
+    if (sigPhase !== 'active' || sigResolved || !sigCurrent) return;
+    sigResolved = true;
+    sigRecordTrial(classifyTimeout(sigTrialIndex, sigCurrent.color));
+    sigAdvance();
+  }
+
+  function sigAdvance(): void {
+    sigTrialIndex++;
+    sigCurrent = null;
+    sigRenderLive();
+    if (sigTrialIndex >= SIGNAL_TRIALS || !sigNext) {
+      void sigFinish();
+      return;
+    }
+    sigScheduleNext(sigNext.gapMs);
+  }
+
+  function onSignalPointerDown(e: PointerEvent): void {
+    void e;
+    const t = performance.now();
+    if (sigPhase === 'waiting') {
+      // Клик до появления стимула — фальстарт. Расписание не трогаем:
+      // уже подготовленный следующий стимул выходит по плану.
+      sigRecordTrial(signalFalseStart(sigTrialIndex));
+      sigRenderLive();
+      return;
+    }
+    if (sigPhase !== 'active' || sigResolved || !sigCurrent) return;
+    sigResolved = true;
+    sigClearTimer();
+    sigRecordTrial(classifyReaction(sigTrialIndex, sigCurrent.color, sigShownAt, t));
+    sigAdvance();
+  }
+
+  function sigRenderSummary(): void {
+    sigResultsHost.innerHTML = '';
+    const rts = reactionTimes(sigTrials);
+    const bestMs = rts.length ? Math.min(...rts) : null;
+    const isNewPB = bestMs !== null && (sigPriorBestMs === null || bestMs < sigPriorBestMs);
+    const pb = isNewPB ? bestMs : (sigPriorBestMs ?? bestMs);
+
+    sigResultsHost.append(
+      statLine([
+        ['Медиана реакции', fmtMs(median(rts))],
+        ['Лучшая реакция', fmtMs(bestMs)],
+        ['P90', fmtMs(p90(rts))],
+        ['Точные реакции', String(signalCountBy(sigTrials, 'hit'))],
+        ['Ложные тревоги', String(signalCountBy(sigTrials, 'falseAlarm'))],
+        ['Фальстарты', String(signalCountBy(sigTrials, 'falseStart'))],
+        ['Пропуски', String(signalCountBy(sigTrials, 'miss'))],
+        ['Точность', signalAccuracy(sigTrials) === null ? '—' : fmtPct(signalAccuracy(sigTrials))],
+        ['Личный рекорд', pb === null ? '—' : `${fmtMs(pb)}${isNewPB ? ' — новый!' : ''}`],
+      ]),
+    );
+  }
+
+  async function sigFinish(): Promise<void> {
+    sigPhase = 'done';
+    sigClearTimer();
+    hideSignal();
+    sigPromptEl.textContent = 'Сессия закончена. Результат записан.';
+    sigRenderLive();
+    sigRenderSummary();
+
+    const rts = reactionTimes(sigTrials);
+    await sigSession?.finish({
+      trials: sigTrials.length,
+      medianReactionMs: median(rts),
+      bestReactionMs: rts.length ? Math.min(...rts) : null,
+      p90ReactionMs: p90(rts),
+      hits: signalCountBy(sigTrials, 'hit'),
+      falseAlarms: signalCountBy(sigTrials, 'falseAlarm'),
+      falseStarts: signalCountBy(sigTrials, 'falseStart'),
+      misses: signalCountBy(sigTrials, 'miss'),
+      accuracy: signalAccuracy(sigTrials),
+    });
+    sigSession = null;
+    sigStartBtn.disabled = false;
+    sigStopBtn.disabled = true;
+  }
+
+  const sigStartBtn = el('button', { class: 'btn primary', type: 'button' }, ['Старт']);
+  const sigStopBtn = el('button', { class: 'btn', type: 'button' }, ['Прервать']);
+  sigStopBtn.disabled = true;
+
+  sigStartBtn.addEventListener('click', () => {
+    if (sigSession) return; // защита от повторного клика, пока идёт запуск
+    sigStartBtn.disabled = true;
+    void (async () => {
+      sigTrials = [];
+      sigTrialIndex = 0;
+      sigStreak = 0;
+      sigResultsHost.innerHTML = '';
+      sigPromptEl.textContent = 'Жди сигнал.';
+      sigSession = new Session('motorics', 'signal', measuredCalibration(cal, board.size));
+      sigStopBtn.disabled = false;
+      sigPriorBestMs = await historicalBestReactionMs();
+      sigNext = planNextStimulus(DEFAULT_SIGNAL_TIMINGS, rnd);
+      sigRenderLive();
+      sigScheduleNext(sigNext.gapMs);
+    })();
+  });
+
+  sigStopBtn.addEventListener('click', () => {
+    if (sigSession) void sigFinish();
+  });
+
+  board.wrap.addEventListener('pointerdown', onSignalPointerDown);
+
+  // --- Переключатель упражнений: тот же board, разные side-панели. ---
+  let exercise: Exercise = 'click';
+  const clickSideEls = [
+    promptEl,
+    progress,
+    liveStats,
+    el('div', { class: 'row' }, [startBtn, stopBtn]),
+    el('p', { class: 'hint' }, [
+      '30 повторов. Сначала кликни по зелёной клетке, потом по новой зелёной.',
     ]),
-    panel('Разбивка текущей сессии', [resultsHost]),
+    planNextHost,
+  ];
+  const sigSideEls = [
+    sigPromptEl,
+    sigProgress,
+    sigLiveStats,
+    el('div', { class: 'row' }, [sigStartBtn, sigStopBtn]),
+    el('p', { class: 'hint' }, [
+      `${SIGNAL_TRIALS} сигналов. Клик — только на зелёный, в любом месте доски.`,
+    ]),
+  ];
+
+  const sideHost = el('div', { class: 'side' });
+  const resultsTitleEl = el('h2', {}, ['Разбивка текущей сессии']);
+  const resultsBodyHost = el('div', {});
+
+  function renderSide(): void {
+    sideHost.innerHTML = '';
+    sideHost.append(...(exercise === 'click' ? clickSideEls : sigSideEls));
+  }
+
+  function renderResultsHost(): void {
+    resultsBodyHost.innerHTML = '';
+    resultsTitleEl.textContent = exercise === 'click' ? 'Разбивка текущей сессии' : 'Итог «Сигнала»';
+    resultsBodyHost.append(exercise === 'click' ? resultsHost : sigResultsHost);
+  }
+
+  const exerciseSeg = segmented<Exercise>(
+    [
+      { value: 'click', label: 'Клик по клеткам' },
+      { value: 'signal', label: 'Сигнал' },
+    ],
+    exercise,
+    (v) => {
+      if (session || sigSession) {
+        // Не даём переключаться на бегу — сначала останови или доиграй.
+        exerciseSeg.set(exercise);
+        return;
+      }
+      exercise = v;
+      renderSide();
+      renderResultsHost();
+    },
   );
 
+  root.append(
+    panel('Тренировка', [
+      exerciseSeg.root,
+      el('div', { class: 'board-area' }, [boardHost, sideHost]),
+    ]),
+    el('section', { class: 'panel' }, [resultsTitleEl, resultsBodyHost]),
+  );
+
+  renderSide();
+  renderResultsHost();
   renderLive();
+  sigRenderLive();
 
   return () => {
     board.wrap.removeEventListener('pointermove', onPointerMove);
     board.wrap.removeEventListener('pointerdown', onPointerDown);
+    board.wrap.removeEventListener('pointerdown', onSignalPointerDown);
+    sigClearTimer();
     if (session) void finish();
+    if (sigSession) void sigFinish();
     board.destroy();
   };
 }

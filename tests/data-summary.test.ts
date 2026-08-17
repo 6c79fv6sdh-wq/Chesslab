@@ -68,6 +68,15 @@ describe('основная метрика замера', () => {
     expect(isCorrect(rec('reaction', 'delta', { correct: true }))).toBe(true);
     expect(isCorrect(rec('scramble', 'fast:15s', { moveMs: 100 }))).toBeNull();
   });
+
+  it('«Сигнал» — тот же module motorics, misses/totalMs общие с source-target', () => {
+    // hit: реакция есть, misses: 0.
+    expect(primaryLatency(rec('motorics', 'signal', { totalMs: 280, misses: 0 }))).toBe(280);
+    expect(isCorrect(rec('motorics', 'signal', { totalMs: 280, misses: 0 }))).toBe(true);
+    // miss/falseAlarm/falseStart: totalMs нет (null), misses: 1.
+    expect(primaryLatency(rec('motorics', 'signal', { totalMs: null, misses: 1 }))).toBeNull();
+    expect(isCorrect(rec('motorics', 'signal', { totalMs: null, misses: 1 }))).toBe(false);
+  });
 });
 
 describe('сводка по модулю', () => {
@@ -135,6 +144,13 @@ describe('разрезы моторики', () => {
     const mixed = [...data, rec('reaction', 'delta', { latencyMs: 1 })];
     const rows = motoricsBreakdown(mixed, 'boardSize');
     expect(rows.reduce((a, r) => a + r.attempts, 0)).toBe(3);
+  });
+
+  it('замеры «Сигнала» тоже не попадают: у него нет ни расстояния, ни направления', () => {
+    const mixed = [...data, rec('motorics', 'signal', { totalMs: 300, misses: 0 }, 320)];
+    expect(motoricsBreakdown(mixed, 'boardSize').reduce((a, r) => a + r.attempts, 0)).toBe(3);
+    expect(motoricsBreakdown(mixed, 'distance').reduce((a, r) => a + r.attempts, 0)).toBe(3);
+    expect(motoricsBreakdown(mixed, 'direction').reduce((a, r) => a + r.attempts, 0)).toBe(3);
   });
 });
 
