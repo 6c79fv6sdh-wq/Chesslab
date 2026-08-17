@@ -50,26 +50,58 @@ interface Tab {
 }
 
 /**
- * Основная навигация: путь ученика от «что делать сегодня» через сами
- * тренировки к накопленному прогрессу. Калибровки здесь нет намеренно —
- * это настройка, а не тренировка, и живёт она отдельной кнопкой справа
- * (SETTINGS_TAB), чтобы не отвлекать на себя внимание каждый заход.
+ * Двухуровневая навигация.
+ *
+ * Верхний уровень — путь ученика от занятий к накопленному прогрессу:
+ * Тренировки → Спарринг → Мои партии → Прогресс. «Тренировки» — не
+ * экран, а раскрывающаяся группа: у неё нет своего mount, кликом по ней
+ * попадают на первый пункт группы (today), а сам раздел показывает
+ * второй ряд вкладок ниже. Собственный id группы ('training') в
+ * location.hash никогда не попадает — это только ключ для подсветки
+ * кнопки, маршруты остаются плоскими и прежними.
+ *
+ * Калибровки в обоих рядах нет намеренно — это настройка, а не занятие,
+ * и живёт она компактной иконкой справа (SETTINGS_TAB), чтобы не
+ * отвлекать на себя внимание каждый заход.
  */
-const TABS: Tab[] = [
+const TRAINING_TABS: Tab[] = [
   { id: 'today', label: 'Сегодня', mount: mountToday },
   { id: 'motorics', label: 'Моторика', mount: mountMotorics },
   { id: 'premove', label: 'Premove', mount: mountPremove },
   { id: 'reaction', label: 'Тактика', mount: mountReaction },
   { id: 'openings', label: 'Дебюты', mount: mountOpenings },
-  { id: 'scramble', label: 'Цейтнот', mount: mountScramble },
-  { id: 'games', label: 'Мои партии', mount: mountGames },
-  // id 'data' сохраняем: по нему уже есть закладки и ссылки в хеше.
-  { id: 'data', label: 'Прогресс', mount: mountData },
 ];
 
+const TRAINING_GROUP_ID = 'training';
+const TRAINING_IDS = new Set(TRAINING_TABS.map((t) => t.id));
+
+// «Спарринг» на верхнем уровне — это прежний «Цейтнот»: партия с ботом.
+// id/маршрут (#scramble) не трогаем — на него ссылаются история партий,
+// план дня и разбор; сама страница внутри по-прежнему называется
+// «Цейтнот» (h1, план дня, витрина) — меняется только подпись кнопки
+// в навигации, не содержимое тренажёра.
+const SCRAMBLE_TAB: Tab = { id: 'scramble', label: 'Спарринг', mount: mountScramble };
+const GAMES_TAB: Tab = { id: 'games', label: 'Мои партии', mount: mountGames };
+// id 'data' сохраняем: по нему уже есть закладки и ссылки в хеше.
+const DATA_TAB: Tab = { id: 'data', label: 'Прогресс', mount: mountData };
 const SETTINGS_TAB: Tab = { id: 'calibration', label: 'Настройки', mount: mountCalibration };
 
-const ALL_TABS: Tab[] = [...TABS, SETTINGS_TAB];
+const ALL_TABS: Tab[] = [...TRAINING_TABS, SCRAMBLE_TAB, GAMES_TAB, DATA_TAB, SETTINGS_TAB];
+
+/** Пункты верхнего ряда: группа «Тренировки» + три самостоятельных экрана. */
+const TOP_ENTRIES: Array<{ id: string; label: string; group: boolean }> = [
+  { id: TRAINING_GROUP_ID, label: 'Тренировки', group: true },
+  { id: SCRAMBLE_TAB.id, label: SCRAMBLE_TAB.label, group: false },
+  { id: GAMES_TAB.id, label: GAMES_TAB.label, group: false },
+  { id: DATA_TAB.id, label: DATA_TAB.label, group: false },
+];
+
+const SETTINGS_ICON =
+  '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" ' +
+  'stroke-width="1.8" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/>' +
+  '<circle cx="15" cy="7" r="2.2"/><line x1="4" y1="12" x2="20" y2="12"/>' +
+  '<circle cx="9" cy="12" r="2.2"/><line x1="4" y1="17" x2="20" y2="17"/>' +
+  '<circle cx="13.5" cy="17" r="2.2"/></svg>';
 
 /**
  * Перезагружаем страницу, когда новый service worker берёт управление:
@@ -92,7 +124,12 @@ function reloadOnServiceWorkerUpdate(): void {
 }
 
 async function boot(): Promise<void> {
+  // #tabs остаётся общей липкой оболочкой на всю навигацию (её высоту
+  // считает stickyTop() в board.ts — id намеренно не трогаем), а два ряда
+  // кнопок живут внутри как отдельные контейнеры.
   const nav = document.getElementById('tabs') as HTMLElement;
+  const primaryRow = document.getElementById('tabs-primary') as HTMLElement;
+  const secondaryRow = document.getElementById('tabs-secondary') as HTMLElement;
   const view = document.getElementById('view') as HTMLElement;
 
   // Просим постоянное хранение до первых замеров, чтобы браузер
@@ -144,46 +181,69 @@ async function boot(): Promise<void> {
   };
 
   let unmount: Unmount | null = null;
-  const buttons = new Map<string, HTMLButtonElement>();
+  let activeId: string | null = null;
+
+  const topButtons = new Map<string, HTMLButtonElement>();
+  const subButtons = new Map<string, HTMLButtonElement>();
+
+  /**
+   * Подсветка обоих рядов разом. У группы «Тренировки» своей вкладки нет —
+   * она активна, когда активен любой из её подпунктов, — а второй ряд
+   * вообще показываем только тогда: снаружи «Тренировок» он не нужен.
+   */
+  const updateNavState = (id: string | null) => {
+    const inTraining = id !== null && TRAINING_IDS.has(id);
+    for (const [k, b] of topButtons) b.classList.toggle('active', k === TRAINING_GROUP_ID ? inTraining : k === id);
+    for (const [k, b] of subButtons) b.classList.toggle('active', k === id);
+    secondaryRow.classList.toggle('visible', inTraining);
+    settingsBtn.classList.toggle('active', id === SETTINGS_TAB.id);
+  };
 
   /** Смонтировать произвольный экран, не обязательно из полосы вкладок. */
-  const mountView = (mount: MountFn, activeId: string | null) => {
+  const mountView = (mount: MountFn, id: string | null) => {
     if (unmount) {
       unmount();
       unmount = null;
     }
     view.innerHTML = '';
-    for (const [k, b] of buttons) b.classList.toggle('active', k === activeId);
+    activeId = id;
+    updateNavState(id);
     window.scrollTo({ top: 0 });
     unmount = mount(view, ctx);
   };
 
   const show = (id: string) => {
-    const tab = ALL_TABS.find((t) => t.id === id) ?? TABS[0];
+    const tab = ALL_TABS.find((t) => t.id === id) ?? TRAINING_TABS[0];
     location.hash = `#${tab.id}`;
     mountView(tab.mount, tab.id);
   };
 
-  for (const t of TABS) {
-    const b = el('button', { class: 'tab', type: 'button' }, [t.label]);
-    b.addEventListener('click', () => show(t.id));
-    buttons.set(t.id, b);
-    nav.append(b);
+  for (const entry of TOP_ENTRIES) {
+    const b = el('button', { class: 'tab-primary', type: 'button' }, [entry.label]);
+    // Группа «Тренировки» ведёт на первый её пункт (Сегодня) — это и есть
+    // общий вход в раздел, откуда дальше выбирают конкретное занятие.
+    b.addEventListener('click', () => show(entry.group ? TRAINING_TABS[0].id : entry.id));
+    topButtons.set(entry.id, b);
+    primaryRow.append(b);
   }
 
-  // Настройки отдельной кнопкой в конце полосы: доступны всегда, но
-  // визуально не в одном ряду с тренировками.
-  const settingsBtn = el('button', { class: 'tab tab-settings', type: 'button' }, [
-    SETTINGS_TAB.label,
-  ]);
+  for (const t of TRAINING_TABS) {
+    const b = el('button', { class: 'tab-secondary', type: 'button' }, [t.label]);
+    b.addEventListener('click', () => show(t.id));
+    subButtons.set(t.id, b);
+    secondaryRow.append(b);
+  }
+
+  // Настройки — компактная иконка справа от рядов, а не пункт в их числе:
+  // нужна всегда, но не как ещё одна тренировка среди прочих.
+  const settingsBtn = el('button', { class: 'icon-btn', type: 'button', 'aria-label': SETTINGS_TAB.label });
+  settingsBtn.innerHTML = SETTINGS_ICON;
   settingsBtn.addEventListener('click', () => show(SETTINGS_TAB.id));
-  buttons.set(SETTINGS_TAB.id, settingsBtn);
-  nav.append(settingsBtn);
+  primaryRow.append(settingsBtn);
 
   window.addEventListener('hashchange', () => {
     const id = location.hash.replace('#', '');
-    if (id && ALL_TABS.some((t) => t.id === id) && !buttons.get(id)?.classList.contains('active'))
-      show(id);
+    if (id && id !== activeId && ALL_TABS.some((t) => t.id === id)) show(id);
   });
 
   // Отключаем двойной тап с зумом и резиновую прокрутку на доске.

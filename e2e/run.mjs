@@ -95,13 +95,13 @@ if (await setupDone.count()) {
   await page.waitForTimeout(1000);
 }
 
-const tabs = await page.locator('#tabs .tab').allInnerTexts();
+const tabs = await page.locator('#tabs .tab-primary').allInnerTexts();
 check('после имени открылось приложение', tabs.length > 0, tabs.join(' / '));
 check('вкладка «Мои партии» на месте', tabs.includes('Мои партии'));
 
-// --- партия с ботом ---
-const tab = (name) => page.locator('#tabs .tab', { hasText: new RegExp(`^${name}$`) });
-await tab('Цейтнот').click();
+// --- партия с ботом: верхний уровень навигации, «Спарринг» = «Цейтнот» ---
+const tab = (name) => page.locator('#tabs .tab-primary', { hasText: new RegExp(`^${name}$`) });
+await tab('Спарринг').click();
 await page.waitForTimeout(600);
 const botNames = await page.locator('.panel', { hasText: 'СОПЕРНИК' }).locator('.seg-btn').allInnerTexts();
 check('в списке соперников есть Maia-боты', botNames.some((n) => /Майя|Новичок/.test(n)), botNames.join(' / '));
@@ -181,7 +181,8 @@ const resumed = await page.evaluate(() => document.querySelector('.prompt')?.tex
 check('партия доигрывается с того же места', /Твой ход|восстановлена|Ход соперника/.test(resumed), resumed);
 
 // --- профиль изолирует данные ---
-await tab('Настройки').click();
+// Настройки — компактная иконка справа от рядов, без текстовой подписи.
+await page.locator('#tabs .icon-btn[aria-label="Настройки"]').click();
 await page.waitForTimeout(500);
 check('в настройках есть свой профиль', (await page.locator('.panel', { hasText: 'ПРОФИЛЬ' }).count()) > 0);
 

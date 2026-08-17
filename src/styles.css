@@ -141,33 +141,137 @@ body {
   font-size: 10px;
 }
 
+/*
+ * Двухуровневая навигация.
+ *
+ * #tabs — общая липкая оболочка на оба ряда сразу (её высоту меряет
+ * stickyTop() в board.ts, чтобы доска не пряталась под неё, — id
+ * специально не меняли, только то, что внутри). Внутри — верхний ряд
+ * из четырёх пунктов и второй ряд, который виден только внутри
+ * «Тренировок»: показывать второй уровень там, где он не нужен, — и
+ * есть тот самый лишний шум, который убирали.
+ */
 #tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 10px 0;
   position: sticky;
   top: 0;
-  background: var(--bg);
   z-index: 50;
+  background: var(--bg);
+  padding-top: 10px;
   border-bottom: 1px solid var(--border);
 }
 
-.tab {
-  background: var(--panel);
+.tabs-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.tabs-row--primary {
+  padding-bottom: 10px;
+}
+
+/*
+ * Верхний уровень — «призрачные» кнопки без рамок. Раньше все восемь
+ * вкладок были одинаково тяжёлыми плашками с рамкой — ряд читался как
+ * панель админки. Теперь заливку и рамку получает только активный
+ * пункт, у остальных — просто текст с мягкой подсветкой по наведению.
+ */
+.tab-primary {
+  background: transparent;
   color: var(--fg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 14px;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14.5px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 
-.tab.active {
+.tab-primary:hover {
+  background: var(--panel);
+  color: var(--fg-strong);
+}
+
+.tab-primary.active {
   background: var(--accent);
   color: #fff;
+}
+
+/*
+ * Второй уровень (внутри «Тренировок») — легче по весу и визуально
+ * подчинён первому: без заливки, активный пункт держится подчёркиванием
+ * и цветом текста, а не плашкой. Так с одного взгляда видно иерархию —
+ * не два одинаковых ряда кнопок, а раздел и его подпункты.
+ */
+.tabs-row--secondary {
+  display: none;
+  padding: 0 0 10px 10px;
+  gap: 4px;
+}
+
+.tabs-row--secondary.visible {
+  display: flex;
+}
+
+.tab-secondary {
+  background: transparent;
+  color: var(--fg);
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 5px 8px 4px;
+  font-size: 13px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: color 0.15s, opacity 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-secondary:hover {
+  opacity: 1;
+  color: var(--fg-strong);
+}
+
+.tab-secondary.active {
+  color: var(--fg-strong);
   border-color: var(--accent);
+  opacity: 1;
+}
+
+/*
+ * Настройки — компактная иконка справа от рядов, не пункт в их числе:
+ * отдельная форма (круг вместо плашки) сама по себе говорит, что это
+ * не ещё одно занятие, а служебное действие. Кружок того же диаметра,
+ * что стрелки карусели на витрине (.carousel-arrow) — тот же приём.
+ */
+.icon-btn {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.icon-btn:hover {
+  color: var(--fg-strong);
+  border-color: var(--fg);
+}
+
+.icon-btn.active {
+  background: var(--panel2);
+  color: var(--fg-strong);
+  border-color: var(--fg);
 }
 
 h1 {
@@ -588,13 +692,18 @@ code {
     gap: 12px;
   }
 
-  #tabs {
-    gap: 5px;
+  .tabs-row {
+    gap: 0;
   }
 
-  .tab {
-    padding: 7px 10px;
-    font-size: 13px;
+  .tab-primary {
+    padding: 7px 11px;
+    font-size: 13.5px;
+  }
+
+  .tab-secondary {
+    padding: 5px 7px 4px;
+    font-size: 12.5px;
   }
 
   .clock {
@@ -1081,20 +1190,6 @@ code {
 }
 
 /* --- Настройки и первоначальная настройка ----------------------------- */
-
-/* Настройки — не тренировка: отодвигаем от полосы модулей и приглушаем. */
-.tab-settings {
-  margin-left: auto;
-  background: transparent;
-  opacity: 0.75;
-}
-
-.tab-settings.active {
-  background: var(--panel2);
-  border-color: var(--border);
-  color: var(--fg-strong);
-  opacity: 1;
-}
 
 /* Первый запуск: полоса вкладок ещё пустая, линия под ней ни к чему. */
 #tabs.setup-mode {
