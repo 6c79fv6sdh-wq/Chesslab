@@ -133,15 +133,20 @@ cg-board {
 /*
  * Световой сигнал упражнения «Сигнал» (modules/motorics-signal.ts).
  * Смонтирован один раз на весь срок жизни экрана — между сигналами JS
- * меняет только CSS-переменные --signal-base/--signal-glow/--signal-
- * duration и перезапускает класс .signal-pulse, сам импульс целиком на
- * CSS (opacity + transform, без blur и без анимации box-shadow по
- * кадрам — только opacity/transform, GPU-friendly).
+ * меняет только CSS-переменные --signal-core/-mid/-deep/-duration и
+ * перезапускает класс .signal-pulse, сам импульс целиком на CSS
+ * (opacity + transform, без blur и без покадровой анимации box-shadow
+ * — GPU-friendly).
  *
- * В покое непрозрачность 0 — слоя не видно вообще, доска остаётся
- * обычной тёмной. Мягкий градиент к центру + внутреннее/внешнее
- * свечение через box-shadow дают ощущение подсветки самой доски, а не
- * плоской заливки квадратом одного цвета.
+ * Слой света, а не заливка: три тона вместо одного (ядро/тело/глубина)
+ * и два элемента с разной динамикой —
+ *  - .signal-overlay — широкое тело свечения плюс тёмный «свод» по краю
+ *    доски (box-shadow, деликатный, не яркий);
+ *  - ::before — яркое узкое ядро в центре, вспыхивает и гаснет заметно
+ *    быстрее тела (см. keyframes ниже) — вместе это и даёт фазность
+ *    «вспышка → разлив → затухание», а не одномоментную перекраску.
+ *
+ * В покое непрозрачность 0 у обоих слоёв — доска остаётся обычной тёмной.
  */
 .signal-overlay {
   position: absolute;
@@ -150,43 +155,90 @@ cg-board {
   pointer-events: none;
   border-radius: 4px;
   opacity: 0;
-  background: radial-gradient(
-    circle at 50% 50%,
-    var(--signal-glow, transparent) 0%,
-    var(--signal-base, transparent) 46%,
-    transparent 80%
-  );
+  background:
+    radial-gradient(circle at 50% 50%, var(--signal-mid, transparent) 0%, transparent 54%),
+    radial-gradient(circle at 50% 50%, transparent 58%, var(--signal-deep, transparent) 100%);
   box-shadow:
-    inset 0 0 clamp(28px, 8%, 64px) clamp(4px, 1.5%, 12px) var(--signal-base, transparent),
-    0 0 clamp(24px, 7%, 56px) clamp(2px, 1%, 8px) var(--signal-glow, transparent);
+    inset 0 0 clamp(18px, 5%, 40px) clamp(2px, 1%, 8px) var(--signal-deep, transparent),
+    0 0 clamp(26px, 8%, 60px) clamp(3px, 1.2%, 10px) var(--signal-mid, transparent);
+}
+
+.signal-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 50%, var(--signal-core, transparent) 0%, transparent 24%);
 }
 
 .signal-overlay.signal-pulse {
-  animation: signal-pulse-kf var(--signal-duration, 250ms) cubic-bezier(0.16, 0.7, 0.3, 1) 1;
+  animation: signal-halo var(--signal-duration, 250ms) cubic-bezier(0.16, 0.7, 0.3, 1) 1;
 }
 
-@keyframes signal-pulse-kf {
+.signal-overlay.signal-pulse::before {
+  animation: signal-core var(--signal-duration, 250ms) cubic-bezier(0.16, 0.7, 0.3, 1) 1;
+}
+
+/* Тело: чуть медленнее набирает и дольше держит — ambient-часть вспышки. */
+@keyframes signal-halo {
   0% {
     opacity: 0;
-    transform: scale(0.978);
+    transform: scale(0.965);
   }
-  14% {
-    opacity: 0.92;
-    transform: scale(1.006);
+  18% {
+    opacity: 0.85;
+    transform: scale(1.004);
   }
-  55% {
-    opacity: 0.78;
+  60% {
+    opacity: 0.66;
     transform: scale(1);
   }
   100% {
     opacity: 0;
-    transform: scale(0.992);
+    transform: scale(0.99);
+  }
+}
+
+/* Ядро: вспыхивает почти мгновенно и гаснет заметно раньше тела — тот
+   самый быстрый и чистый «пик», по которому сигнал читается мгновенно. */
+@keyframes signal-core {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  38% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .signal-overlay.signal-pulse {
+  .signal-overlay.signal-pulse,
+  .signal-overlay.signal-pulse::before {
     animation: none;
-    opacity: 0.85;
   }
+  .signal-overlay.signal-pulse {
+    opacity: 0.8;
+  }
+  .signal-overlay.signal-pulse::before {
+    opacity: 0.9;
+  }
+}
+
+/*
+ * Доска — центр внимания в «Сигнале»: лёгкая «сцена» вокруг доски даже
+ * в покое, не только во время вспышки. Тонкий контур + мягкая тень
+ * приподнимают доску над панелью, но без яркости и без сдвига layout
+ * (border не добавляем — только тень, размер доски не меняется).
+ */
+.board-host.signal-mode .hl-board {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 22px 60px -24px rgba(0, 0, 0, 0.65);
+  border-radius: 3px;
 }

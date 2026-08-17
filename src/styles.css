@@ -1087,6 +1087,93 @@ code {
   margin: 8px 0 0;
 }
 
+/*
+ * --- Полиш упражнения «Сигнал» (Тренировки → Моторика) -----------------
+ * Точечные правки только под .side--signal / .exercise-seg — «Клик по
+ * клеткам» и остальные модули эти карточки и этот сегмент не используют,
+ * их собственный вид (.metric, .seg) не меняется ни на волос.
+ */
+
+/* Во время вспышки правая колонка чуть гаснет — доска на миг главная. */
+.side--signal.signal-live {
+  opacity: 0.55;
+  transition: opacity 0.12s ease-out;
+}
+
+/* Карточки метрик здесь легче обычных: без плотной заливки и рамки —
+   набор чисел читается быстро, но не спорит с доской за внимание. */
+.side--signal .metric {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.side--signal .metric-k {
+  opacity: 0.5;
+  letter-spacing: 0.1em;
+}
+
+.side--signal .metric-v {
+  font-weight: 650;
+}
+
+/* Переключатель упражнений «Тренировки → Моторика»: тоньше и спокойнее
+   обычного .seg — неактивная кнопка почти прозрачная, активная — мягкий
+   градиент с лёгким свечением вместо плоской заливки. */
+.exercise-seg .seg-btn {
+  background: transparent;
+  border-color: transparent;
+  font-weight: 500;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.exercise-seg .seg-btn:hover {
+  background: var(--panel2);
+}
+
+.exercise-seg .seg-btn.active {
+  background: linear-gradient(135deg, var(--accent-hi), var(--accent));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 3px 14px -4px rgba(29, 122, 82, 0.6);
+}
+
+.exercise-seg .seg-btn.active:hover {
+  background: linear-gradient(135deg, var(--accent-hi), var(--accent));
+}
+
+/* Маленькая живая точка на активной кнопке, пока идёт сессия — без
+   нового узла в DOM, чисто псевдоэлемент. */
+.exercise-seg.is-live .seg-btn.active::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 8px;
+  border-radius: 999px;
+  background: #fff;
+  vertical-align: middle;
+  animation: exercise-live-dot 1.1s ease-in-out infinite;
+}
+
+@keyframes exercise-live-dot {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exercise-seg.is-live .seg-btn.active::after {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+
 /* --- «Сегодня»: назначенная тренировка -------------------------------- */
 
 .plan-count {

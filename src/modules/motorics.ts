@@ -121,17 +121,20 @@ type Phase = 'idle' | 'to-source' | 'to-target' | 'done';
 type Exercise = 'click' | 'signal';
 
 /**
- * Цвета сигнала: [база, свечение]. Подобраны по примерно равной
- * воспринимаемой яркости (формула относительной яркости sRGB), чтобы
- * зелёный не бросался в глаза просто потому, что он светлее остальных —
- * различать его нужно по СМЫСЛУ (это цель), а не потому что он ярче.
+ * Цвета сигнала: [ядро, тело, глубина] — три тона на цвет вместо двух,
+ * чтобы вспышка читалась слоем света, а не заливкой. Ядро — яркая точка
+ * в центре, тело — основной цвет свечения, глубина — тёмный тон по
+ * краю доски (см. .signal-overlay в board.css). Подобраны по примерно
+ * равной воспринимаемой яркости тела (формула относительной яркости
+ * sRGB), чтобы зелёный не бросался в глаза просто потому, что он
+ * светлее остальных — различать его нужно по СМЫСЛУ (это цель).
  */
-const SIGNAL_PALETTE: Record<SignalColor, [base: string, glow: string]> = {
-  green: ['#198b52', '#36e28c'],
-  blue: ['#1a79e6', '#5fa3f2'],
-  purple: ['#9557db', '#ba8eeb'],
-  amber: ['#9b6508', '#f9a006'],
-  red: ['#ec3c4b', '#f67983'],
+const SIGNAL_PALETTE: Record<SignalColor, [core: string, mid: string, deep: string]> = {
+  green: ['#8ff5c6', '#1faf6b', '#0b4f32'],
+  blue: ['#9ccbff', '#3a8cf5', '#123b85'],
+  purple: ['#d9b8ff', '#a566f0', '#431f82'],
+  amber: ['#ffdd9e', '#e08a12', '#6b3d05'],
+  red: ['#ffc1ce', '#f15c77', '#6b1f30'],
 };
 
 export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
@@ -173,20 +176,28 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
   boardHost.append(signalOverlay);
 
   function flashSignal(color: SignalColor, showMs: number): void {
-    const [base, glow] = SIGNAL_PALETTE[color];
-    signalOverlay.style.setProperty('--signal-base', base);
-    signalOverlay.style.setProperty('--signal-glow', glow);
+    const [core, mid, deep] = SIGNAL_PALETTE[color];
+    signalOverlay.style.setProperty('--signal-core', core);
+    signalOverlay.style.setProperty('--signal-mid', mid);
+    signalOverlay.style.setProperty('--signal-deep', deep);
     signalOverlay.style.setProperty('--signal-duration', `${showMs}ms`);
     // Перезапуск CSS-анимации с нуля: снять класс, форсировать reflow,
     // поставить обратно. Дешёвая операция, без нового узла и без layout
-    // всей страницы — только для .signal-overlay.
+    // всей страницы — только для .signal-overlay (и его ::before, ядро
+    // вспышки — тот же класс запускает обе анимации).
     signalOverlay.classList.remove('signal-pulse');
     void signalOverlay.offsetWidth;
     signalOverlay.classList.add('signal-pulse');
+    // Доска — главный герой на миг вспышки: правая колонка чуть гаснет,
+    // а не соревнуется за внимание. Только у «Сигнала» (side--signal) —
+    // у «Клика» flashSignal вообще не вызывается.
+    sideHost.classList.add('signal-live');
+    window.setTimeout(() => sideHost.classList.remove('signal-live'), showMs);
   }
 
   function hideSignal(): void {
     signalOverlay.classList.remove('signal-pulse');
+    sideHost.classList.remove('signal-live');
   }
 
   const promptEl = el('div', { class: 'prompt' }, ['Нажми «Старт».']);
@@ -385,6 +396,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     session = null;
     startBtn.disabled = false;
     stopBtn.disabled = true;
+    updateExerciseLiveMark();
     renderBreakdown();
     renderPlanNext();
   }
@@ -460,6 +472,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     finishedAt = null;
     startBtn.disabled = true;
     stopBtn.disabled = false;
+    updateExerciseLiveMark();
     renderLive();
     nextRep();
   });
@@ -664,6 +677,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     sigSession = null;
     sigStartBtn.disabled = false;
     sigStopBtn.disabled = true;
+    updateExerciseLiveMark();
   }
 
   const sigStartBtn = el('button', { class: 'btn primary', type: 'button' }, ['Старт']);
@@ -681,6 +695,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
       sigPromptEl.textContent = 'Жди сигнал.';
       sigSession = new Session('motorics', 'signal', measuredCalibration(cal, board.size));
       sigStopBtn.disabled = false;
+      updateExerciseLiveMark();
       sigPriorBestMs = await historicalBestReactionMs();
       sigNext = planNextStimulus(DEFAULT_SIGNAL_TIMINGS, rnd);
       sigRenderLive();
@@ -723,6 +738,12 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
   function renderSide(): void {
     sideHost.innerHTML = '';
     sideHost.append(...(exercise === 'click' ? clickSideEls : sigSideEls));
+    // Отдельная разметка side--signal — точечный полиш только для
+    // «Сигнала» (мягче карточки метрик, см. board.css), «Клик по
+    // клеткам» и остальные модули эти правила не задевают.
+    sideHost.classList.toggle('side--signal', exercise === 'signal');
+    // Доска чуть заметнее именно в «Сигнале» — она тут главный герой.
+    boardHost.classList.toggle('signal-mode', exercise === 'signal');
   }
 
   function renderResultsHost(): void {
@@ -748,6 +769,12 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
       renderResultsHost();
     },
   );
+  exerciseSeg.root.classList.add('exercise-seg');
+
+  /** Маленькая живая точка на активной кнопке, пока идёт сессия. */
+  function updateExerciseLiveMark(): void {
+    exerciseSeg.root.classList.toggle('is-live', session !== null || sigSession !== null);
+  }
 
   root.append(
     panel('Тренировка', [
