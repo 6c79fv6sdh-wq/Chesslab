@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { BOTS, DEFAULT_BOT, MAX_CANDIDATES, bot, sampleByTemperature } from '../src/core/bots';
+import { BEGINNER_PROFILE, STUDENT_PROFILE } from '../src/core/blind-bot';
 
 /**
  * Слабые боты сделаны температурой по политике Maia, а не подмешиванием
@@ -59,6 +60,31 @@ describe('роспись ботов', () => {
       if (b.kind === 'maia') expect(b.net, b.id).toBeTruthy();
       else expect(b.net, b.id).toBeUndefined();
     }
+  });
+
+  it('blind-боты идут раньше maia-ботов — они слабейшие', () => {
+    const ids = BOTS.map((b) => b.id);
+    const lastBlind = ids.lastIndexOf('blind-student');
+    const firstMaia = ids.indexOf('maia-novice');
+    expect(lastBlind).toBeGreaterThanOrEqual(0);
+    expect(firstMaia).toBeGreaterThan(lastBlind);
+  });
+
+  it('«Ученик» той же механики, что «Дебютант», но внимательнее', () => {
+    // Тот же тип слепоты (см. STUDENT_PROFILE в blind-bot.ts) — сильнее
+    // не за счёт другой идеи игры, а за счёт того, что чаще замечает
+    // найденную угрозу.
+    expect(STUDENT_PROFILE.seeOwnMateChance).toBeGreaterThan(BEGINNER_PROFILE.seeOwnMateChance);
+    expect(STUDENT_PROFILE.seeOpponentMateChance).toBeGreaterThan(BEGINNER_PROFILE.seeOpponentMateChance);
+    expect(STUDENT_PROFILE.seeMaterialThreatChance).toBeGreaterThan(
+      BEGINNER_PROFILE.seeMaterialThreatChance,
+    );
+
+    const student = bot('blind-student');
+    const beginner = bot('blind-beginner');
+    expect(student.rating!).toBeGreaterThan(beginner.rating!);
+    expect(student.blindProfile).toBe(STUDENT_PROFILE);
+    expect(beginner.blindProfile).toBe(BEGINNER_PROFILE);
   });
 });
 

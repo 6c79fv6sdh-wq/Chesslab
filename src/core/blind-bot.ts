@@ -105,6 +105,22 @@ export const BEGINNER_PROFILE: BlindProfile = {
   seeMaterialThreatChance: 0.3,
 };
 
+/**
+ * На ступеньку сильнее «Дебютанта», не более: та же слепота (та же
+ * механика, тот же threatThreshold), но замечает найденное заметно
+ * чаще. Не отдельный движок и не другая идея игры — просто более
+ * внимательный ученик того же типа. Числа опять же рабочая гипотеза,
+ * подгонять по замеру e2e/strength.ts и по факту игры с учениками.
+ */
+export const STUDENT_PROFILE: BlindProfile = {
+  ideaWidth: 3,
+  threatDepth: 6,
+  threatThreshold: 250,
+  seeOwnMateChance: 0.35,
+  seeOpponentMateChance: 0.4,
+  seeMaterialThreatChance: 0.45,
+};
+
 const CENTER: Key[] = ['e4', 'd4', 'e5', 'd5'];
 
 /** Ставит ли этот ход мат прямо сейчас — точной симуляцией, не поиском. */
