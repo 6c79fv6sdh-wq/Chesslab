@@ -13,6 +13,10 @@ function game(overrides: Partial<GameRecord> = {}): GameRecord {
   const base = newGameRecord({
     profileId: 'p1',
     userColor: 'white',
+    // Старое имя намеренно: GameBotSpec — это СНИМОК соперника на момент
+    // партии, а не ссылка в BOTS. Бота с тех пор переименовали в «Сол», и
+    // PGN давней партии обязан остаться с тем именем, под которым её
+    // сыграли. Не «протухшая» фикстура — проверка ровно этого поведения.
     bot: { id: 'maia-1100', name: 'Майя 1100', rating: 1100, kind: 'maia' },
     timeControl: timeControl('5+3'),
   });

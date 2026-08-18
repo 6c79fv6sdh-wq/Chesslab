@@ -42,7 +42,7 @@ describe('роспись ботов', () => {
     }
   });
 
-  it('температура убывает по всей лестнице Maia: Новичок > 800 > 1000', () => {
+  it('температура убывает по лестнице Maia: Нейрофилософ > Майкл > Наполеон', () => {
     const novice = bot('maia-novice');
     const eight = bot('maia-800');
     const thousand = bot('maia-1000');
@@ -55,6 +55,22 @@ describe('роспись ботов', () => {
       expect(b.name.length, b.id).toBeGreaterThan(2);
       expect(b.note.length, b.id).toBeGreaterThan(10);
     }
+  });
+
+  it('у каждого бота есть слаг аватара, и слаги уникальны', () => {
+    const slugs = BOTS.map((b) => b.avatar);
+    expect(new Set(slugs).size).toBe(slugs.length);
+    for (const b of BOTS) {
+      // Только латиница/цифры/дефис: слаг идёт прямо в имя файла.
+      expect(b.avatar, b.id).toMatch(/^[a-z0-9-]+$/);
+    }
+  });
+
+  it('слаг аватара не равен id — id заморожен, картинки нет', () => {
+    // id лежит в каждой сохранённой партии (resumeGame берёт соперника
+    // по нему), поэтому переименовать его нельзя. Слаг живёт отдельно,
+    // чтобы файл назывался по персонажу, а не по движку под ним.
+    for (const b of BOTS) expect(b.avatar, b.id).not.toBe(b.id);
   });
 
   it('maia-боты возят сеть, stockfish-боты — нет', () => {
@@ -72,7 +88,7 @@ describe('роспись ботов', () => {
     expect(firstMaia).toBeGreaterThan(lastBlind);
   });
 
-  it('«Ученик» той же механики, что «Дебютант», но внимательнее', () => {
+  it('«Принцесса» той же механики, что «Щенок Пижон», но внимательнее', () => {
     // Тот же тип слепоты (см. STUDENT_PROFILE в blind-bot.ts) — сильнее
     // не за счёт другой идеи игры, а за счёт того, что чаще замечает
     // найденную угрозу.

@@ -47,27 +47,25 @@ const THINK_MIN_MS = 260;
 const THINK_MAX_MS = 900;
 
 /**
- * Путь до аватара бота: public/avatars/<id>.webp. Файла может не быть —
- * это ожидаемо (набор аватарок собирается отдельно от кода), тогда <img>
- * молча падает по onerror и остаётся кружок-заглушка с первой буквой
- * имени, без сломанной иконки браузера.
+ * Путь до аватара бота: public/avatars/<avatar>.webp, где avatar — слаг
+ * персонажа из core/bots.ts (не id: см. комментарий у поля avatar, id
+ * заморожен ради сохранённых партий). Файла может не быть — это
+ * ожидаемо, тогда <img> молча падает по onerror и остаётся
+ * кружок-заглушка с первой буквой имени, без сломанной иконки браузера.
  *
  * Спецификация для тех, кто готовит картинки: квадрат, ≥256×256, WebP
  * (см. public/showcase/*.webp — тот же формат уже в проекте), лицо/морда
- * крупно и по центру — итоговый кружок мелкий, широкий кадр в нём не
- * читается. Имя файла — id бота из core/bots.ts (blind-beginner,
- * blind-student, maia-novice, maia-800, maia-1000, maia-1100, sf-1400,
- * sf-1800, sf-2200, sf-max) — так что подключение сводится к тому, чтобы
- * просто положить файл в public/avatars/, никакой правки кода не нужно.
+ * крупно и по центру: итоговый кружок мелкий, широкий кадр в нём не
+ * читается. Полный список слагов — в public/avatars/README.md.
  */
-function botAvatarUrl(id: string): string {
-  return `avatars/${id}.webp`;
+function botAvatarUrl(avatar: string): string {
+  return `avatars/${avatar}.webp`;
 }
 
 /**
  * Соперник — аватар с кольцом силы, а не текстовая пилюля: лицо бота
  * видно с одного взгляда, кольцо вокруг него — не декор, а доля шкалы
- * силы (по порядку в BOTS, от Дебютанта до Движка максимум). Ряд не
+ * силы (по порядку в BOTS, от Щенка Пижона до Императора Пижона). Ряд не
  * переносится (flex-wrap: nowrap в .bot-picker) — все десять помещаются
  * в одну строку на обычном экране, а на телефоне лента просто скроллится
  * вбок, тем же приёмом, что и витрина скриншотов (.carousel-viewport).
@@ -86,11 +84,11 @@ function botPicker(
     const pct = bots.length > 1 ? Math.round((i / (bots.length - 1)) * 100) : 100;
     const ring = el('div', { class: 'bot-avatar-ring' });
     ring.style.setProperty('--bot-pct', `${pct}%`);
-    const img = el('img', { src: botAvatarUrl(b.id), alt: '', loading: 'lazy' });
+    const img = el('img', { src: botAvatarUrl(b.avatar), alt: '', loading: 'lazy' });
     img.addEventListener('error', () => img.remove(), { once: true });
     // aria-hidden: буква видна только пока не подгрузилась/не нашлась
     // картинка, а до тех пор доступное имя кнопки не должно превращаться
-    // в «Н Новичок» — оно и так есть в .bot-avatar-name ниже.
+    // в «Н Наполеон» — оно и так есть в .bot-avatar-name ниже.
     const face = el('div', { class: 'bot-avatar-face' }, [
       el('span', { class: 'bot-avatar-fallback', 'aria-hidden': 'true' }, [b.name.charAt(0)]),
       img,
