@@ -56,11 +56,28 @@ jobs:
       - name: Сборка
         run: npm run build
 
+      # Второй путь той же сборки — /2/ — специально для случая, когда у
+      # кого-то на устройстве старый service worker намертво прилип к
+      # корневому адресу и не даёт увидеть новую версию (offline-first,
+      # см. core/update.ts): scope service worker'а — путь, а не origin,
+      # поэтому у /2/ он свой, ещё ни разу не зарегистрированный, и там
+      # гарантированно открывается сразу актуальная сборка. base: './' в
+      # vite.config.ts делает все пути в dist/ относительными — тот же
+      # билд уже проверен под вложенным путём (см. docs/lab-integration-brief.md
+      # про /lab/ на основном сайте), поэтому простое копирование, а не
+      # отдельная пересборка.
+      - name: Тот же билд ещё и под /2/ (обход прилипшего service worker)
+        run: |
+          mkdir -p site
+          cp -r dist/. site/
+          mkdir -p site/2
+          cp -r dist/. site/2/
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site
 
   deploy:
     needs: build
