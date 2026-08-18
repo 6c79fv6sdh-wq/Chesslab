@@ -56,7 +56,7 @@ const THINK_MAX_MS = 900;
  * Спецификация для тех, кто готовит картинки: квадрат, ≥256×256, WebP
  * (см. public/showcase/*.webp — тот же формат уже в проекте), лицо/морда
  * крупно и по центру: итоговый кружок мелкий, широкий кадр в нём не
- * читается. Полный список слагов — в public/avatars/README.md.
+ * читается. Полный список слагов — в docs/avatars.md.
  */
 function botAvatarUrl(avatar: string): string {
   return `avatars/${avatar}.webp`;
