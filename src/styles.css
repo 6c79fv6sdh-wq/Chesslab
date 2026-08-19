@@ -1504,6 +1504,74 @@ code {
   }
 }
 
+/*
+ * --- Упражнение «Маршрут» (Тренировки → Моторика) ----------------------
+ * Рисунок фигуры — тот же SVG cburnett, что и на самой доске (см.
+ * ROUTE_PIECE_ICON в motorics-route.ts), не юникод-глиф: на iOS системный
+ * шрифт рисует ♜♝♞♛♔ тонкими нечёткими закорючками, а рядом с настоящей
+ * доской это читается как дешёвая заглушка.
+ */
+.route-piece-icon {
+  display: block;
+  width: 26px;
+  height: 26px;
+  margin: 0 auto;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  /* Белая заливка SVG-фигуры на тёмной кнопке иначе теряет контур —
+     мягкая тень вместо чистого contrast делает его виднее, не обводкой. */
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+}
+
+.route-piece-seg .seg-btn {
+  padding: 8px 6px;
+}
+
+/* Строка статуса Эстафеты: фигура + бейдж («✓» / «3/5»), между ними —
+   стрелка. Тем же строем, что и .metrics-note ниже, но с рисунками
+   вместо текста. */
+.route-track {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.route-track-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.4;
+}
+
+.route-track-step .route-piece-icon {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.route-track-step.is-done {
+  opacity: 0.65;
+}
+
+.route-track-step.is-active {
+  opacity: 1;
+}
+
+.route-track-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.route-track-arrow {
+  opacity: 0.3;
+  font-size: 11px;
+}
+
 /* --- «Сегодня»: назначенная тренировка -------------------------------- */
 
 .plan-count {

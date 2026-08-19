@@ -34,8 +34,8 @@ import {
   RELAY_PER_PIECE,
   ROUTE_MODE_LABEL,
   ROUTE_PIECES,
+  ROUTE_PIECE_ICON,
   ROUTE_PIECE_NAME,
-  ROUTE_PIECE_SYMBOL,
   SURVIVAL_MAX_ERRORS,
   firstRouteStep,
   nextRouteStep,
@@ -890,6 +890,13 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     updateRouteCounter();
   }
 
+  /** Тот же рисунок фигуры, что и на доске (см. ROUTE_PIECE_ICON) — не текстовый глиф. */
+  function pieceIconEl(piece: RoutePiece): HTMLElement {
+    const icon = el('span', { class: 'route-piece-icon', 'aria-hidden': 'true' });
+    icon.style.backgroundImage = `url("${ROUTE_PIECE_ICON[piece]}")`;
+    return icon;
+  }
+
   /**
    * Содержимое строки над метриками: в Классике — переключатель фигуры
    * (см. routePieceSeg ниже), в Эстафете/Survival — статус текущего
@@ -901,13 +908,17 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     if (routeMode === 'relay') {
       const activeIdx = Math.floor(routeCorrectTotal / RELAY_PER_PIECE) % ROUTE_PIECES.length;
       const countInPiece = routeCorrectTotal % RELAY_PER_PIECE;
-      const parts = ROUTE_PIECES.map((p, i) => {
-        const symbol = ROUTE_PIECE_SYMBOL[p];
-        if (i < activeIdx) return `${symbol} ✓`;
-        if (i === activeIdx) return `${symbol} ${countInPiece}/${RELAY_PER_PIECE}`;
-        return symbol;
+      routeRelayTrackEl.innerHTML = '';
+      ROUTE_PIECES.forEach((p, i) => {
+        if (i > 0) routeRelayTrackEl.append(el('span', { class: 'route-track-arrow' }, ['→']));
+        const state = i < activeIdx ? 'done' : i === activeIdx ? 'active' : 'upcoming';
+        const step = el('span', { class: `route-track-step is-${state}` }, [pieceIconEl(p)]);
+        if (i < activeIdx) step.append(el('span', { class: 'route-track-badge' }, ['✓']));
+        else if (i === activeIdx) {
+          step.append(el('span', { class: 'route-track-badge' }, [`${countInPiece}/${RELAY_PER_PIECE}`]));
+        }
+        routeRelayTrackEl.append(step);
       });
-      routeRelayTrackEl.textContent = parts.join(' → ');
     } else {
       const lives = Math.max(0, SURVIVAL_MAX_ERRORS - routeErrors);
       const limit = Math.round(survivalLimitMs(routeSurvivalIndex));
@@ -1117,7 +1128,8 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
   );
 
   const routePieceSeg = segmented<RoutePiece>(
-    ROUTE_PIECES.map((p) => ({ value: p, label: ROUTE_PIECE_SYMBOL[p] })),
+    // Пустой label: seg-btn получает не текст, а рисунок фигуры — см. ниже.
+    ROUTE_PIECES.map((p) => ({ value: p, label: '' })),
     routeClassicPiece,
     (v) => {
       if (routeSession) {
@@ -1128,11 +1140,18 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     },
   );
   routePieceSeg.root.classList.add('route-piece-seg');
-  // Кнопки семантически — «Ладья», «Слон» и т.д., а не просто «♜»: без
-  // aria-label доступное имя — один нечитаемый глиф (тот же класс бага,
-  // что чинили у аватарок ботов, см. bot-avatar-fallback в scramble.ts).
+  // Настоящий рисунок фигуры (тот же cburnett SVG, что и на доске), а не
+  // юникод-глиф ♜♝♞♛♔ — на части устройств (особенно iOS) системный
+  // шрифт рисует их тонкими нечёткими закорючками, рядом с настоящей
+  // доской это читалось дёшево. Кнопка семантически — «Ладья», «Слон» и
+  // т.д., а не просто картинка: без aria-label доступное имя было бы
+  // пустым (тот же класс бага, что чинили у аватарок ботов, см.
+  // bot-avatar-fallback в scramble.ts).
   [...routePieceSeg.root.children].forEach((btn, i) => {
-    (btn as HTMLElement).setAttribute('aria-label', ROUTE_PIECE_NAME[ROUTE_PIECES[i]]);
+    const piece = ROUTE_PIECES[i];
+    (btn as HTMLElement).append(pieceIconEl(piece));
+    (btn as HTMLElement).setAttribute('aria-label', ROUTE_PIECE_NAME[piece]);
+    (btn as HTMLElement).title = ROUTE_PIECE_NAME[piece];
   });
 
   board.wrap.addEventListener('pointerdown', onRoutePointerDown);
