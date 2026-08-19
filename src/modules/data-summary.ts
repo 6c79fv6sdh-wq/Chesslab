@@ -106,16 +106,18 @@ export type MotoricsAxis = 'boardSize' | 'distance' | 'direction';
  * Разбивка моторики по размеру доски, расстоянию и направлению.
  * Размер доски берётся из снимка калибровки в самом замере.
  *
- * Только режим source-target («Вектор») — у «Сигнала» нет ни
- * расстояния, ни направления клика (клик разрешён где угодно на доске),
- * подмешивать его сюда значило бы засорять разбивку строкой «—» без
- * смысла ни на одной из трёх осей.
+ * Только режим source-target («Вектор») — ни у «Сигнала» (клик разрешён
+ * где угодно на доске), ни у «Маршрута» (расстояние там — до заданной, а
+ * не до фактической клетки, direction не пишется вовсе, drag — другая
+ * моторика) нет одинаковой пары «расстояние/направление», подмешивать их
+ * сюда значило бы засорять разбивку строкой «—» без смысла или, хуже,
+ * складывать несравнимые между собой цифры в одну ячейку.
  */
 export function motoricsBreakdown(
   measurements: MeasurementRecord[],
   axis: MotoricsAxis,
 ): MotoricsBreakdownRow[] {
-  const mine = measurements.filter((m) => m.module === 'motorics' && m.mode !== 'signal');
+  const mine = measurements.filter((m) => m.module === 'motorics' && m.mode === 'source-target');
   if (!mine.length) return [];
 
   const keyOf = (m: MeasurementRecord): string => {

@@ -152,6 +152,15 @@ describe('разрезы моторики', () => {
     expect(motoricsBreakdown(mixed, 'distance').reduce((a, r) => a + r.attempts, 0)).toBe(3);
     expect(motoricsBreakdown(mixed, 'direction').reduce((a, r) => a + r.attempts, 0)).toBe(3);
   });
+
+  it('замеры «Маршрута» тоже не попадают: distance там про другое, direction нет вовсе', () => {
+    const mixed = [
+      ...data,
+      rec('motorics', 'route-classic', { totalMs: 300, misses: 0, distance: 2 }, 320),
+    ];
+    expect(motoricsBreakdown(mixed, 'boardSize').reduce((a, r) => a + r.attempts, 0)).toBe(3);
+    expect(motoricsBreakdown(mixed, 'distance').reduce((a, r) => a + r.attempts, 0)).toBe(3);
+  });
 });
 
 describe('самые медленные узлы дебютов', () => {

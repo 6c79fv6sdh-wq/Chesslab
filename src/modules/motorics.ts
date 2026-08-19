@@ -1,3 +1,4 @@
+import type { Key } from 'chessground/types';
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
 import { el, metric, metrics, panel, segmented, statLine, table } from '../core/ui';
@@ -27,6 +28,27 @@ import {
   type StimulusPlan,
   type TrialResult,
 } from './motorics-signal';
+import {
+  CLASSIC_REPS,
+  RELAY_DURATION_MS,
+  RELAY_PER_PIECE,
+  ROUTE_MODE_LABEL,
+  ROUTE_PIECES,
+  ROUTE_PIECE_NAME,
+  ROUTE_PIECE_SYMBOL,
+  SURVIVAL_MAX_ERRORS,
+  firstRouteStep,
+  nextRouteStep,
+  relayPieceState,
+  routeDests,
+  routeFen,
+  routeMeasurementData,
+  survivalLimitMs,
+  survivalPieceState,
+  type RouteMode,
+  type RoutePiece,
+  type RouteStep,
+} from './motorics-route';
 
 export const REPS = 30;
 
@@ -118,7 +140,7 @@ export function randomPair(rnd: () => number): { source: string; target: string 
 type Phase = 'idle' | 'to-source' | 'to-target' | 'done';
 
 /** Какое из упражнений раздела сейчас на экране. */
-type Exercise = 'click' | 'signal';
+type Exercise = 'click' | 'route' | 'signal';
 
 /**
  * Цвета сигнала: [ядро, тело, глубина] — три тона на цвет вместо двух,
@@ -709,6 +731,413 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
 
   board.wrap.addEventListener('pointerdown', onSignalPointerDown);
 
+  /**
+   * ---------------------------------------------------------------------
+   * «Маршрут» — третье упражнение раздела. В отличие от «Вектора» здесь
+   * настоящая фигура и настоящее перетаскивание (тот же Chessground,
+   * что и во всём приложении): подсвечена ОДНА легальная клетка, фигуру
+   * нужно перетащить именно на неё.
+   *
+   * Chessground получает dests ровно с одной разрешённой целью — значит
+   * он сам, своей проверенной геометрией, решает «долетела или нет» и
+   * сам анимирует отскок при неверном drop. Свою собственную проверку
+   * клетки (via keyFromPoint) поверх этого не городим: она пересчитывала
+   * бы то же самое другим кодом и рано или поздно разошлась бы с ним на
+   * границе клетки. Pointerdown/pointerup вешаем ТОЛЬКО чтобы отдельно от
+   * Chessground засечь время реакции и различить мышь/тач — в drag.ts
+   * chessground слушает не Pointer Events, а Mouse/Touch, так что двум
+   * системам событий делить нечего.
+   *
+   * Правильность хода при этом всё равно решаем сами (pointerup: клетка
+   * под пальцем/курсором совпала с целью или нет) — тем же keyFromPoint,
+   * что и «Вектор», и с той же геометрией доски (тот же board.wrap). Это
+   * не гонка с Chessground: оба вычисления детерминированы от одних и тех
+   * же координат события и одного и того же прямоугольника доски, потому
+   * расхождения не будет — Chessground выполняет тот же расчёт над теми
+   * же числами, отдельным кодом, но не другой математикой.
+   */
+
+  type RoutePhase = 'idle' | 'active' | 'done';
+
+  let routePhase: RoutePhase = 'idle';
+  let routeSession: Session | null = null;
+  let routeMode: RouteMode = 'classic';
+  let routeClassicPiece: RoutePiece = 'rook';
+  let routeCurrent: RouteStep | null = null;
+  let routeNext: RouteStep | null = null;
+  let routeTargetShownAt = 0;
+  let routePendingDownAt: number | null = null;
+  let routePendingPointerType = '';
+  let routeRepIndex = 0; // Классика: 0..CLASSIC_REPS
+  let routeCorrectTotal = 0; // Эстафета/Survival: верных ходов всего в серии
+  let routeSurvivalIndex = 0; // Survival: номер текущей цели — от него лимит и фигура
+  let routeErrors = 0; // Survival: жизни тают отсюда
+  let routeMissesTotal = 0; // все режимы: неверных попыток всего — для счётчика
+  let routeRepMisses = 0; // неверных попыток на ТЕКУЩУЮ цель — для «Без промахов»
+  let routeMoveTimer: number | null = null; // Survival: лимит на текущее перемещение
+  let routeSessionTimer: number | null = null; // Эстафета: жёсткие 60 секунд
+  let routeStartedAt: number | null = null;
+  let routeFinishedAt: number | null = null;
+  // Только завершённые (верные) ходы — как results у «Вектора»: используются
+  // для «Скорость»/«Без промахов», подробный разбор намеренно не копим на
+  // экране (см. комментарий у панели «Итог «Маршрута»» ниже).
+  let routeLog: { totalMs: number; misses: number }[] = [];
+
+  const routeLiveStats = el('div', {});
+  const routeCounterEl = el('p', { class: 'hint metrics-note' }, ['']);
+  const routeResultsHost = el('div', {});
+  const routeModeSlotHost = el('div', {});
+  const routeRelayTrackEl = el('p', { class: 'hint route-track' }, ['']);
+  const routeSurvivalEl = el('p', { class: 'hint route-track' }, ['']);
+
+  function routeClearMoveTimer(): void {
+    if (routeMoveTimer !== null) {
+      window.clearTimeout(routeMoveTimer);
+      routeMoveTimer = null;
+    }
+  }
+
+  function routeClearSessionTimer(): void {
+    if (routeSessionTimer !== null) {
+      window.clearTimeout(routeSessionTimer);
+      routeSessionTimer = null;
+    }
+  }
+
+  /**
+   * Следующий шаг маршрута, посчитанный ЗАРАНЕЕ — с тем же расчётом на
+   * мгновенный показ, что и sigNext у «Сигнала»: пока идёт текущая
+   * попытка, следующая цель уже готова, и после верного drop не тратится
+   * ни миллисекунды на генерацию.
+   *
+   * Опирается на routeCorrectTotal/routeSurvivalIndex ДО их увеличения —
+   * ровно на те значения, что действуют, пока показан текущий шаг. Когда
+   * шаг забирается в работу (routeAdvanceCorrect/routeAdvanceTimeout),
+   * счётчики увеличиваются на ту же единицу — новое значение снова
+   * совпадает с тем, что заложено в уже посчитанный routeNext.
+   */
+  function routeComputeNext(current: RouteStep): RouteStep {
+    if (routeMode === 'classic') return nextRouteStep(current.piece, current.target, rnd);
+    if (routeMode === 'relay') {
+      const { piece } = relayPieceState(routeCorrectTotal + 1);
+      return piece === current.piece
+        ? nextRouteStep(piece, current.target, rnd)
+        : firstRouteStep(piece, rnd);
+    }
+    const piece = survivalPieceState(routeSurvivalIndex + 1);
+    return piece === current.piece
+      ? nextRouteStep(piece, current.target, rnd)
+      : firstRouteStep(piece, rnd);
+  }
+
+  function routeShowStep(step: RouteStep): void {
+    routeCurrent = step;
+    routeTargetShownAt = performance.now();
+    routePendingDownAt = null;
+    routeRepMisses = 0;
+    board.setPosition({
+      fen: routeFen(step.piece, step.from),
+      orientation: 'white',
+      turnColor: 'white',
+      movableColor: 'white',
+      dests: routeDests(step.from, step.target),
+      viewOnly: false,
+    });
+    highlight([{ key: step.target, brush: 'green' }]);
+    routeNext = routeComputeNext(step);
+  }
+
+  function recordRouteAttempt(to: Key | null, upAt: number | null, correct: boolean, pointerType: string): void {
+    if (!routeCurrent) return;
+    const data = routeMeasurementData({
+      mode: routeMode,
+      piece: routeCurrent.piece,
+      from: routeCurrent.from,
+      to,
+      distance: squareDistance(routeCurrent.from, routeCurrent.target),
+      targetShownAt: routeTargetShownAt,
+      pointerDownAt: routePendingDownAt,
+      pointerUpAt: upAt,
+      correct,
+      pointerType,
+    });
+    void routeSession?.record(data);
+  }
+
+  function routeElapsedMs(): number | null {
+    if (routeStartedAt === null) return null;
+    return (routeFinishedAt ?? performance.now()) - routeStartedAt;
+  }
+
+  function updateRouteCounter(): void {
+    const done = routeLog.length;
+    routeCounterEl.textContent =
+      `${done} ${plural(done, ['ход', 'хода', 'ходов'])} · ` +
+      `${routeMissesTotal} ${plural(routeMissesTotal, ['промах', 'промаха', 'промахов'])}`;
+  }
+
+  function renderRouteLive(): void {
+    const totals = routeLog.map((r) => r.totalMs);
+    const hitRate = routeLog.length ? routeLog.filter((r) => r.misses === 0).length / routeLog.length : null;
+    routeLiveStats.innerHTML = '';
+    routeLiveStats.append(
+      metrics([
+        metric('Скорость', fmtSec(median(totals))),
+        metric('Без промахов', fmtPct(hitRate)),
+        metric('Общее время', fmtSec(routeElapsedMs(), 1)),
+      ]),
+    );
+    updateRouteCounter();
+  }
+
+  /**
+   * Содержимое строки над метриками: в Классике — переключатель фигуры
+   * (см. routePieceSeg ниже), в Эстафете/Survival — статус текущего
+   * прохода. Один и тот же слот на все три режима — компактный
+   * переключатель ни для кого не дублируется отдельной панелью.
+   */
+  function renderRouteModeStatus(): void {
+    if (routeMode !== 'relay' && routeMode !== 'survival') return;
+    if (routeMode === 'relay') {
+      const activeIdx = Math.floor(routeCorrectTotal / RELAY_PER_PIECE) % ROUTE_PIECES.length;
+      const countInPiece = routeCorrectTotal % RELAY_PER_PIECE;
+      const parts = ROUTE_PIECES.map((p, i) => {
+        const symbol = ROUTE_PIECE_SYMBOL[p];
+        if (i < activeIdx) return `${symbol} ✓`;
+        if (i === activeIdx) return `${symbol} ${countInPiece}/${RELAY_PER_PIECE}`;
+        return symbol;
+      });
+      routeRelayTrackEl.textContent = parts.join(' → ');
+    } else {
+      const lives = Math.max(0, SURVIVAL_MAX_ERRORS - routeErrors);
+      const limit = Math.round(survivalLimitMs(routeSurvivalIndex));
+      const hearts = lives > 0 ? '❤️ '.repeat(lives).trim() : '💔';
+      routeSurvivalEl.textContent = `${hearts} · лимит ${limit} мс`;
+    }
+  }
+
+  function renderRouteModeSlot(): void {
+    routeModeSlotHost.innerHTML = '';
+    if (routeMode === 'classic') routeModeSlotHost.append(routePieceSeg.root);
+    else if (routeMode === 'relay') routeModeSlotHost.append(routeRelayTrackEl);
+    else routeModeSlotHost.append(routeSurvivalEl);
+  }
+
+  function scheduleSurvivalTimeout(): void {
+    routeClearMoveTimer();
+    routeMoveTimer = window.setTimeout(() => routeHandleTimeout(), survivalLimitMs(routeSurvivalIndex));
+  }
+
+  /** true — серия продолжается; false — Survival добил третью ошибку, серия уже завершена. */
+  function routeRegisterMissCommon(): boolean {
+    routeMissesTotal++;
+    routeRepMisses++;
+    renderRouteLive();
+    renderRouteModeStatus();
+    if (routeMode !== 'survival') return true;
+    routeErrors++;
+    renderRouteModeStatus();
+    if (routeErrors >= SURVIVAL_MAX_ERRORS) {
+      void routeFinish();
+      return false;
+    }
+    return true;
+  }
+
+  function routeHandleWrongDrop(to: Key, upAt: number, pointerType: string): void {
+    if (!routeCurrent) return;
+    recordRouteAttempt(to, upAt, false, pointerType);
+    routeRegisterMissCommon();
+    // Ретрай той же цели: Chessground уже сам отпружинил фигуру назад на
+    // `from` (dest не входил в dests) — новый setPosition тут не нужен.
+  }
+
+  function routeHandleTimeout(): void {
+    if (routePhase !== 'active' || !routeCurrent || !routeNext) return;
+    recordRouteAttempt(null, null, false, '');
+    if (!routeRegisterMissCommon()) return;
+    routeSurvivalIndex++;
+    renderRouteModeStatus();
+    const step = routeNext;
+    routeShowStep(step);
+    scheduleSurvivalTimeout();
+  }
+
+  function routeHandleCorrectDrop(upAt: number, pointerType: string): void {
+    if (!routeCurrent || !routeNext) return;
+    routeClearMoveTimer();
+    recordRouteAttempt(routeCurrent.target, upAt, true, pointerType);
+    routeLog.push({ totalMs: upAt - routeTargetShownAt, misses: routeRepMisses });
+    if (routeMode === 'classic') routeRepIndex++;
+    else if (routeMode === 'relay') routeCorrectTotal++;
+    else {
+      routeCorrectTotal++;
+      routeSurvivalIndex++;
+    }
+    renderRouteLive();
+    renderRouteModeStatus();
+
+    if (routeMode === 'classic' && routeRepIndex >= CLASSIC_REPS) {
+      void routeFinish();
+      return;
+    }
+    const step = routeNext;
+    routeShowStep(step);
+    if (routeMode === 'survival') scheduleSurvivalTimeout();
+  }
+
+  function onRoutePointerDown(e: PointerEvent): void {
+    if (routePhase !== 'active') return;
+    routePendingDownAt = performance.now();
+    routePendingPointerType = e.pointerType || '';
+  }
+
+  function onRoutePointerUp(e: PointerEvent): void {
+    if (routePhase !== 'active' || !routeCurrent) return;
+    const t = performance.now();
+    const rect = boardRect(board.wrap);
+    const key = keyFromPoint(e.clientX, e.clientY, rect, 'white') as Key | null;
+    // Отпустили на исходной клетке (просто «взяли» фигуру) или вовсе мимо
+    // доски — это не попытка, а часть жеста «взял/передумал». Не считаем.
+    if (key === null || key === routeCurrent.from) return;
+    const pointerType = routePendingPointerType;
+    routePendingDownAt = null;
+    if (key === routeCurrent.target) routeHandleCorrectDrop(t, pointerType);
+    else routeHandleWrongDrop(key, t, pointerType);
+  }
+
+  function renderRouteSummary(): void {
+    routeResultsHost.innerHTML = '';
+    const totals = routeLog.map((r) => r.totalMs);
+    const accuracy = routeLog.length ? routeLog.filter((r) => r.misses === 0).length / routeLog.length : null;
+    const items: Array<[string, string]> = [
+      ['Режим', ROUTE_MODE_LABEL[routeMode]],
+      ['Ходов засчитано', String(routeLog.length)],
+      ['Медиана хода', fmtMs(median(totals))],
+      ['Без промахов', accuracy === null ? '—' : fmtPct(accuracy)],
+    ];
+    if (routeMode === 'relay') items.push(['Очков за минуту', String(routeCorrectTotal)]);
+    if (routeMode === 'survival') items.push(['Пройдено до конца', String(routeCorrectTotal)]);
+    routeResultsHost.append(statLine(items));
+  }
+
+  async function routeFinish(): Promise<void> {
+    if (routePhase !== 'active') return;
+    routePhase = 'done';
+    routeFinishedAt = performance.now();
+    routeClearMoveTimer();
+    routeClearSessionTimer();
+    routeCurrent = null;
+    routeNext = null;
+    highlight([]);
+    board.setPosition({ fen: EMPTY_BOARD_FEN, orientation: 'white', turnColor: 'white', viewOnly: true });
+    renderRouteLive();
+    renderRouteModeStatus();
+    renderRouteSummary();
+
+    const totals = routeLog.map((r) => r.totalMs);
+    const accuracy = routeLog.length ? routeLog.filter((r) => r.misses === 0).length / routeLog.length : null;
+    await routeSession?.finish({
+      mode: routeMode,
+      reps: routeLog.length,
+      medianTotalMs: median(totals),
+      p90TotalMs: p90(totals),
+      accuracy,
+      errors: routeMissesTotal,
+    });
+    routeSession = null;
+    routeStartBtn.disabled = false;
+    routeStopBtn.disabled = true;
+    updateExerciseLiveMark();
+    renderPlanNext();
+  }
+
+  const routeStartBtn = el('button', { class: 'btn primary', type: 'button' }, ['Старт']);
+  const routeStopBtn = el('button', { class: 'btn', type: 'button' }, ['Прервать']);
+  routeStopBtn.disabled = true;
+
+  /**
+   * Общий сброс счётчиков серии: и перед стартом, и просто при смене
+   * режима (чтобы Survival не показывал в покое «мёртвые» сердца или
+   * Эстафета — счёт от прошлого прохода, оставшийся от другого режима).
+   */
+  function routeResetCounters(): void {
+    routeRepIndex = 0;
+    routeCorrectTotal = 0;
+    routeSurvivalIndex = 0;
+    routeErrors = 0;
+    routeMissesTotal = 0;
+    routeRepMisses = 0;
+    routeLog = [];
+  }
+
+  routeStartBtn.addEventListener('click', () => {
+    if (routeSession) return;
+    routeStartBtn.disabled = true;
+    routeStopBtn.disabled = false;
+    routeResultsHost.innerHTML = '';
+    planNextHost.innerHTML = '';
+    routePhase = 'active';
+    routeResetCounters();
+    routeStartedAt = performance.now();
+    routeFinishedAt = null;
+    routeSession = new Session('motorics', `route-${routeMode}`, measuredCalibration(cal, board.size));
+    updateExerciseLiveMark();
+    renderRouteLive();
+    renderRouteModeStatus();
+
+    const firstPiece = routeMode === 'classic' ? routeClassicPiece : ROUTE_PIECES[0];
+    routeShowStep(firstRouteStep(firstPiece, rnd));
+    if (routeMode === 'relay') routeSessionTimer = window.setTimeout(() => void routeFinish(), RELAY_DURATION_MS);
+    if (routeMode === 'survival') scheduleSurvivalTimeout();
+  });
+
+  routeStopBtn.addEventListener('click', () => {
+    if (routeSession) void routeFinish();
+  });
+
+  const routeModeSeg = segmented<RouteMode>(
+    [
+      { value: 'classic', label: ROUTE_MODE_LABEL.classic },
+      { value: 'relay', label: ROUTE_MODE_LABEL.relay },
+      { value: 'survival', label: ROUTE_MODE_LABEL.survival },
+    ],
+    routeMode,
+    (v) => {
+      if (routeSession) {
+        routeModeSeg.set(routeMode);
+        return;
+      }
+      routeMode = v;
+      routeResetCounters();
+      renderRouteModeSlot();
+      renderRouteModeStatus();
+      renderRouteLive();
+    },
+  );
+
+  const routePieceSeg = segmented<RoutePiece>(
+    ROUTE_PIECES.map((p) => ({ value: p, label: ROUTE_PIECE_SYMBOL[p] })),
+    routeClassicPiece,
+    (v) => {
+      if (routeSession) {
+        routePieceSeg.set(routeClassicPiece);
+        return;
+      }
+      routeClassicPiece = v;
+    },
+  );
+  routePieceSeg.root.classList.add('route-piece-seg');
+  // Кнопки семантически — «Ладья», «Слон» и т.д., а не просто «♜»: без
+  // aria-label доступное имя — один нечитаемый глиф (тот же класс бага,
+  // что чинили у аватарок ботов, см. bot-avatar-fallback в scramble.ts).
+  [...routePieceSeg.root.children].forEach((btn, i) => {
+    (btn as HTMLElement).setAttribute('aria-label', ROUTE_PIECE_NAME[ROUTE_PIECES[i]]);
+  });
+
+  board.wrap.addEventListener('pointerdown', onRoutePointerDown);
+  board.wrap.addEventListener('pointerup', onRoutePointerUp);
+
   // --- Переключатель упражнений: тот же board, разные side-панели. ---
   let exercise: Exercise = 'click';
   const clickSideEls = [
@@ -730,14 +1159,32 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
       `${SIGNAL_TRIALS} сигналов. Клик — только на зелёный, в любом месте доски.`,
     ]),
   ];
+  // Порядок ровно по заданию: режим → слот режима (фигура/статус) →
+  // метрики → короткий счётчик серии → кнопки. Никакого прогресс-бара и
+  // отдельной подсказки-строки сверху — экран и так не пуст: вложенный
+  // переключатель фигуры/статус серии сам объясняет, что делать.
+  const routeSideEls = [
+    routeModeSeg.root,
+    routeModeSlotHost,
+    routeLiveStats,
+    routeCounterEl,
+    el('div', { class: 'row' }, [routeStartBtn, routeStopBtn]),
+    planNextHost,
+  ];
 
   const sideHost = el('div', { class: 'side' });
   const resultsTitleEl = el('h2', {}, ['Разбивка текущей сессии']);
   const resultsBodyHost = el('div', {});
 
+  function sideElsFor(ex: Exercise): (Node | string)[] {
+    if (ex === 'click') return clickSideEls;
+    if (ex === 'route') return routeSideEls;
+    return sigSideEls;
+  }
+
   function renderSide(): void {
     sideHost.innerHTML = '';
-    sideHost.append(...(exercise === 'click' ? clickSideEls : sigSideEls));
+    sideHost.append(...sideElsFor(exercise));
     // Отдельная разметка side--signal — точечный полиш только для
     // «Сигнала» (мягче карточки метрик, см. board.css), «Клик по
     // клеткам» и остальные модули эти правила не задевают.
@@ -748,18 +1195,20 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
 
   function renderResultsHost(): void {
     resultsBodyHost.innerHTML = '';
-    resultsTitleEl.textContent = exercise === 'click' ? 'Разбивка текущей сессии' : 'Итог «Сигнала»';
-    resultsBodyHost.append(exercise === 'click' ? resultsHost : sigResultsHost);
+    resultsTitleEl.textContent =
+      exercise === 'click' ? 'Разбивка текущей сессии' : exercise === 'route' ? 'Итог «Маршрута»' : 'Итог «Сигнала»';
+    resultsBodyHost.append(exercise === 'click' ? resultsHost : exercise === 'route' ? routeResultsHost : sigResultsHost);
   }
 
   const exerciseSeg = segmented<Exercise>(
     [
       { value: 'click', label: 'Вектор' },
+      { value: 'route', label: 'Маршрут' },
       { value: 'signal', label: 'Сигнал' },
     ],
     exercise,
     (v) => {
-      if (session || sigSession) {
+      if (session || sigSession || routeSession) {
         // Не даём переключаться на бегу — сначала останови или доиграй.
         exerciseSeg.set(exercise);
         return;
@@ -773,7 +1222,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
 
   /** Маленькая живая точка на активной кнопке, пока идёт сессия. */
   function updateExerciseLiveMark(): void {
-    exerciseSeg.root.classList.toggle('is-live', session !== null || sigSession !== null);
+    exerciseSeg.root.classList.toggle('is-live', session !== null || sigSession !== null || routeSession !== null);
   }
 
   root.append(
@@ -789,6 +1238,9 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     el('section', { class: 'panel' }, [resultsTitleEl, resultsBodyHost]),
   );
 
+  renderRouteModeSlot();
+  renderRouteModeStatus();
+  renderRouteLive();
   renderSide();
   renderResultsHost();
   renderLive();
@@ -798,9 +1250,14 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     board.wrap.removeEventListener('pointermove', onPointerMove);
     board.wrap.removeEventListener('pointerdown', onPointerDown);
     board.wrap.removeEventListener('pointerdown', onSignalPointerDown);
+    board.wrap.removeEventListener('pointerdown', onRoutePointerDown);
+    board.wrap.removeEventListener('pointerup', onRoutePointerUp);
     sigClearTimer();
+    routeClearMoveTimer();
+    routeClearSessionTimer();
     if (session) void finish();
     if (sigSession) void sigFinish();
+    if (routeSession) void routeFinish();
     board.destroy();
   };
 }
