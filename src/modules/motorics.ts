@@ -768,6 +768,13 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
   let routeTargetShownAt = 0;
   let routePendingDownAt: number | null = null;
   let routePendingPointerType = '';
+  // Взята ли фигура: становится true ТОЛЬКО pointerdown-ом ровно на клетке
+  // routeCurrent.from. Без этого достаточно было бы кликнуть прямо по
+  // подсвеченной клетке, ни разу не тронув фигуру, — то, что нашёл
+  // пользователь. Сбрасывается на каждую новую цель (routeShowStep) и
+  // после каждой обработанной попытки (верной или нет) — заново коснуться
+  // фигуры нужно перед КАЖДЫМ перемещением, включая повтор после промаха.
+  let routeArmed = false;
   let routeRepIndex = 0; // Классика: 0..CLASSIC_REPS
   let routeCorrectTotal = 0; // Эстафета/Survival: верных ходов всего в серии
   let routeSurvivalIndex = 0; // Survival: номер текущей цели — от него лимит и фигура
@@ -786,7 +793,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
   const routeLiveStats = el('div', {});
   const routeCounterEl = el('p', { class: 'hint metrics-note' }, ['']);
   const routeResultsHost = el('div', {});
-  const routeModeSlotHost = el('div', {});
+  const routeModeSlotHost = el('div', { class: 'route-mode-slot' });
   const routeRelayTrackEl = el('p', { class: 'hint route-track' }, ['']);
   const routeSurvivalEl = el('p', { class: 'hint route-track' }, ['']);
 
@@ -834,6 +841,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     routeCurrent = step;
     routeTargetShownAt = performance.now();
     routePendingDownAt = null;
+    routeArmed = false;
     routeRepMisses = 0;
     board.setPosition({
       fen: routeFen(step.piece, step.from),
@@ -997,22 +1005,34 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     if (routeMode === 'survival') scheduleSurvivalTimeout();
   }
 
+  /**
+   * Взять фигуру можно только pointerdown-ом ровно на её клетке — это и
+   * есть «сначала нажми на фигуру». Down где угодно ещё (пустая клетка,
+   * мимо доски) фигуру не вооружает: клик прямо по цели без предыдущего
+   * взятия ничего не даст, даже если формально попадает в неё.
+   */
   function onRoutePointerDown(e: PointerEvent): void {
-    if (routePhase !== 'active') return;
+    if (routePhase !== 'active' || !routeCurrent) return;
+    const rect = boardRect(board.wrap);
+    const key = keyFromPoint(e.clientX, e.clientY, rect, 'white');
+    if (key !== routeCurrent.from) return;
+    routeArmed = true;
     routePendingDownAt = performance.now();
     routePendingPointerType = e.pointerType || '';
   }
 
   function onRoutePointerUp(e: PointerEvent): void {
-    if (routePhase !== 'active' || !routeCurrent) return;
+    if (routePhase !== 'active' || !routeCurrent || !routeArmed) return;
     const t = performance.now();
     const rect = boardRect(board.wrap);
     const key = keyFromPoint(e.clientX, e.clientY, rect, 'white') as Key | null;
-    // Отпустили на исходной клетке (просто «взяли» фигуру) или вовсе мимо
-    // доски — это не попытка, а часть жеста «взял/передумал». Не считаем.
+    // Отпустили на исходной клетке (просто «взяли» фигуру — первый тап
+    // клик-режима) или вовсе мимо доски — это не попытка, а часть жеста
+    // «взял/передумал». Вооружение при этом остаётся: клик по цели
+    // следующим тапом всё ещё должен сработать.
     if (key === null || key === routeCurrent.from) return;
+    routeArmed = false;
     const pointerType = routePendingPointerType;
-    routePendingDownAt = null;
     if (key === routeCurrent.target) routeHandleCorrectDrop(t, pointerType);
     else routeHandleWrongDrop(key, t, pointerType);
   }
@@ -1126,6 +1146,7 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
       renderRouteLive();
     },
   );
+  routeModeSeg.root.classList.add('route-mode-seg');
 
   const routePieceSeg = segmented<RoutePiece>(
     // Пустой label: seg-btn получает не текст, а рисунок фигуры — см. ниже.
