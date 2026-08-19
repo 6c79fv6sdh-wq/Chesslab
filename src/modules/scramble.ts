@@ -338,8 +338,8 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
         const cands = await maiaCandidates(fenOf(pos), def.net!, width);
         if (!running || pos.turn !== botColor()) return;
         move = tryUci(sampleByTemperature(cands, def.temperature ?? 0, rnd, width));
-      } catch (e) {
-        engineStatusEl.textContent = `Maia не запустилась (${(e as Error).message}), играю движком.`;
+      } catch {
+        engineStatusEl.textContent = 'Не получилось поднять соперника — играю попроще.';
       }
     }
 
@@ -350,8 +350,8 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
         const blindMove = await chooseBlindMove(analyser, pos, def.blindProfile ?? BEGINNER_PROFILE, rnd);
         if (!running || pos.turn !== botColor()) return;
         move = blindMove;
-      } catch (e) {
-        engineStatusEl.textContent = `Движок недоступен, играю простым ботом: ${(e as Error).message}`;
+      } catch {
+        engineStatusEl.textContent = 'Основной режим сейчас недоступен — играю попроще.';
       }
     }
 
@@ -365,8 +365,8 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
         const uci = await engine.bestMove(fenOf(pos), { movetimeMs: Math.round(budget) });
         if (!running || pos.turn !== botColor()) return;
         move = tryUci(uci);
-      } catch (e) {
-        engineStatusEl.textContent = `Движок недоступен, играю простым ботом: ${(e as Error).message}`;
+      } catch {
+        engineStatusEl.textContent = 'Основной режим сейчас недоступен — играю попроще.';
       }
     }
 
@@ -500,8 +500,8 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
     const parts = [def.note];
     if (def.kind === 'maia' && !maiaAvailable()) {
       parts.push(
-        'Сейчас недоступен: для него нужна изоляция страницы. Перезагрузи вкладку — ',
-        'после обновления она включается сама. До этого сыграю движком.',
+        'Сейчас недоступен на этом устройстве. Перезагрузи вкладку — обычно после ',
+        'этого он появляется. А пока сыграю за него попроще.',
       );
     }
     botNoteEl.textContent = parts.join(' ');
@@ -543,16 +543,16 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
 
   async function prepareEngines(def: BotDef): Promise<void> {
     if (def.kind === 'maia' && maiaAvailable()) {
-      promptEl.textContent = 'Загружаю Maia…';
+      promptEl.textContent = 'Загружаю соперника…';
       try {
         await warmUpMaia();
         return;
-      } catch (e) {
-        engineStatusEl.textContent = `Maia не загрузилась: ${(e as Error).message}`;
+      } catch {
+        engineStatusEl.textContent = 'Не получилось загрузить соперника — играю попроще.';
       }
     }
     if (engineSupported()) {
-      promptEl.textContent = 'Загружаю движок…';
+      promptEl.textContent = 'Загружаю соперника…';
       try {
         await sharedEngine().start();
         // «Слепой» бот (kind: 'blind') слабеет не через UCI_Elo — там сила
@@ -562,8 +562,8 @@ export function mountScramble(root: HTMLElement, ctx: AppContext): Unmount {
         const elo = def.kind === 'stockfish' ? (def.elo ?? null) : def.kind === 'blind' ? null : 1400;
         await sharedEngine().setStrength(elo);
         await sharedEngine().newGame();
-      } catch (e) {
-        engineStatusEl.textContent = `Движок не загрузился, играю простым ботом: ${(e as Error).message}`;
+      } catch {
+        engineStatusEl.textContent = 'Не получилось загрузить соперника — играю попроще.';
       }
     }
   }
