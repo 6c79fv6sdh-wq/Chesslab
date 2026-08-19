@@ -67,7 +67,7 @@ interface Tab {
 const TRAINING_TABS: Tab[] = [
   { id: 'today', label: 'Сегодня', mount: mountToday },
   { id: 'motorics', label: 'Моторика', mount: mountMotorics },
-  { id: 'premove', label: 'Premove', mount: mountPremove },
+  { id: 'premove', label: 'Премувы', mount: mountPremove },
   { id: 'reaction', label: 'Тактика', mount: mountReaction },
   { id: 'openings', label: 'Дебюты', mount: mountOpenings },
 ];

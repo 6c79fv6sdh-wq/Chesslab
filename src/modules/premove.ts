@@ -34,7 +34,7 @@ export interface DifficultySpec {
   thinkMinMs: number;
   /** Разброс сверх нижней границы, мс. */
   thinkJitterMs: number;
-  /** Сколько даётся на снятие premove в задании «cancel», мс. */
+  /** Сколько даётся на снятие премува в задании «cancel», мс. */
   cancelMs: number;
   hint: string;
 }
@@ -53,7 +53,7 @@ export const DIFFICULTIES: Record<Difficulty, DifficultySpec> = {
     thinkMinMs: 4500,
     thinkJitterMs: 1000,
     cancelMs: 5000,
-    hint: 'Около 5 секунд на поиск хода и premove — можно спокойно посчитать.',
+    hint: 'Около 5 секунд на поиск хода и премув — можно спокойно посчитать.',
   },
   pro: {
     label: 'Профи',
@@ -75,9 +75,9 @@ interface Attempt {
   positionId: string;
   mode: PremoveMode;
   correct: boolean;
-  /** Время постановки premove от показа позиции, мс. */
+  /** Время постановки премува от показа позиции, мс. */
   setLatencyMs: number | null;
-  /** Время снятия premove от появления неожиданного хода, мс. */
+  /** Время снятия премува от появления неожиданного хода, мс. */
   cancelLatencyMs: number | null;
   /** Решение пользователя: поставил, пропустил, снял, не снял. */
   action: 'set' | 'skip' | 'cancelled' | 'not-cancelled' | 'wrong-move';
@@ -107,7 +107,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   let sessionDifficulty: Difficulty = difficulty;
   const cameFromPlan = consumePlanNavigation();
 
-  root.append(el('h1', {}, ['Premove']));
+  root.append(el('h1', {}, ['Премувы']));
 
   const boardHost = el('div', { class: 'board-host' });
   const board = new Board(boardHost, {
@@ -151,7 +151,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   function paint(p: Chess, position: PremovePosition, lastMove?: Key[]): void {
     const userToMove = p.turn === position.userColor;
     // movableColor задаём ВСЕГДА, даже когда ходит соперник: Chessground
-    // разрешает premove только если movable.color совпадает с цветом фигуры.
+    // разрешает премув только если movable.color совпадает с цветом фигуры.
     // Обычный ход при этом всё равно заблокирован, потому что isMovable
     // дополнительно требует turnColor === цвет фигуры.
     board.setPosition({
@@ -178,7 +178,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     if (!current || resolved) return;
     premoveSetAt = performance.now();
     premoveUci = `${orig}${dest}`;
-    verdictEl.textContent = `Premove ${orig}${dest} поставлен.`;
+    verdictEl.textContent = `Премув ${orig}${dest} поставлен.`;
     verdictEl.className = 'prompt';
   }
 
@@ -230,7 +230,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
       case 'forced-capture':
         return `Играешь ${side}. Соперник вот-вот сыграет ${position.expectedSan}. Поставь ответное взятие заранее.`;
       case 'safe-unsafe':
-        return `Играешь ${side}. Реши: ставить premove или осознанно пропустить.`;
+        return `Играешь ${side}. Реши: ставить премув или осознанно пропустить.`;
       case 'cancel':
         return `Играешь ${side}. Ставь ожидаемый ответ, но будь готов снять его.`;
     }
@@ -251,12 +251,12 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     const to = uci.slice(2, 4) as Key;
 
     if (isCancelTask) {
-      // Неожиданный ход: premove надо снять как можно быстрее.
+      // Неожиданный ход: премув надо снять как можно быстрее.
       awaitingCancel = true;
       paint(after, position, [from, to]);
-      promptEl.textContent = `Соперник сыграл неожиданно: ${position.unexpectedSan}. Снимай premove!`;
+      promptEl.textContent = `Соперник сыграл неожиданно: ${position.unexpectedSan}. Снимай премув!`;
       if (!board.hasPremove() && !premoveUci) {
-        // Premove не ставился — засчитывать нечего.
+        // Премув не ставился — засчитывать нечего.
         finishCancel(false, 'no-premove', premoveUci);
         return;
       }
@@ -274,7 +274,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     // premoveUci раньше, чем evaluate() успеет его прочитать, и любой
     // верно поставленный премув засчитается как «не поставлен».
     const premoveAtMove = premoveUci;
-    // Даём Chessground проиграть premove — так же, как это происходит на Lichess.
+    // Даём Chessground проиграть премув — так же, как это происходит на Lichess.
     const played = board.playPremove();
     later(() => evaluate(played, premoveAtMove), 60);
   }
@@ -289,7 +289,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     let action: Attempt['action'];
 
     if (!premoveUciAtMove) {
-      // Пользователь пропустил ход. Верно, если premove тут и не нужен.
+      // Пользователь пропустил ход. Верно, если премув тут и не нужен.
       correct = !position.shouldPremove;
       action = 'skip';
     } else if (!position.shouldPremove) {
@@ -359,14 +359,14 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
 
   function verdictText(a: Attempt): string {
     if (a.mode === 'cancel') {
-      if (a.action === 'skip') return 'Premove не ставился, снимать было нечего.';
+      if (a.action === 'skip') return 'Премув не ставился, снимать было нечего.';
       return a.correct
         ? `Снято за ${fmtMs(a.cancelLatencyMs)}.`
-        : 'Premove не снят — на доске остался чужой ход.';
+        : 'Премув не снят — на доске остался чужой ход.';
     }
-    if (a.action === 'skip') return a.correct ? 'Верный пропуск.' : 'Здесь надо было ставить premove.';
+    if (a.action === 'skip') return a.correct ? 'Верный пропуск.' : 'Здесь надо было ставить премув.';
     if (a.action === 'wrong-move') return 'Не тот ход.';
-    return a.correct ? `Верно, за ${fmtMs(a.setLatencyMs)}.` : 'Здесь premove ставить не стоило.';
+    return a.correct ? `Верно, за ${fmtMs(a.setLatencyMs)}.` : 'Здесь премув ставить не стоило.';
   }
 
   /** Тот же расчёт, что в motorics.ts: без старта — пусто, после финиша — заморожено. */
@@ -378,7 +378,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   /**
    * Единый вид результатов — как в motorics.ts, reaction.ts и openings.ts.
    * «Скорость» — та же приоритетная задержка, что и в сводке «Прогресса»
-   * (см. primaryLatency в data-summary.ts): для снятого premove важно
+   * (см. primaryLatency в data-summary.ts): для снятого премува важно
    * время снятия, иначе — время постановки.
    */
   function renderLive(): void {
@@ -447,7 +447,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     }
   }
 
-  // --- Снятие premove: кнопка, пробел, Esc, правая кнопка мыши.
+  // --- Снятие премува: кнопка, пробел, Esc, правая кнопка мыши.
   function cancelPremoveByUser(): void {
     if (!board.hasPremove() && !premoveUci) return;
     // board.cancelPremove() обычно уже вызывает onPremoveUnset() синхронно
@@ -461,7 +461,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     if (awaitingCancel) finishCancel(true, undefined, uciAtCancel);
   }
 
-  const cancelBtn = el('button', { class: 'btn danger', type: 'button' }, ['Снять premove']);
+  const cancelBtn = el('button', { class: 'btn danger', type: 'button' }, ['Снять премув']);
   cancelBtn.addEventListener('click', cancelPremoveByUser);
 
   const onKey = (e: KeyboardEvent) => {
@@ -556,7 +556,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
           el('div', { class: 'row' }, [startBtn, stopBtn, cancelBtn]),
           commentEl,
           el('p', { class: 'hint' }, [
-            'Снять premove: кнопка, пробел, Esc или правая кнопка мыши.',
+            'Снять премув: кнопка, пробел, Esc или правая кнопка мыши.',
           ]),
           planNextHost,
         ]),

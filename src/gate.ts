@@ -21,7 +21,7 @@ interface Slide {
 const SLIDES: Slide[] = [
   {
     src: './showcase/premove.webp',
-    title: 'Premove',
+    title: 'Премувы',
     caption: 'Форсированное взятие, safe/unsafe и отмена — сотни реальных позиций из партий мастеров.',
   },
   {
@@ -392,7 +392,7 @@ export function mountGate(onUnlock: () => void, initialError?: string): void {
       el('p', { class: 'hero-lead' }, [
         'Тренажеры скорости, внимания и принятия решений в шахматах',
       ]),
-      el('p', { class: 'hero-modules' }, ['Моторика · Тактика · Premove · Дебюты · Спарринг']),
+      el('p', { class: 'hero-modules' }, ['Моторика · Тактика · Премувы · Дебюты · Спарринг']),
     ]),
     panel('Тренировочные модули', [buildGallery(SLIDES)]),
     panel('Прогресс', [buildProgressBlock()]),

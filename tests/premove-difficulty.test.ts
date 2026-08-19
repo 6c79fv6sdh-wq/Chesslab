@@ -4,9 +4,9 @@ import { DIFFICULTIES, type Difficulty } from '../src/modules/premove';
 /**
  * «Профи» — это тот самый темп, что был до появления переключателя
  * сложности. Его значения зафиксированы тестом: поменяв их, мы молча
- * оборвём сравнимость со всеми ранее записанными сессиями premove.
+ * оборвём сравнимость со всеми ранее записанными сессиями премувов.
  */
-describe('Premove: режимы сложности', () => {
+describe('Премувы: режимы сложности', () => {
   it('«Профи» — прежние 1,2–2,2 с на ход и 3 с на снятие', () => {
     expect(DIFFICULTIES.pro.thinkMinMs).toBe(1200);
     expect(DIFFICULTIES.pro.thinkMinMs + DIFFICULTIES.pro.thinkJitterMs).toBe(2200);

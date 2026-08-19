@@ -50,7 +50,7 @@ const CORE: PlanStep = {
 const ROTATION: PlanStep[] = [
   {
     module: 'premove',
-    label: 'Premove',
+    label: 'Премувы',
     detail: 'Заготовка ответа: форсированное взятие',
     tab: 'premove',
   },

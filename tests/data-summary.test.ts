@@ -109,7 +109,7 @@ describe('сводка по модулю', () => {
 
   it('сводка верхнего уровня показывает только непустые модули', () => {
     const rows = summarizeAll(data);
-    expect(rows.map((r) => r.key)).toEqual(['Premove', 'Тактика']);
+    expect(rows.map((r) => r.key)).toEqual(['Премувы', 'Тактика']);
   });
 });
 
