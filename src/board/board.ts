@@ -1,6 +1,7 @@
 import { Chessground } from 'chessground';
 import type { Api } from 'chessground/api';
 import type { Config } from 'chessground/config';
+import type { DrawBrushes } from 'chessground/draw';
 import type { Color, Key, Dests } from 'chessground/types';
 import { BOARD_SIZE_MAX, BOARD_HEIGHT_RESERVE, fitBoardSize } from '../core/settings';
 
@@ -21,6 +22,30 @@ import './board.css';
  */
 
 export type InputMode = 'select' | 'drag' | 'both';
+
+/**
+ * Разметка правой кнопкой — кольца и стрелки поверх доски, как в Lichess:
+ * зажал правую кнопку и потянул — стрелка; отпустил на той же клетке —
+ * кольцо. Shift/Ctrl переключают на второй цвет, Alt/Meta — на третий,
+ * оба вместе — на четвёртый (это делает сам Chessground, см. draw.ts);
+ * имена ключей (green/red/blue/yellow) исторические — Chessground ждёт
+ * их именно такими, но цвета здесь свои, под приборный тёмно-зелёный
+ * стиль приложения, а не стоковые лайшесовские.
+ *
+ * Цвета — те же токены, что и в styles.css (--accent-hi/--danger/
+ * --accent2/--warn): одна палитра на всё приложение, а не отдельная
+ * для разметки доски. lineWidth снижен с дефолтных 10 до 7 — тоньше,
+ * спокойнее, ближе к чертежу, чем к маркеру; opacity — стабильно
+ * высокая (а не 0.6 по умолчанию), потому что разметку часто показывают
+ * с расстояния — на проекторе или через шеринг экрана, — там бледная
+ * линия просто не читается.
+ */
+const DRAW_BRUSHES: DrawBrushes = {
+  green: { key: 'green', color: '#26a473', opacity: 0.9, lineWidth: 7 },
+  red: { key: 'red', color: '#a63d3d', opacity: 0.9, lineWidth: 7 },
+  blue: { key: 'blue', color: '#4a90c4', opacity: 0.9, lineWidth: 7 },
+  yellow: { key: 'yellow', color: '#d9a05b', opacity: 0.9, lineWidth: 7 },
+};
 
 /**
  * Высота окна, не дёргающаяся от адресной строки Safari.
@@ -187,7 +212,16 @@ export class Board {
         deleteOnDropOff: false,
       },
       selectable: { enabled: o.inputMode !== 'drag' },
-      drawable: { enabled: false },
+      drawable: {
+        enabled: true,
+        visible: true,
+        defaultSnapToValidMove: true,
+        // Левый клик стирает разметку — тот же приём, что у Lichess: рисуешь
+        // объяснение правой кнопкой, а любой обычный ход или клик левой
+        // (в том числе выбор фигуры) стирает её сам, вручную очищать не надо.
+        eraseOnClick: true,
+        brushes: DRAW_BRUSHES,
+      },
       events: {
         select: (key) => this.opts.onSelect?.(key),
       },
