@@ -1627,6 +1627,175 @@ code {
   font-size: 11px;
 }
 
+/* --- «Скан конём»: четыре мини-доски ----------------------------------- */
+
+.ks-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg-strong);
+  margin: 0 0 6px;
+}
+
+.ks-counter {
+  margin: 0 0 10px;
+}
+
+/*
+ * Один ряд из четырёх на широком экране, 2×2 на узком — порог 720px,
+ * не стандартные 520px: даже планшет в портретной ориентации слишком
+ * узок для четырёх полноразмерных досок в ряд, там квадраты выходят
+ * мельче, чем на телефонной сетке 2×2.
+ */
+.ks-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+@media (max-width: 720px) {
+  .ks-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+/* Тот же кант, что у главной доски (.hl-board) — тёмная кромка и светлая
+   фаска тенью, не border, — просто в меньшем масштабе. */
+.ks-board {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.75),
+    0 0 0 2px rgba(255, 255, 255, 0.07),
+    0 14px 30px -20px rgba(0, 0, 0, 0.9);
+  transition: box-shadow 0.15s;
+}
+
+.ks-board:focus-visible {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.75),
+    0 0 0 2px var(--accent-hi),
+    0 14px 30px -20px rgba(0, 0, 0, 0.9);
+}
+
+.ks-sq {
+  position: relative;
+}
+
+.ks-sq-light {
+  background: var(--sq-light);
+}
+
+.ks-sq-dark {
+  background: var(--sq-dark);
+}
+
+/* Номер доски — подсказка про клавиши 1–4, не решение задания: сама по
+   себе не выдаёт, где верный ответ, поэтому не конфликтует с запретом на
+   линии/стрелки/подсказки во время решения. */
+.ks-index {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  opacity: 0.55;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ks-piece {
+  position: absolute;
+  inset: 9%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  pointer-events: none;
+}
+
+/* Конь и препятствия — один и тот же белый cburnett-набор, что и на
+   настоящей доске (см. KNIGHT_SCAN_KNIGHT_ICON/KNIGHT_SCAN_OBSTACLE_ICON):
+   различает их силуэт (конь/пешка), не цвет — обе фигуры «свои». */
+.ks-obstacle {
+  opacity: 0.92;
+}
+
+/* Кольцо с точкой в центре — цель обозначена не только цветом: форма
+   читается даже теми, кто плохо различает зелёный, и не теряется, когда
+   на цель в конце пути ложится ещё и пронумерованная точка маршрута. */
+.ks-target-ring {
+  position: absolute;
+  inset: 16%;
+  border: 2px solid var(--accent-hi);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.ks-target-ring::after {
+  content: '';
+  position: absolute;
+  inset: 36%;
+  border-radius: 999px;
+  background: var(--accent-hi);
+}
+
+/* Пронумерованные точки маршрута — только в 800 мс показа ответа после
+   ошибки, никогда во время решения. Без линий и стрелок: точки на самих
+   клетках маршрута, лучше маленького текста «шаг N» и не выглядят как
+   готовая подсказка-стрелка. */
+.ks-path-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44%;
+  height: 44%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--fg-strong);
+  color: var(--well);
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.ks-flash-ok {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.75),
+    0 0 0 3px var(--ok),
+    0 0 22px 2px var(--accent-glow);
+}
+
+.ks-flash-bad {
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.75),
+    0 0 0 3px var(--danger),
+    0 0 18px 2px rgba(166, 61, 61, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ks-board {
+    transition: none;
+  }
+}
+
 /* --- «Сегодня»: назначенная тренировка -------------------------------- */
 
 .plan-count {

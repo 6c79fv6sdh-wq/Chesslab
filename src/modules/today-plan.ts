@@ -110,6 +110,13 @@ const MOTORICS_REPS = 30;
 const PREMOVE_TASKS = 8;
 const REACTION_TASKS = 10;
 const OPENINGS_LINES = 4;
+/**
+ * У «Скана конём» (тоже 'reaction', mode 'knight-scan') зачётных заданий
+ * не 10, а KNIGHT_SCAN_SCORED из knight-scan-logic.ts — дублируем и это
+ * число по той же причине, что и остальные: обратный импорт сюда дал бы
+ * цикл. Совпадение проверяет tests/today-plan.test.ts.
+ */
+const KNIGHT_SCAN_TASKS = 20;
 
 /**
  * Модуль засчитан за день только при полноценном завершении сессии — не
@@ -126,7 +133,7 @@ export function sessionIsComplete(s: SessionRecord): boolean {
     case 'premove':
       return num(s.summary.attempts) === PREMOVE_TASKS;
     case 'reaction':
-      return num(s.summary.attempts) === REACTION_TASKS;
+      return num(s.summary.attempts) === (s.mode === 'knight-scan' ? KNIGHT_SCAN_TASKS : REACTION_TASKS);
     case 'openings':
       return num(s.summary.linesDone) === OPENINGS_LINES;
     case 'scramble':

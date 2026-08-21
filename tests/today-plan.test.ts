@@ -39,13 +39,13 @@ function completeSummary(module: ModuleId): Record<string, number | string | nul
 function session(
   module: ModuleId,
   startedAt: number,
-  opts: { ended?: boolean; summary?: Record<string, number | string | null> } = {},
+  opts: { ended?: boolean; summary?: Record<string, number | string | null>; mode?: string } = {},
 ): SessionRecord {
   const ended = opts.ended ?? true;
   return {
     id: `${module}-${startedAt}-${Math.random().toString(36).slice(2)}`,
     module,
-    mode: 'test',
+    mode: opts.mode ?? 'test',
     startedAt,
     endedAt: ended ? startedAt + 60_000 : null,
     calibration: DEFAULT_CALIBRATION,
@@ -151,6 +151,18 @@ describe('sessionIsComplete: реальные критерии полного п
     // Модули не путают чужие пороги: 8 заданий (порог premove) для
     // реакции (порог 10) сессией не считается.
     expect(sessionIsComplete(session('reaction', 0, { summary: { attempts: PREMOVE_TASKS } }))).toBe(false);
+  });
+
+  it('«Скан конём» (mode knight-scan) — свой порог 20, а не общий реакционный 10', () => {
+    expect(
+      sessionIsComplete(session('reaction', 0, { mode: 'knight-scan', summary: { attempts: 20 } })),
+    ).toBe(true);
+    expect(
+      sessionIsComplete(session('reaction', 0, { mode: 'knight-scan', summary: { attempts: REACTION_TASKS } })),
+    ).toBe(false);
+    // И наоборот: 20 заданий у обычного режима «Тактики» не считаются
+    // завершением — там порог REACTION_TASKS.
+    expect(sessionIsComplete(session('reaction', 0, { summary: { attempts: 20 } }))).toBe(false);
   });
 
   it('дебюты — ровно 4 полные линии, а не количество узлов', () => {

@@ -1,7 +1,8 @@
 import type { AppContext, Unmount } from '../main';
 import { Board } from '../board/board';
-import { el, metric, metrics, panel, segmented } from '../core/ui';
+import { el, metric, metrics, panel, segmented, table } from '../core/ui';
 import { Session, consumePlanNavigation, markPlanNavigation, measuredCalibration } from '../core/session';
+import { allSessions } from '../core/db';
 import { fmtMs, fmtPct, fmtSec, median, p90, plural } from '../core/stats';
 import { stepAfter } from './today-plan';
 import { checkedColor, dests, fenOf, moveFromUci, posFromFen, type Color } from '../core/chess';
@@ -20,6 +21,18 @@ import {
 } from './reaction-logic';
 import { boardRect, keyFromPoint } from './motorics-geometry';
 import type { Key } from 'chessground/types';
+import {
+  KNIGHT_SCAN_KNIGHT_ICON,
+  KNIGHT_SCAN_OBSTACLE_ICON,
+  KNIGHT_SCAN_SCORED,
+  KNIGHT_SCAN_WARMUP,
+  generateKnightScanSession,
+  knightScanMeasurementData,
+  type KnightBoard,
+  type KnightScanLevel,
+  type KnightScanRound,
+  type KnightScanSession,
+} from './knight-scan-logic';
 
 /**
  * 'delta-from'/'delta-to' — раньше было одно упражнение 'delta' со
@@ -29,7 +42,7 @@ import type { Key } from 'chessground/types';
  * упражнения с фиксированным направлением; generateDeltaTask как был,
  * так и остался общим — направление просто передаётся явно.
  */
-export type ReactionExercise = 'free-capture' | 'mate-in-1' | 'safe-check' | 'delta-from' | 'delta-to';
+export type ReactionExercise = 'free-capture' | 'mate-in-1' | 'safe-check' | 'delta-from' | 'delta-to' | 'knight-scan';
 export type Exposure = 'unlimited' | '500' | '300' | '200';
 
 const EXERCISE_LABELS: Record<ReactionExercise, string> = {
@@ -38,6 +51,7 @@ const EXERCISE_LABELS: Record<ReactionExercise, string> = {
   'safe-check': 'Шах',
   'delta-from': 'Откуда',
   'delta-to': 'Куда',
+  'knight-scan': 'Скан конём',
 };
 
 /**
@@ -59,6 +73,7 @@ function promptFor(ex: ReactionExercise, userColor: Color): string {
       return `Играешь ${side}. Найди шах, при котором шахующую фигуру нельзя взять.`;
     case 'delta-from':
     case 'delta-to':
+    case 'knight-scan':
       return '';
   }
 }
@@ -173,6 +188,26 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   const timers: number[] = [];
 
   const rnd = () => Math.random();
+
+  // --- «Скан конём»: механика (четыре мини-доски, BFS, выбор клавишей
+  // 1-4) совсем другая, чем у остальных упражнений «Тактики» — своё
+  // состояние, свои функции, общий только модуль и запись в Session.
+  interface KsAttempt {
+    round: KnightScanRound;
+    chosenIndex: number;
+    correct: boolean;
+    latencyMs: number;
+  }
+  let ksSession: KnightScanSession | null = null;
+  let ksRoundPos = 0;
+  let ksScored = 0;
+  let ksAttempts: KsAttempt[] = [];
+  let ksArmed = false;
+  let ksShownAt = 0;
+  let ksBoardSize = 0;
+  let ksGridWidthAtShow = 0;
+  let ksFeedbackTimer: number | null = null;
+  let ksPhase: 'idle' | 'active' | 'done' = 'idle';
 
   function later(fn: () => void, ms: number): void {
     timers.push(window.setTimeout(fn, ms));
@@ -507,6 +542,314 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     }
   }
 
+  // --- «Скан конём»: четыре мини-доски строятся ОДИН раз при монтировании
+  // и дальше только перекрашиваются (paintKsBoard) — по заданию размеры и
+  // положение досок не должны меняться в течение попытки, а пересоздавать
+  // DOM между заданиями значило бы рисковать этим на каждый кадр.
+  interface KsBoardHandle {
+    root: HTMLElement;
+    squares: HTMLElement[];
+  }
+  const ksBoards: KsBoardHandle[] = [];
+  for (let i = 0; i < 4; i++) {
+    const boardRoot = el('div', { class: 'ks-board', role: 'button', tabindex: '0', 'aria-label': `Доска ${i + 1}` });
+    boardRoot.append(el('span', { class: 'ks-index' }, [String(i + 1)]));
+    const squares: HTMLElement[] = [];
+    for (let sq = 0; sq < 64; sq++) {
+      const file = sq % 8;
+      const rank = Math.floor(sq / 8);
+      const dark = (file + rank) % 2 === 0;
+      const cell = el('div', { class: `ks-sq ${dark ? 'ks-sq-dark' : 'ks-sq-light'}` });
+      boardRoot.append(cell);
+      squares.push(cell);
+    }
+    ksBoards.push({ root: boardRoot, squares });
+  }
+
+  function ksPieceEl(src: string, cls: string): HTMLElement {
+    const s = el('span', { class: `ks-piece ${cls}`, 'aria-hidden': 'true' });
+    s.style.backgroundImage = `url("${src}")`;
+    return s;
+  }
+
+  function paintKsBoard(handle: KsBoardHandle, b: KnightBoard): void {
+    for (const sq of handle.squares) {
+      sq.innerHTML = '';
+      sq.classList.remove('ks-target');
+    }
+    handle.squares[b.knight].append(ksPieceEl(KNIGHT_SCAN_KNIGHT_ICON, 'ks-knight'));
+    for (const obs of b.obstacles) {
+      handle.squares[obs].append(ksPieceEl(KNIGHT_SCAN_OBSTACLE_ICON, 'ks-obstacle'));
+    }
+    const targetEl = handle.squares[b.target];
+    targetEl.classList.add('ks-target');
+    targetEl.append(el('span', { class: 'ks-target-ring', 'aria-hidden': 'true' }));
+  }
+
+  /** Кратчайший путь верной доски, маленькими пронумерованными точками — только как ответ после ошибки. */
+  function showKsPath(handle: KsBoardHandle, path: number[]): void {
+    path.forEach((sq, i) => {
+      if (i === 0) return; // старт уже занят конём — вторая метка там не нужна
+      handle.squares[sq].append(el('span', { class: 'ks-path-dot' }, [String(i)]));
+    });
+  }
+
+  function clearKsFlash(): void {
+    for (const b of ksBoards) b.root.classList.remove('ks-flash-ok', 'ks-flash-bad');
+  }
+
+  const ksTitleEl = el('div', { class: 'ks-title' }, ['Скан конём']);
+  const ksIdleHint = el('p', { class: 'hint' }, [
+    'Четыре мини-доски. На одной кратчайший путь коня до зелёной клетки — ',
+    'ровно нужное число ходов, на остальных длиннее или пути нет вовсе. ',
+    'Выбирай доску кликом или клавишами 1–4.',
+  ]);
+  const ksPromptEl = el('div', { class: 'prompt' }, ['']);
+  const ksCounterEl = el('div', { class: 'ks-counter hint' }, ['']);
+  const ksGrid = el('div', { class: 'ks-grid' }, ksBoards.map((b) => b.root));
+  const ksStartBtn = el('button', { class: 'btn primary', type: 'button' }, ['Старт']);
+  const ksStopBtn = el('button', { class: 'btn', type: 'button' }, ['Прервать']);
+  ksStopBtn.disabled = true;
+  const ksResultsHost = el('div', {});
+
+  /**
+   * Что видно на экране, зависит от фазы: во время самой сессии — по
+   * заданию только название, формулировка, счётчик, доски и «Прервать»;
+   * до и после — ещё подсказка/кнопка «Старт»/результаты.
+   */
+  function renderKsVisibility(): void {
+    const active = ksPhase === 'active';
+    ksIdleHint.style.display = ksPhase === 'idle' ? '' : 'none';
+    ksPromptEl.style.display = active ? '' : 'none';
+    ksCounterEl.style.display = active ? '' : 'none';
+    ksGrid.style.display = active ? '' : 'none';
+    ksResultsHost.style.display = ksPhase === 'done' ? '' : 'none';
+    ksStartBtn.style.display = active ? 'none' : '';
+    ksStartBtn.disabled = active;
+    ksStopBtn.disabled = !active;
+  }
+
+  function updateKsCounter(): void {
+    if (!ksSession) return;
+    const warmup = ksRoundPos < KNIGHT_SCAN_WARMUP;
+    ksCounterEl.textContent = warmup
+      ? `Разминка ${ksRoundPos + 1} / ${KNIGHT_SCAN_WARMUP}`
+      : `Задание ${ksScored + 1} / ${KNIGHT_SCAN_SCORED}`;
+  }
+
+  /** Показать текущий раунд заново, сбросив таймер, — используется и для первого показа, и для перезапуска после сбоя замера. */
+  function showKsRound(): void {
+    if (!ksSession) return;
+    ksArmed = false;
+    clearKsFlash();
+    if (ksFeedbackTimer !== null) {
+      window.clearTimeout(ksFeedbackTimer);
+      ksFeedbackTimer = null;
+    }
+    const round = ksSession.rounds[ksRoundPos];
+    ksBoards.forEach((handle, i) => paintKsBoard(handle, round.boards[i]));
+    const warmup = ksRoundPos < KNIGHT_SCAN_WARMUP;
+    ksPromptEl.textContent =
+      `${warmup ? 'Разминка. ' : ''}Найди доску, где кратчайший путь коня до зелёной клетки ` +
+      `занимает ровно ${round.level} ${plural(round.level, ['ход', 'хода', 'ходов'])}.`;
+    updateKsCounter();
+    // Таймер — только после полной отрисовки всех четырёх досок, кадром
+    // requestAnimationFrame, а не сразу: иначе в замер попало бы и время
+    // на сам рендер разметки, которое от решающего никак не зависит.
+    requestAnimationFrame(() => {
+      if (!ksSession || ksPhase !== 'active') return; // сессию успели прервать, пока ждали кадр
+      ksBoardSize = ksBoards[0].root.getBoundingClientRect().width;
+      ksGridWidthAtShow = ksGrid.getBoundingClientRect().width;
+      ksShownAt = performance.now();
+      ksArmed = true;
+    });
+  }
+
+  /**
+   * Вкладка потеряла фокус или доски перерисовались другого размера —
+   * оба по заданию делают текущий замер не в счёт. Проще всего просто
+   * показать то же самое задание заново: разминочный счётчик/индекс
+   * раунда не сдвигается, значит зачётных замеров в сессии всё равно
+   * наберётся ровно KNIGHT_SCAN_SCORED.
+   */
+  function ksInvalidate(): void {
+    if (!ksSession || !ksArmed) return;
+    showKsRound();
+  }
+
+  function onKsVisibilityChange(): void {
+    if (document.hidden) ksInvalidate();
+  }
+
+  const ksResizeObserver = new ResizeObserver(() => {
+    if (!ksSession || !ksArmed) return;
+    const w = ksGrid.getBoundingClientRect().width;
+    if (Math.abs(w - ksGridWidthAtShow) > 0.5) ksInvalidate();
+  });
+  ksResizeObserver.observe(ksGrid);
+  document.addEventListener('visibilitychange', onKsVisibilityChange);
+
+  function onKsChoose(index: number, pointerType: string, atMs: number): void {
+    if (!ksSession || !ksArmed) return;
+    ksArmed = false;
+    const round = ksSession.rounds[ksRoundPos];
+    const correct = index === round.correctIndex;
+    const latencyMs = atMs - ksShownAt;
+    const warmup = ksRoundPos < KNIGHT_SCAN_WARMUP;
+
+    clearKsFlash();
+    ksBoards[index].root.classList.add(correct ? 'ks-flash-ok' : 'ks-flash-bad');
+    if (!correct) {
+      ksBoards[round.correctIndex].root.classList.add('ks-flash-ok');
+      const correctBoard = round.boards[round.correctIndex];
+      if (correctBoard.path) showKsPath(ksBoards[round.correctIndex], correctBoard.path);
+    }
+
+    if (!warmup) {
+      const kind = pointerType === 'mouse' || pointerType === 'touch' ? pointerType : 'keyboard';
+      const data = knightScanMeasurementData({
+        round,
+        chosenIndex: index,
+        latencyMs,
+        pointerType: kind,
+        boardSize: ksBoardSize,
+        seed: ksSession.seed,
+      });
+      ksAttempts.push({ round, chosenIndex: index, correct, latencyMs });
+      void session?.record(data);
+      ksScored++;
+    }
+
+    // Верно — «кратко подсвечивается», сразу следующее; неверно — 800 мс
+    // на показ правильного пути, как в задании.
+    ksFeedbackTimer = window.setTimeout(
+      () => {
+        ksFeedbackTimer = null;
+        ksRoundPos++;
+        if (!ksSession || ksRoundPos >= ksSession.rounds.length) {
+          void finishKnightScan();
+          return;
+        }
+        showKsRound();
+      },
+      correct ? 260 : 800,
+    );
+  }
+
+  function onKsKeydown(e: KeyboardEvent): void {
+    if (ksPhase !== 'active') return;
+    const idx = ['1', '2', '3', '4'].indexOf(e.key);
+    if (idx === -1) return;
+    onKsChoose(idx, 'keyboard', performance.now());
+  }
+  document.addEventListener('keydown', onKsKeydown);
+
+  ksBoards.forEach((handle, i) => {
+    handle.root.addEventListener('pointerdown', (e) => onKsChoose(i, e.pointerType || 'mouse', performance.now()));
+  });
+
+  function startKnightScan(): void {
+    ksSession = generateKnightScanSession(rnd);
+    ksRoundPos = 0;
+    ksScored = 0;
+    ksAttempts = [];
+    ksPhase = 'active';
+    planNextHost.innerHTML = '';
+    // Главная доска (board.size) в «Скане» не участвует — размер мини-досок
+    // фиксируется отдельно в каждом замере (см. knightScanMeasurementData).
+    session = new Session('reaction', 'knight-scan', cal);
+    renderKsVisibility();
+    showKsRound();
+  }
+
+  async function finishKnightScan(): Promise<void> {
+    if (ksFeedbackTimer !== null) {
+      window.clearTimeout(ksFeedbackTimer);
+      ksFeedbackTimer = null;
+    }
+    ksArmed = false;
+    ksPhase = 'done';
+
+    const byLevel = (lvl: KnightScanLevel) => ksAttempts.filter((a) => a.round.level === lvl);
+    const accOf = (arr: KsAttempt[]): number | null => (arr.length ? arr.filter((a) => a.correct).length / arr.length : null);
+    const medOf = (arr: KsAttempt[]): number | null => median(arr.filter((a) => a.correct).map((a) => a.latencyMs));
+    const correctAttempts = ksAttempts.filter((a) => a.correct);
+
+    const summary: Record<string, number | string | null> = {
+      attempts: ksAttempts.length,
+      accuracy: accOf(ksAttempts),
+      medianMs: medOf(ksAttempts),
+      p90Ms: p90(correctAttempts.map((a) => a.latencyMs)),
+      errors: ksAttempts.length - correctAttempts.length,
+      accuracyN2: accOf(byLevel(2)),
+      medianN2: medOf(byLevel(2)),
+      accuracyN3: accOf(byLevel(3)),
+      medianN3: medOf(byLevel(3)),
+      accuracyN4: accOf(byLevel(4)),
+      medianN4: medOf(byLevel(4)),
+      seed: ksSession?.seed ?? null,
+    };
+
+    const finishedId = session?.id ?? null;
+    await session?.finish(summary);
+    session = null;
+    ksSession = null;
+    await renderKsResults(summary, finishedId);
+    renderKsVisibility();
+  }
+
+  /** Сводка по сессии + сравнение с предыдущей сессией «Скана конём» на этом же устройстве (по активному профилю). */
+  async function renderKsResults(summary: Record<string, number | string | null>, finishedId: string | null): Promise<void> {
+    ksResultsHost.innerHTML = '';
+    const num = (v: unknown): number | null => (typeof v === 'number' ? v : null);
+    const all = await allSessions();
+    const prev =
+      all
+        .filter((s) => s.module === 'reaction' && s.mode === 'knight-scan' && s.id !== finishedId)
+        .sort((a, b) => b.startedAt - a.startedAt)[0] ?? null;
+    const prevAcc = prev ? num(prev.summary.accuracy) : null;
+    const prevMed = prev ? num(prev.summary.medianMs) : null;
+
+    const compare = (cur: number | null, prevV: number | null, fmt: (v: number | null) => string): string => {
+      if (!prev) return 'первая сессия «Скана конём»';
+      if (cur === null || prevV === null) return '';
+      const diffIsBetterAccuracy = fmt === fmtPct ? cur >= prevV : cur <= prevV;
+      return `было ${fmt(prevV)} · ${diffIsBetterAccuracy ? 'лучше' : 'хуже'} прошлой сессии`;
+    };
+
+    const errors = num(summary.errors) ?? 0;
+    ksResultsHost.append(
+      metrics([
+        metric('Точность', fmtPct(num(summary.accuracy)), compare(num(summary.accuracy), prevAcc, fmtPct)),
+        metric('Медиана', fmtMs(num(summary.medianMs)), compare(num(summary.medianMs), prevMed, fmtMs)),
+        metric('P90', fmtMs(num(summary.p90Ms))),
+      ]),
+      el('p', { class: 'hint metrics-note' }, [
+        `${errors} ${plural(errors, ['ошибка', 'ошибки', 'ошибок'])} из ${KNIGHT_SCAN_SCORED}`,
+      ]),
+      table(
+        ['Сложность', 'Точность', 'Медиана'],
+        ([2, 3, 4] as KnightScanLevel[]).map((lvl) => [
+          `N = ${lvl}`,
+          fmtPct(num(summary[`accuracyN${lvl}`])),
+          fmtMs(num(summary[`medianN${lvl}`])),
+        ]),
+      ),
+    );
+  }
+
+  ksStartBtn.addEventListener('click', () => startKnightScan());
+  ksStopBtn.addEventListener('click', () => {
+    if (ksSession) void finishKnightScan();
+  });
+
+  function updateExerciseVisibility(): void {
+    const isKs = exercise === 'knight-scan';
+    timingControlsHost.style.display = isKs ? 'none' : '';
+    boardArea.style.display = isKs ? 'none' : '';
+    ksArea.style.display = isKs ? '' : 'none';
+  }
+
   const exerciseSeg = segmented<ReactionExercise>(
     (Object.keys(EXERCISE_LABELS) as ReactionExercise[]).map((k) => ({
       value: k,
@@ -516,6 +859,7 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
     (v) => {
       exercise = v;
       if (!session) promptEl.textContent = `${EXERCISE_LABELS[v]}. Нажми «Старт».`;
+      updateExerciseVisibility();
     },
   );
 
@@ -570,38 +914,59 @@ export function mountReaction(root: HTMLElement, ctx: AppContext): Unmount {
   board.setOptions({ onMove });
   board.wrap.addEventListener('pointerdown', onPointerDown);
 
+  // Показ фигур/лимит времени управляют экспозицией на настоящей доске —
+  // «Скану конём» они не нужны вовсе (ни доски, ни хода фигурой), поэтому
+  // прячутся вместе с board-area, а не просто становятся неактивными.
+  const boardArea = el('div', { class: 'board-area' }, [
+    boardHost,
+    el('div', { class: 'side' }, [
+      promptEl,
+      verdictEl,
+      liveStats,
+      el('div', { class: 'row' }, [startBtn, stopBtn]),
+      planNextHost,
+    ]),
+  ]);
+
+  const ksArea = el('div', { class: 'ks-area' }, [
+    ksTitleEl,
+    ksIdleHint,
+    ksPromptEl,
+    ksCounterEl,
+    ksGrid,
+    el('div', { class: 'row' }, [ksStartBtn, ksStopBtn]),
+    ksResultsHost,
+  ]);
+
+  const timingControlsHost = el('div', {}, [
+    el('div', { class: 'row' }, [el('label', {}, ['Показ фигур']), exposureSeg.root]),
+    el('div', { class: 'row' }, [el('label', {}, ['Лимит времени']), timeLimitSeg.root]),
+    el('p', { class: 'hint' }, [
+      'Показ фигур — сколько времени видно позицию: после этого фигуры ',
+      'скрываются, и решение идёт по памяти. Лимит времени — сколько ',
+      'всего даётся на ответ: не успел, задание засчитывается как ',
+      'несделанное. Настройки независимы.',
+    ]),
+  ]);
+
   root.append(
-    panel('Упражнение', [
-      exerciseSeg.root,
-      el('div', { class: 'row' }, [el('label', {}, ['Показ фигур']), exposureSeg.root]),
-      el('div', { class: 'row' }, [el('label', {}, ['Лимит времени']), timeLimitSeg.root]),
-      el('p', { class: 'hint' }, [
-        'Показ фигур — сколько времени видно позицию: после этого фигуры ',
-        'скрываются, и решение идёт по памяти. Лимит времени — сколько ',
-        'всего даётся на ответ: не успел, задание засчитывается как ',
-        'несделанное. Настройки независимы.',
-      ]),
-    ]),
-    panel('Тренировка', [
-      el('div', { class: 'board-area' }, [
-        boardHost,
-        el('div', { class: 'side' }, [
-          promptEl,
-          verdictEl,
-          liveStats,
-          el('div', { class: 'row' }, [startBtn, stopBtn]),
-          planNextHost,
-        ]),
-      ]),
-    ]),
+    panel('Упражнение', [exerciseSeg.root, timingControlsHost]),
+    panel('Тренировка', [boardArea, ksArea]),
   );
 
+  updateExerciseVisibility();
+  renderKsVisibility();
   renderLive();
 
   return () => {
     clearTimers();
     board.wrap.removeEventListener('pointerdown', onPointerDown);
-    if (session) void finish();
+    if (ksFeedbackTimer !== null) window.clearTimeout(ksFeedbackTimer);
+    document.removeEventListener('keydown', onKsKeydown);
+    document.removeEventListener('visibilitychange', onKsVisibilityChange);
+    ksResizeObserver.disconnect();
+    if (ksSession) void finishKnightScan();
+    else if (session) void finish();
     board.destroy();
   };
 }
