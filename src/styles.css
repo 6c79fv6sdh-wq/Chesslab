@@ -285,6 +285,8 @@ body {
  * отдельная форма (круг вместо плашки) сама по себе говорит, что это
  * не ещё одно занятие, а служебное действие. Кружок того же диаметра,
  * что стрелки карусели на витрине (.carousel-arrow) — тот же приём.
+ * 44px — не произвольное число: минимальная тач-зона по рекомендациям
+ * Apple HIG и WCAG 2.5.5, меньше — легко промахнуться пальцем.
  */
 .icon-btn {
   margin-left: auto;
@@ -292,8 +294,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   background: transparent;
   color: var(--fg);
   border: 1px solid var(--border);
@@ -1187,6 +1189,11 @@ code {
   width: 100%;
   height: auto;
   aspect-ratio: 560 / 257;
+  /* object-fit: cover — страховка, а не обязательное условие: исходники
+     уже обрезаны под 560:257 (см. скрипт генерации в public/showcase),
+     но без этого случайное несовпадение сторон растянуло бы картинку
+     вместо аккуратной обрезки. */
+  object-fit: cover;
 }
 
 .carousel-slide figcaption {
@@ -1222,14 +1229,22 @@ code {
   gap: 14px;
 }
 
+/* 44px — минимальная тач-зона (Apple HIG/WCAG 2.5.5); раньше было 34px,
+   на телефоне легко промахнуться мимо стрелки.
+   flex-shrink: 0 обязателен: .carousel-controls — flex-строка, и без
+   этого при узком экране (стрелки + 6 точек не помещаются в 340px карты)
+   браузер сжимал именно стрелки — вплоть до ~20px шириной — а не точки.
+   Стрелки — главная навигация и не должны ужиматься; сжиматься уступает
+   .carousel-dots, у которой на то есть запас (see .carousel-dot). */
 .carousel-arrow {
   background: var(--panel2);
   color: var(--fg-strong);
   border: 1px solid var(--border);
   border-radius: 999px;
-  width: 34px;
-  height: 34px;
-  font-size: 17px;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
@@ -1243,21 +1258,47 @@ code {
 .carousel-dots {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 2px;
+  /* min-width:0 — иначе классическая ловушка flexbox: у вложенного
+     flex-контейнера min-width по умолчанию 'auto', то есть он не
+     сжимается ниже своего естественного content-width (274px для 6
+     точек по 44px), и весь дефицит места в .carousel-controls уходит
+     на соседей вместо него. С min-width:0 точки честно уступают место
+     стрелкам (flex-shrink:0, см. .carousel-arrow) и сжимаются сами. */
+  min-width: 0;
 }
 
+/*
+ * Сама точка остаётся маленькой (7px, ::before) — это просто индикатор
+ * позиции, ей не нужно быть заметной кнопкой. Но нажимать на неё должно
+ * быть можно без ювелирной точности: кнопка растягивается до 44×44
+ * невидимым хитбоксом вокруг точки, а не самой точкой.
+ */
 .carousel-dot {
-  width: 7px;
-  height: 7px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: none;
-  border-radius: 999px;
-  background: var(--border);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.carousel-dot.active {
+.carousel-dot::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: background-color 0.12s, transform 0.12s;
+}
+
+.carousel-dot.active::before {
   background: var(--accent-hi);
+  transform: scale(1.15);
 }
 
 /* --- Диалог входа: карточка кода доступа ------------------------------ */
@@ -1401,12 +1442,15 @@ code {
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(255, 255, 255, 0.04);
 }
 
+/* 10.5px при opacity 0.5 давали ~2.9:1 контраста на --well — ниже порога
+   WCAG AA для мелкого текста (нужно 4.5:1). 11px/0.75 — тот же приглушённый
+   вид подписи прибора, но ~5.2:1, с запасом. */
 .metric-k {
-  font-size: 10.5px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--fg);
-  opacity: 0.5;
+  opacity: 0.75;
 }
 
 /* Показание прибора набирается моноширинным: цифры одной ширины не
