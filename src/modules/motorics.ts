@@ -1254,6 +1254,11 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
         return;
       }
       exercise = v;
+      // След указателя (.hl-trace) рисует только «Вектор» — при переходе на
+      // «Маршрут» или «Сигнал» слой остаётся смонтированным (он общий на
+      // всю доску Моторики), и без явной очистки прошлая линия так и
+      // висела бы поверх чужого упражнения до следующего повтора «Вектора».
+      clearTrace();
       renderSide();
       renderResultsHost();
     },
