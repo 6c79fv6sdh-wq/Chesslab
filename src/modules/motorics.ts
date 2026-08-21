@@ -405,6 +405,11 @@ export function mountMotorics(root: HTMLElement, ctx: AppContext): Unmount {
     phase = 'done';
     finishedAt = performance.now();
     highlight([]);
+    // Иначе линия последнего повтора так и висела бы на доске в состоянии
+    // «Сессия закончена» — и по «Прервать» на середине, и по обычному
+    // завершению всех REPS повторов: nextRep() чистит след перед каждым
+    // НОВЫМ повтором, но не после последнего.
+    clearTrace();
     promptEl.textContent = 'Сессия закончена. Результат записан.';
     // Заново, уже с замороженным «Общим временем».
     renderLive();
