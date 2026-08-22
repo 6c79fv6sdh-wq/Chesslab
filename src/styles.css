@@ -1796,6 +1796,179 @@ code {
   }
 }
 
+/* --- Snapshot: одна полноразмерная доска + панель фигур ---------------- */
+
+.sn-review-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg-strong);
+  margin: 18px 0 10px;
+}
+
+.sn-board {
+  position: relative;
+  width: min(92vw, 460px);
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 0 0 14px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.75),
+    0 0 0 2px rgba(255, 255, 255, 0.07),
+    0 18px 40px -22px rgba(0, 0, 0, 0.9);
+}
+
+.sn-sq {
+  position: relative;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sn-sq-light {
+  background: var(--sq-light);
+}
+
+.sn-sq-dark {
+  background: var(--sq-dark);
+}
+
+.sn-piece {
+  position: absolute;
+  inset: 6%;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  pointer-events: none;
+}
+
+/* Фигура, которую поставил сам пользователь, — тонкое обводочное кольцо,
+   чтобы отличать от фигур, которые на доске были всегда (их клетка не
+   отвечает на клик, а эту можно снова взять в панель). */
+.sn-piece-user {
+  filter: drop-shadow(0 0 0 var(--accent-hi)) drop-shadow(0 0 2px var(--accent-hi));
+}
+
+.sn-fixation-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: var(--fg-strong);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12);
+}
+
+.sn-mask {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0.55) 6px,
+    rgba(0, 0, 0, 0.4) 6px,
+    rgba(0, 0, 0, 0.4) 12px
+  );
+}
+
+.sn-outline-ok {
+  box-shadow: inset 0 0 0 3px var(--ok);
+}
+
+.sn-outline-bad {
+  box-shadow: inset 0 0 0 3px var(--danger);
+}
+
+.sn-outline-missed {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.45);
+  outline: 2px dashed rgba(255, 255, 255, 0.45);
+  outline-offset: -2px;
+}
+
+.sn-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 14px;
+  min-height: 52px;
+}
+
+.sn-panel-piece {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--well);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.sn-panel-piece .sn-piece {
+  inset: 8%;
+}
+
+.sn-panel-piece-armed {
+  border-color: var(--accent-hi);
+  box-shadow: 0 0 0 2px var(--accent-hi), 0 0 14px 1px var(--accent-glow);
+}
+
+.sn-review-row {
+  margin: 0 0 16px;
+}
+
+.sn-review-label {
+  margin: 0 0 6px;
+}
+
+.sn-review-pair {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.sn-mini-board {
+  width: 168px;
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.75), 0 0 0 2px rgba(255, 255, 255, 0.06);
+}
+
+.sn-mini-sq {
+  position: relative;
+}
+
+.sn-mini-sq-light {
+  background: var(--sq-light);
+}
+
+.sn-mini-sq-dark {
+  background: var(--sq-dark);
+}
+
+.sn-mini-sq .sn-piece {
+  inset: 8%;
+}
+
+@media (max-width: 520px) {
+  .sn-board {
+    width: min(94vw, 380px);
+  }
+  .sn-mini-board {
+    width: 132px;
+  }
+}
+
 /* --- «Сегодня»: назначенная тренировка -------------------------------- */
 
 .plan-count {
