@@ -129,3 +129,127 @@ describe('premove на доске', () => {
     expect(board.api.state.premovable.dests).toBeUndefined();
   });
 });
+
+/**
+ * setPremoveDests/presetPremove — добавлены для режима «Форсированное
+ * взятие» и «Отмена» модуля Premove (src/modules/premove.ts). Штатная
+ * геометрия Chessground для премува (см. node_modules/chessground/dist/
+ * premove.js) считает клетки чисто по форме фигуры — без блокеров на
+ * линии и без учёта позиции ПОСЛЕ ожидаемого хода соперника (связки,
+ * шахи, реально доступные поля). Например, ладья «сквозь» свою фигуру
+ * по геометрии может премувнуть, хотя реально там стоит блокер.
+ * customDests подменяет это точным списком, посчитанным по правилам —
+ * той же функцией dests(), что считает обычные ходы.
+ */
+describe('customDests и presetPremove', () => {
+  it('без customDests штатная геометрия Chessground не видит блокер на линии ладьи', async () => {
+    // Ладья a1, свой конь на b1 — геометрия «сквозь» слепа к блокеру.
+    mount(true);
+    board.setPosition({
+      fen: '4k3/8/8/8/8/8/8/RN2K3 b - - 0 1',
+      orientation: 'white',
+      turnColor: 'black',
+      movableColor: 'white',
+    });
+    await flushRender();
+    board.api.selectSquare('a1');
+    await flushRender();
+    expect(board.api.state.premovable.dests).toContain('c1');
+  });
+
+  it('с customDests из настоящих dests() блокер на линии учитывается', async () => {
+    mount(true);
+    board.setPosition({
+      fen: '4k3/8/8/8/8/8/8/RN2K3 b - - 0 1',
+      orientation: 'white',
+      turnColor: 'black',
+      movableColor: 'white',
+    });
+    board.setPremoveDests(new Map([['a1', ['a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8']]]));
+    await flushRender();
+    board.api.selectSquare('a1');
+    await flushRender();
+    // Chessground при заданном customDests оставляет state.premovable.dests
+    // как есть (см. setSelected в board.js) — реальную проверку и отрисовку
+    // подсказок он ведёт через customDests.get(orig) напрямую.
+    const allowed = board.api.state.premovable.customDests?.get('a1');
+    expect(allowed).not.toContain('c1');
+    expect(allowed).toContain('a8');
+
+    board.api.selectSquare('a8');
+    await flushRender();
+    expect(board.hasPremove()).toBe(true);
+    expect(board.api.state.premovable.current).toEqual(['a1', 'a8']);
+  });
+
+  it('presetPremove показывает премув на доске без действий пользователя', async () => {
+    mount(true);
+    board.setPosition({
+      fen: INITIAL_FEN,
+      orientation: 'white',
+      turnColor: 'black',
+      movableColor: 'white',
+    });
+    await flushRender();
+    expect(board.hasPremove()).toBe(false);
+    board.presetPremove('e2', 'e4');
+    await flushRender();
+    expect(board.hasPremove()).toBe(true);
+    expect(board.api.state.premovable.current).toEqual(['e2', 'e4']);
+  });
+
+  it('повторный клик по премуву заменяет очередь, а не копит её (двойной клик не создаёт две очереди)', async () => {
+    mount(true);
+    board.setPosition({
+      fen: INITIAL_FEN,
+      orientation: 'white',
+      turnColor: 'black',
+      movableColor: 'white',
+    });
+    await flushRender();
+    board.api.selectSquare('e2');
+    await flushRender();
+    board.api.selectSquare('e4');
+    await flushRender();
+    expect(board.api.state.premovable.current).toEqual(['e2', 'e4']);
+
+    // Второй премув другой фигурой — старая очередь должна замениться,
+    // а не остаться висеть вместе с новой (premovable.current — не массив).
+    board.api.selectSquare('g1');
+    await flushRender();
+    board.api.selectSquare('f3');
+    await flushRender();
+    expect(board.api.state.premovable.current).toEqual(['g1', 'f3']);
+  });
+
+  it('премув не исполняется дважды: второй playPremove() после первого — no-op', async () => {
+    mount(true);
+    board.setPosition({
+      fen: INITIAL_FEN,
+      orientation: 'white',
+      turnColor: 'black',
+      movableColor: 'white',
+    });
+    await flushRender();
+    board.api.selectSquare('e2');
+    await flushRender();
+    board.api.selectSquare('e4');
+    await flushRender();
+    expect(board.hasPremove()).toBe(true);
+
+    // Реальный ход соперника — теперь можно исполнить премув.
+    board.setPosition({
+      fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'.replace('w', 'w'),
+      orientation: 'white',
+      turnColor: 'white',
+      movableColor: 'white',
+      dests: new Map([['e2', ['e3', 'e4']]]),
+    });
+    const first = board.playPremove();
+    expect(first).toBe(true);
+    expect(board.hasPremove()).toBe(false);
+
+    const second = board.playPremove();
+    expect(second).toBe(false);
+  });
+});

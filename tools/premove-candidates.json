@@ -1,0 +1,140 @@
+{
+  "note": "Базовые позиции для пула Premove. Каждая — реальная точка реальной партии (см. source), FEN и ходы пересчитаны и перепроверены tools/build-premove-pool.mjs через chessops независимо от этого файла. Из одной базовой позиции сборщик может построить несколько заданий (forced-capture / safe-unsafe / cancel-keep / cancel-remove) — по одному и тому же реальному моменту партии, что и требовалось: важна проверяемость позиции, а не то, что 'опасная альтернатива' тоже была кем-то сыграна в этой самой партии.",
+  "candidates": [
+    {
+      "id": "fc-bird-paulsen-1877",
+      "fen": "r1bqkbnr/pppp1ppp/8/1B2p3/3nP3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4",
+      "userColor": "black",
+      "expectedUci": "f3d4",
+      "answerUci": "e5d4",
+      "source": {
+        "white": "Henry Bird",
+        "black": "Louis Paulsen",
+        "event": "Leipzig",
+        "date": "1877",
+        "ply": 7,
+        "note": "Защита Бёрда в испанской: 3...Nd4 4.Nxd4 exd4."
+      }
+    },
+    {
+      "id": "fc-fischer-spassky-bxc6",
+      "fen": "r1bqkbnr/1ppp1ppp/p1n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 4",
+      "userColor": "black",
+      "expectedUci": "b5c6",
+      "answerUci": "d7c6",
+      "source": {
+        "white": "Robert James Fischer",
+        "black": "Boris Spassky",
+        "event": "World Chess Championship rematch, game 9, Sveti Stefan",
+        "date": "1992.09",
+        "ply": 7,
+        "note": "Разменный вариант испанской: 4.Bxc6 dxc6."
+      }
+    },
+    {
+      "id": "fc-fischer-spassky-qxd1",
+      "fen": "r1bqkbnr/1pp3pp/p4p2/2p5/4P3/1N6/PPP2PPP/RNBQ1RK1 b kq - 1 8",
+      "userColor": "white",
+      "expectedUci": "d8d1",
+      "answerUci": "f1d1",
+      "source": {
+        "white": "Robert James Fischer",
+        "black": "Boris Spassky",
+        "event": "World Chess Championship rematch, game 9, Sveti Stefan",
+        "date": "1992.09",
+        "ply": 16,
+        "note": "Та же партия, размен ферзей по открытой линии d: 8...Qxd1 9.Rxd1."
+      }
+    },
+    {
+      "id": "fc-kramnik-bohnenblust-1999",
+      "fen": "rnbq1rk1/pppp1ppp/4pn2/8/1bPP4/P1N5/1PQ1PPPP/R1B1KBNR b KQ - 0 5",
+      "userColor": "white",
+      "expectedUci": "b4c3",
+      "answerUci": "c2c3",
+      "source": {
+        "white": "Vladimir Kramnik",
+        "black": "Simon Bohnenblust",
+        "event": "Simultaneous exhibition, Zurich",
+        "date": "1999.09.04",
+        "ply": 10,
+        "note": "Нимцович 4.Qc2: 5...Bxc3+ 6.Qxc3."
+      }
+    },
+    {
+      "id": "fc-botvinnik-capablanca-1938",
+      "fen": "rnbq1rk1/p1p1bpp1/1p2pn1p/3p4/2PP3B/2N1PN2/PP3PPP/R2QKB1R w KQ - 0 8",
+      "userColor": "black",
+      "expectedUci": "c4d5",
+      "answerUci": "f6d5",
+      "source": {
+        "white": "Mikhail Botvinnik",
+        "black": "José Raúl Capablanca",
+        "event": "AVRO tournament, round 11, Rotterdam",
+        "date": "1938.11.22",
+        "ply": 15,
+        "note": "Ферзевый гамбит, разменный вариант с Bg5: 8.cxd5 Nxd5."
+      }
+    },
+    {
+      "id": "fc-kasparov-karpov-cxd5",
+      "fen": "rnbqkb1r/ppp1pp1p/5np1/3p4/2PP4/2N5/PP2PPPP/R1BQKBNR w KQkq - 0 4",
+      "userColor": "black",
+      "expectedUci": "c4d5",
+      "answerUci": "f6d5",
+      "source": {
+        "white": "Anatoly Karpov",
+        "black": "Garry Kasparov",
+        "event": "World Chess Championship, round 9, Seville",
+        "date": "1987.11.04",
+        "ply": 7,
+        "note": "Защита Грюнфельда, разменный вариант: 4.cxd5 Nxd5."
+      }
+    },
+    {
+      "id": "fc-kasparov-karpov-nxc3",
+      "fen": "rnbqkb1r/ppp1pp1p/6p1/3n4/3PP3/2N5/PP3PPP/R1BQKBNR b KQkq - 0 5",
+      "userColor": "white",
+      "expectedUci": "d5c3",
+      "answerUci": "b2c3",
+      "source": {
+        "white": "Anatoly Karpov",
+        "black": "Garry Kasparov",
+        "event": "World Chess Championship, round 9, Seville",
+        "date": "1987.11.04",
+        "ply": 10,
+        "note": "Та же партия, разменный Грюнфельд: 5...Nxc3 6.bxc3."
+      }
+    },
+    {
+      "id": "fc-steiner-capablanca-nxd4",
+      "fen": "r1bqkbnr/2p2ppp/p1np4/1p2p3/3PP3/1B3N2/PPP2PPP/RNBQK2R b KQkq - 1 6",
+      "userColor": "white",
+      "expectedUci": "c6d4",
+      "answerUci": "f3d4",
+      "source": {
+        "white": "Endre Steiner",
+        "black": "José Raúl Capablanca",
+        "event": "Budapest tournament",
+        "date": "1929",
+        "ply": 12,
+        "note": "Испанская, ловушка «Ноев ковчег»: 6...Nxd4 7.Nxd4."
+      }
+    },
+    {
+      "id": "su-steiner-capablanca-exd4-qxd4",
+      "fen": "r1bqkbnr/2p2ppp/p2p4/1p2p3/3NP3/1B6/PPP2PPP/RNBQK2R b KQkq - 0 7",
+      "userColor": "white",
+      "expectedUci": "e5d4",
+      "answerUci": "d1d4",
+      "source": {
+        "white": "Endre Steiner",
+        "black": "José Raúl Capablanca",
+        "event": "Budapest tournament",
+        "date": "1929",
+        "ply": 14,
+        "note": "Та же партия: соблазн 7...exd4 8.Qxd4?! — известная теоретическая неточность (ловушка «Ноев ковчег»), кандидат на разбор в safe/unsafe — решает движок, а не легенда дебюта."
+      }
+    }
+  ]
+}

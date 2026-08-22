@@ -8,18 +8,9 @@ import {
   PREMOVE_MODE_LABELS,
   positionsOf,
   type PremoveMode,
-  type PremovePosition,
+  type PremoveTask,
 } from '../data/premove-positions';
-import {
-  checkedColor,
-  dests,
-  fenOf,
-  moveFromUci,
-  opposite,
-  posFromFen,
-  uciOf,
-  type Chess,
-} from '../core/chess';
+import { dests, fenOf, moveFromUci, opposite, posFromFen, uciOf, type Chess } from '../core/chess';
 import type { Key } from 'chessground/types';
 
 // export: сверяется тестом с порогом полноценного завершения в today-plan.ts
@@ -34,8 +25,6 @@ export interface DifficultySpec {
   thinkMinMs: number;
   /** Разброс сверх нижней границы, мс. */
   thinkJitterMs: number;
-  /** Сколько даётся на снятие премува в задании «cancel», мс. */
-  cancelMs: number;
   hint: string;
 }
 
@@ -44,29 +33,25 @@ export interface DifficultySpec {
  * соперника ловится по ритму, а не по позиции, и упражнение вырождается.
  *
  * «Профи» — ровно то, что было до появления переключателя: 1.2–2.2 с на
- * ход и 3 с на снятие. Менять его нельзя, иначе прошлые замеры перестанут
- * сравниваться с новыми.
+ * ход. Менять нельзя, иначе прошлые замеры перестанут сравниваться с новыми.
  */
 export const DIFFICULTIES: Record<Difficulty, DifficultySpec> = {
   amateur: {
     label: 'Любитель',
     thinkMinMs: 4500,
     thinkJitterMs: 1000,
-    cancelMs: 5000,
-    hint: 'Около 5 секунд на поиск хода и премув — можно спокойно посчитать.',
+    hint: 'Около 5 секунд на ход соперника — можно спокойно посчитать.',
   },
   pro: {
     label: 'Профи',
     thinkMinMs: 1200,
     thinkJitterMs: 1000,
-    cancelMs: 3000,
     hint: 'Соперник думает 1,2–2,2 секунды. Обычный турнирный темп.',
   },
   extreme: {
     label: 'Extreme',
     thinkMinMs: 600,
     thinkJitterMs: 500,
-    cancelMs: 1800,
     hint: 'Около секунды на решение. Только на скорость реакции.',
   },
 };
@@ -75,12 +60,11 @@ interface Attempt {
   positionId: string;
   mode: PremoveMode;
   correct: boolean;
-  /** Время постановки премува от показа позиции, мс. */
+  /** Форсированное взятие: время постановки premove. Safe/Unsafe: время решения. */
   setLatencyMs: number | null;
-  /** Время снятия премува от появления неожиданного хода, мс. */
+  /** Отмена: время решения «оставить/снять», принятого ДО хода соперника. */
   cancelLatencyMs: number | null;
-  /** Решение пользователя: поставил, пропустил, снял, не снял. */
-  action: 'set' | 'skip' | 'cancelled' | 'not-cancelled' | 'wrong-move';
+  action: 'set' | 'skip' | 'wrong-move' | 'kept' | 'removed';
   premoveUci: string | null;
 }
 
@@ -99,10 +83,8 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   let mode: PremoveMode = 'forced-capture';
   let difficulty: Difficulty = 'pro';
   /**
-   * Сложность, с которой началась текущая сессия. Отдельно от `difficulty`
-   * потому, что переключатель менять посреди сессии нельзя: половина
-   * попыток оказалась бы в других условиях, чем вторая, а в разборе они
-   * лежали бы вперемешку. Переключатель на время сессии блокируется.
+   * Сложность, с которой началась текущая сессия. Отдельно от `difficulty`,
+   * потому что переключатель менять посреди сессии нельзя.
    */
   let sessionDifficulty: Difficulty = difficulty;
   const cameFromPlan = consumePlanNavigation();
@@ -116,26 +98,32 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     coordinates: cal.coordinates,
     inputMode: cal.inputMode,
     premovable: true,
+    // Правая кнопка на этой доске занята своим смыслом — снять premove,
+    // как на настоящем Lichess. Разметка стрелками сюда не заводится,
+    // иначе один и тот же жест значил бы разное на разных страницах.
+    drawable: false,
   });
 
   const promptEl = el('div', { class: 'prompt' }, ['Выбери режим и нажми «Старт».']);
   const verdictEl = el('div', { class: 'prompt' }, ['']);
   const liveStats = el('div', {});
   const commentEl = el('p', { class: 'hint' }, ['']);
+  const sourceEl = el('p', { class: 'hint premove-source' }, ['']);
   const planNextHost = el('div', { class: 'plan-next-host' });
 
   let session: Session | null = null;
   let startedAt: number | null = null;
   let finishedAt: number | null = null;
-  let queue: PremovePosition[] = [];
-  let current: PremovePosition | null = null;
+  let queue: PremoveTask[] = [];
+  let current: PremoveTask | null = null;
   let pos: Chess | null = null;
   let shownAt = 0;
   let premoveSetAt: number | null = null;
   let premoveUci: string | null = null;
-  let opponentMovedAt: number | null = null;
-  let awaitingCancel = false;
   let resolved = false;
+  /** Только режим «Отмена»: решение уже заблокировано и ход ещё не показан. */
+  let cancelDecided = false;
+  let cancelDecision: 'keep' | 'remove' | null = null;
   const attempts: Attempt[] = [];
   const timers: number[] = [];
 
@@ -148,20 +136,20 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     timers.length = 0;
   }
 
-  function paint(p: Chess, position: PremovePosition, lastMove?: Key[]): void {
-    const userToMove = p.turn === position.userColor;
+  function paint(p: Chess, task: PremoveTask, lastMove?: Key[]): void {
+    const userToMove = p.turn === task.userColor;
     // movableColor задаём ВСЕГДА, даже когда ходит соперник: Chessground
     // разрешает премув только если movable.color совпадает с цветом фигуры.
     // Обычный ход при этом всё равно заблокирован, потому что isMovable
     // дополнительно требует turnColor === цвет фигуры.
     board.setPosition({
       fen: fenOf(p),
-      orientation: position.userColor,
+      orientation: task.userColor,
       turnColor: p.turn,
-      movableColor: position.userColor,
+      movableColor: task.userColor,
       dests: userToMove ? dests(p) : new Map(),
       lastMove,
-      check: checkedColor(p),
+      check: p.isCheck() ? p.turn : false,
     });
     board.api.set({
       premovable: {
@@ -175,7 +163,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   }
 
   function onPremoveSet(orig: Key, dest: Key): void {
-    if (!current || resolved) return;
+    if (!current || resolved || current.mode !== 'forced-capture') return;
     premoveSetAt = performance.now();
     premoveUci = `${orig}${dest}`;
     verdictEl.textContent = `Премув ${orig}${dest} поставлен.`;
@@ -183,119 +171,118 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
   }
 
   function onPremoveUnset(): void {
-    if (!current || resolved) return;
-    // Как и в playPremove(), фиксируем значение до сброса: cancelMove()
-    // тоже шлёт unset синхронно, а finishCancel() ниже должен записать
-    // именно тот UCI, что был снят, а не null.
-    const uciAtUnset = premoveUci;
     premoveUci = null;
-    if (awaitingCancel) {
-      finishCancel(true, undefined, uciAtUnset);
-    }
+  }
+
+  function updateModeUi(t: PremoveTask): void {
+    fcControls.style.display = t.mode === 'forced-capture' ? '' : 'none';
+    suControls.style.display = t.mode === 'safe-unsafe' ? '' : 'none';
+    cxControls.style.display = t.mode === 'cancel' ? '' : 'none';
+    suSetBtn.disabled = false;
+    suSkipBtn.disabled = false;
+    cxKeepBtn.disabled = false;
+    cxRemoveBtn.disabled = false;
   }
 
   function nextTask(): void {
     clearTimers();
     if (!session) return;
-    const position = queue.shift();
-    if (!position) {
+    const task = queue.shift();
+    if (!task) {
       void finish();
       return;
     }
-    current = position;
-    pos = posFromFen(position.fen);
+    current = task;
+    pos = posFromFen(task.fen);
     premoveSetAt = null;
     premoveUci = null;
-    opponentMovedAt = null;
-    awaitingCancel = false;
     resolved = false;
+    cancelDecided = false;
+    cancelDecision = null;
     board.cancelPremove();
+    board.setPremoveDests(undefined);
     commentEl.textContent = '';
+    sourceEl.textContent = '';
     verdictEl.textContent = '';
     verdictEl.className = 'prompt';
 
-    paint(pos, position);
-    promptEl.textContent = promptFor(position);
+    paint(pos, task);
+    promptEl.textContent = promptFor(task);
+    updateModeUi(task);
     shownAt = performance.now();
 
-    // Сколько соперник «думает» — и есть время на решение (см. DIFFICULTIES).
     const spec = DIFFICULTIES[sessionDifficulty];
-    const think = spec.thinkMinMs + Math.random() * spec.thinkJitterMs;
-    later(() => opponentMoves(), think);
+    const think = () => spec.thinkMinMs + Math.random() * spec.thinkJitterMs;
+
+    if (task.mode === 'forced-capture') {
+      // Разрешённые клетки — из позиции ПОСЛЕ ожидаемого хода, а не по
+      // геометрии Chessground: см. Board.setPremoveDests().
+      const afterExpected = pos.clone();
+      afterExpected.play(moveFromUci(task.expectedUci));
+      board.setPremoveDests(dests(afterExpected));
+      later(() => opponentMoves(), think());
+    } else if (task.mode === 'cancel') {
+      // Премув уже стоит на доске — пользователь его не рисует сам.
+      const from = task.answerUci.slice(0, 2) as Key;
+      const to = task.answerUci.slice(2, 4) as Key;
+      board.presetPremove(from, to);
+      premoveUci = task.answerUci;
+      premoveSetAt = shownAt;
+      // Не среагировал за отведённое время — как и в реальности, ничего
+      // не делать значит оставить премув стоять.
+      later(() => lockCancelDecision('keep'), think());
+    }
+    // safe-unsafe: ждём клика по кнопке, без таймера — это не гонка на
+    // реакцию, а разбор позиции.
   }
 
-  function promptFor(position: PremovePosition): string {
-    const side = position.userColor === 'white' ? 'белыми' : 'чёрными';
-    switch (position.mode) {
+  function promptFor(task: PremoveTask): string {
+    const side = task.userColor === 'white' ? 'белыми' : 'чёрными';
+    switch (task.mode) {
       case 'forced-capture':
-        return `Играешь ${side}. Соперник вот-вот сыграет ${position.expectedSan}. Поставь ответное взятие заранее.`;
+        return `Играешь ${side}. Соперник вот-вот сыграет ${task.expectedSan}. Поставь ответное взятие заранее.`;
       case 'safe-unsafe':
-        return `Играешь ${side}. Реши: ставить премув или осознанно пропустить.`;
+        return `Играешь ${side}. Ожидается ${task.expectedSan}. Предполагаемый premove: ${task.answerSan}. Ставить или пропустить?`;
       case 'cancel':
-        return `Играешь ${side}. Ставь ожидаемый ответ, но будь готов снять его.`;
+        return `Играешь ${side}. Премув уже поставлен. Пока соперник думает, реши: оставить или снять.`;
     }
   }
 
+  // --- Режим 1: Ответное взятие. ---
+
   function opponentMoves(): void {
-    if (!current || !pos || resolved) return;
-    const position = current;
-    const isCancelTask = position.mode === 'cancel' && !!position.unexpectedUci;
-    const uci = isCancelTask ? position.unexpectedUci! : position.expectedUci;
-    const move = moveFromUci(uci);
+    if (!current || !pos || resolved || current.mode !== 'forced-capture') return;
+    const task = current;
+    const move = moveFromUci(task.expectedUci);
     const after = pos.clone();
     after.play(move);
     pos = after;
-    opponentMovedAt = performance.now();
 
-    const from = uci.slice(0, 2) as Key;
-    const to = uci.slice(2, 4) as Key;
+    const from = task.expectedUci.slice(0, 2) as Key;
+    const to = task.expectedUci.slice(2, 4) as Key;
+    paint(after, task, [from, to]);
 
-    if (isCancelTask) {
-      // Неожиданный ход: премув надо снять как можно быстрее.
-      awaitingCancel = true;
-      paint(after, position, [from, to]);
-      promptEl.textContent = `Соперник сыграл неожиданно: ${position.unexpectedSan}. Снимай премув!`;
-      if (!board.hasPremove() && !premoveUci) {
-        // Премув не ставился — засчитывать нечего.
-        finishCancel(false, 'no-premove', premoveUci);
-        return;
-      }
-      // Не успел снять за отведённое режимом время — провал.
-      later(() => {
-        if (awaitingCancel) finishCancel(false, undefined, premoveUci);
-      }, DIFFICULTIES[sessionDifficulty].cancelMs);
-      return;
-    }
-
-    paint(after, position, [from, to]);
     // Chessground сбрасывает state.premovable.current и шлёт events.unset
     // синхронно внутри playPremove() — даже когда премув успешно сыгран.
     // Поэтому запоминаем UCI ДО вызова, иначе onPremoveUnset() обнулит
-    // premoveUci раньше, чем evaluate() успеет его прочитать, и любой
-    // верно поставленный премув засчитается как «не поставлен».
+    // premoveUci раньше, чем evaluateForcedCapture() успеет его прочитать.
     const premoveAtMove = premoveUci;
-    // Даём Chessground проиграть премув — так же, как это происходит на Lichess.
     const played = board.playPremove();
-    later(() => evaluate(played, premoveAtMove), 60);
+    later(() => evaluateForcedCapture(played, premoveAtMove), 60);
   }
 
-  function evaluate(premovePlayed: boolean, premoveUciAtMove: string | null): void {
+  function evaluateForcedCapture(premovePlayed: boolean, premoveUciAtMove: string | null): void {
     if (!current || resolved) return;
     resolved = true;
-    const position = current;
+    const task = current;
     const setLatency = premoveSetAt === null ? null : premoveSetAt - shownAt;
 
     let correct: boolean;
     let action: Attempt['action'];
-
     if (!premoveUciAtMove) {
-      // Пользователь пропустил ход. Верно, если премув тут и не нужен.
-      correct = !position.shouldPremove;
+      correct = false; // в пуле форсированного взятия премув нужен всегда
       action = 'skip';
-    } else if (!position.shouldPremove) {
-      correct = false;
-      action = 'set';
-    } else if (position.answerUci && premoveUciAtMove.startsWith(position.answerUci.slice(0, 4))) {
+    } else if (premoveUciAtMove.startsWith(task.answerUci.slice(0, 4))) {
       correct = true;
       action = 'set';
     } else {
@@ -303,70 +290,190 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
       action = 'wrong-move';
     }
 
-    // Ход применяем к позиции сами: доска должна остаться слепком FEN.
     if (premovePlayed && premoveUciAtMove && pos) {
       const mv = pos.isLegal(moveFromUci(premoveUciAtMove)) ? moveFromUci(premoveUciAtMove) : null;
       if (mv) {
         const after = pos.clone();
         after.play(mv);
         pos = after;
-        paint(after, position, [premoveUciAtMove.slice(0, 2) as Key, premoveUciAtMove.slice(2, 4) as Key]);
+        paint(after, task, [premoveUciAtMove.slice(0, 2) as Key, premoveUciAtMove.slice(2, 4) as Key]);
       }
     }
 
-    record({
-      positionId: position.id,
-      mode: position.mode,
-      correct,
-      setLatencyMs: setLatency,
-      cancelLatencyMs: null,
-      action,
-      premoveUci: premoveUciAtMove,
-    });
+    record(
+      {
+        positionId: task.id,
+        mode: task.mode,
+        correct,
+        setLatencyMs: setLatency,
+        cancelLatencyMs: null,
+        action,
+        premoveUci: premoveUciAtMove,
+      },
+      task,
+    );
   }
 
-  function finishCancel(cancelled: boolean, reason: 'no-premove' | undefined, uci: string | null): void {
-    if (!current || resolved) return;
+  // --- Режим 2: Safe / Unsafe. ---
+
+  function decideSafeUnsafe(setIt: boolean): void {
+    if (!current || resolved || current.mode !== 'safe-unsafe' || !pos) return;
     resolved = true;
-    awaitingCancel = false;
-    const position = current;
-    const latency =
-      cancelled && opponentMovedAt !== null ? performance.now() - opponentMovedAt : null;
-    record({
-      positionId: position.id,
-      mode: position.mode,
-      correct: cancelled,
-      setLatencyMs: premoveSetAt === null ? null : premoveSetAt - shownAt,
-      cancelLatencyMs: latency,
-      action: reason === 'no-premove' ? 'skip' : cancelled ? 'cancelled' : 'not-cancelled',
-      premoveUci: uci,
-    });
+    const task = current;
+    const decisionLatency = performance.now() - shownAt;
+    const correct = setIt === !!task.shouldPremove;
+
+    // Ход всё равно доигрываем — чтобы на экране осталась настоящая
+    // партия, а не застывшая позиция «до».
+    const move = moveFromUci(task.expectedUci);
+    const after = pos.clone();
+    after.play(move);
+    pos = after;
+    const from = task.expectedUci.slice(0, 2) as Key;
+    const to = task.expectedUci.slice(2, 4) as Key;
+    paint(after, task, [from, to]);
+
+    record(
+      {
+        positionId: task.id,
+        mode: task.mode,
+        correct,
+        setLatencyMs: decisionLatency,
+        cancelLatencyMs: null,
+        action: setIt ? 'set' : 'skip',
+        premoveUci: setIt ? task.answerUci : null,
+      },
+      task,
+    );
   }
 
-  function record(a: Attempt): void {
+  // --- Режим 3: Отмена. ---
+
+  function lockCancelDecision(decision: 'keep' | 'remove'): void {
+    if (!current || resolved || current.mode !== 'cancel' || cancelDecided) return;
+    cancelDecided = true;
+    cancelDecision = decision;
+    cxKeepBtn.disabled = true;
+    cxRemoveBtn.disabled = true;
+    if (decision === 'remove') {
+      // Убираем визуально СРАЗУ, до хода соперника — решение принято.
+      board.cancelPremove();
+      premoveUci = null;
+    }
+    later(() => revealCancelOutcome(), 250);
+  }
+
+  function revealCancelOutcome(): void {
+    if (!current || !pos || current.mode !== 'cancel') return;
+    const task = current;
+    const decisionLatency = shownAt === 0 ? null : performance.now() - shownAt;
+    const playedUci = task.correctAction === 'remove' ? task.unexpectedUci! : task.expectedUci;
+    const move = moveFromUci(playedUci);
+    const after = pos.clone();
+    after.play(move);
+    pos = after;
+    const from = playedUci.slice(0, 2) as Key;
+    const to = playedUci.slice(2, 4) as Key;
+    paint(after, task, [from, to]);
+
+    if (cancelDecision === 'keep') {
+      // Премув стоял и стоит — он реально исполняется, как на Lichess.
+      const played = board.playPremove();
+      if (played && pos) {
+        const answerMove = moveFromUci(task.answerUci);
+        if (pos.isLegal(answerMove)) {
+          const afterAnswer = pos.clone();
+          afterAnswer.play(answerMove);
+          pos = afterAnswer;
+          paint(afterAnswer, task, [
+            task.answerUci.slice(0, 2) as Key,
+            task.answerUci.slice(2, 4) as Key,
+          ]);
+        }
+      }
+    }
+
+    resolved = true;
+    const correct = cancelDecision === task.correctAction;
+    record(
+      {
+        positionId: task.id,
+        mode: task.mode,
+        correct,
+        setLatencyMs: null,
+        cancelLatencyMs: decisionLatency,
+        action: cancelDecision === 'keep' ? 'kept' : 'removed',
+        premoveUci: task.answerUci,
+      },
+      task,
+    );
+  }
+
+  // --- Общее: снятие премува кнопкой/пробелом/Esc/правой кнопкой. ---
+  // В режиме «Отмена» это ровно решение «снять», принятое ДО хода
+  // соперника, — то же самое действие, что и кнопка «Снять».
+  // В режиме «Форсированное взятие» — отказ от собственного, ещё не
+  // сыгранного premove. В Safe/Unsafe живого премува нет — no-op.
+  function handleCancelGesture(): void {
+    if (!session || !current) return;
+    if (current.mode === 'cancel') {
+      lockCancelDecision('remove');
+      return;
+    }
+    if (current.mode === 'forced-capture' && board.hasPremove()) {
+      board.cancelPremove();
+      premoveUci = null;
+    }
+  }
+
+  const onKey = (e: KeyboardEvent) => {
+    if (e.code === 'Space' || e.key === 'Escape') {
+      if (session) {
+        e.preventDefault();
+        handleCancelGesture();
+      }
+    }
+  };
+  const onContextMenu = (e: MouseEvent) => {
+    e.preventDefault();
+    handleCancelGesture();
+  };
+  const onAuxDown = (e: MouseEvent) => {
+    if (e.button === 2) handleCancelGesture();
+  };
+  window.addEventListener('keydown', onKey);
+  boardHost.addEventListener('contextmenu', onContextMenu);
+  boardHost.addEventListener('mousedown', onAuxDown);
+
+  function record(a: Attempt, task: PremoveTask): void {
     attempts.push(a);
     // Сложность пишем в каждый замер: время на решение у режимов разное,
     // и без этой пометки быстрые попытки на «Любителе» смешались бы в
-    // разборе с попытками на «Extreme», где условия совсем другие.
+    // разборе с попытками на «Extreme». Режимы между собой тоже не
+    // смешиваются — Session заведена на конкретный mode (см. startBtn),
+    // а summarizeModule (data-summary.ts) группирует замеры по mode сам.
     void session?.record({ ...a, difficulty: sessionDifficulty });
-    verdictEl.textContent = verdictText(a);
+    verdictEl.textContent = verdictText(a, task);
     verdictEl.className = a.correct ? 'prompt verdict-ok' : 'prompt verdict-bad';
-    commentEl.textContent = current?.comment ?? '';
+    commentEl.textContent = task.comment;
+    sourceEl.textContent = `${task.source.white} — ${task.source.black}, ${task.source.event}, ${task.source.date}`;
     board.cancelPremove();
     renderLive();
     later(() => nextTask(), 1400);
   }
 
-  function verdictText(a: Attempt): string {
+  function verdictText(a: Attempt, task: PremoveTask): string {
     if (a.mode === 'cancel') {
-      if (a.action === 'skip') return 'Премув не ставился, снимать было нечего.';
-      return a.correct
-        ? `Снято за ${fmtMs(a.cancelLatencyMs)}.`
-        : 'Премув не снят — на доске остался чужой ход.';
+      if (a.correct) return a.action === 'kept' ? 'Верно: премув стоило оставить.' : 'Верно: премув стоило снять.';
+      return a.action === 'kept' ? 'Премув надо было снять.' : 'Премув стоило оставить.';
     }
-    if (a.action === 'skip') return a.correct ? 'Верный пропуск.' : 'Здесь надо было ставить премув.';
+    if (a.mode === 'safe-unsafe') {
+      if (a.correct) return task.shouldPremove ? 'Верно: это безопасный premove.' : 'Верно: премув здесь опасен.';
+      return task.shouldPremove ? 'Это был безопасный premove — стоило ставить.' : 'Это опасный premove — стоило пропустить.';
+    }
+    if (a.action === 'skip') return 'Здесь нужен был премув.';
     if (a.action === 'wrong-move') return 'Не тот ход.';
-    return a.correct ? `Верно, за ${fmtMs(a.setLatencyMs)}.` : 'Здесь премув ставить не стоило.';
+    return a.correct ? `Верно, за ${fmtMs(a.setLatencyMs)}.` : 'Неверно.';
   }
 
   /** Тот же расчёт, что в motorics.ts: без старта — пусто, после финиша — заморожено. */
@@ -377,9 +484,9 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
 
   /**
    * Единый вид результатов — как в motorics.ts, reaction.ts и openings.ts.
-   * «Скорость» — та же приоритетная задержка, что и в сводке «Прогресса»
-   * (см. primaryLatency в data-summary.ts): для снятого премува важно
-   * время снятия, иначе — время постановки.
+   * «Скорость» — приоритетная задержка (см. primaryLatency в
+   * data-summary.ts): для отмены важно время решения, иначе — время
+   * постановки/выбора.
    */
   function renderLive(): void {
     const n = attempts.length;
@@ -424,6 +531,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     startBtn.disabled = false;
     stopBtn.disabled = true;
     setDifficultyEnabled(true);
+    setModeEnabled(true);
     renderLive();
     renderPlanNext();
   }
@@ -447,42 +555,6 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     }
   }
 
-  // --- Снятие премува: кнопка, пробел, Esc, правая кнопка мыши.
-  function cancelPremoveByUser(): void {
-    if (!board.hasPremove() && !premoveUci) return;
-    // board.cancelPremove() обычно уже вызывает onPremoveUnset() синхронно
-    // (chessground шлёт unset изнутри cancelMove()), который сам разрулит
-    // awaitingCancel. Локальная копия ниже — подстраховка на случай рассинхрона
-    // (premoveUci выставлен у нас, а current в chessground уже пуст, и unset
-    // не шлётся): тогда resolved ещё false и мы обязаны закрыть попытку сами.
-    const uciAtCancel = premoveUci;
-    board.cancelPremove();
-    premoveUci = null;
-    if (awaitingCancel) finishCancel(true, undefined, uciAtCancel);
-  }
-
-  const cancelBtn = el('button', { class: 'btn danger', type: 'button' }, ['Снять премув']);
-  cancelBtn.addEventListener('click', cancelPremoveByUser);
-
-  const onKey = (e: KeyboardEvent) => {
-    if (e.code === 'Space' || e.key === 'Escape') {
-      if (session) {
-        e.preventDefault();
-        cancelPremoveByUser();
-      }
-    }
-  };
-  const onContextMenu = (e: MouseEvent) => {
-    e.preventDefault();
-    cancelPremoveByUser();
-  };
-  const onAuxDown = (e: MouseEvent) => {
-    if (e.button === 2) cancelPremoveByUser();
-  };
-  window.addEventListener('keydown', onKey);
-  boardHost.addEventListener('contextmenu', onContextMenu);
-  boardHost.addEventListener('mousedown', onAuxDown);
-
   const modeSeg = segmented<PremoveMode>(
     (Object.keys(PREMOVE_MODE_LABELS) as PremoveMode[]).map((m) => ({
       value: m,
@@ -494,6 +566,10 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
       if (!session) promptEl.textContent = `Режим: ${PREMOVE_MODE_LABELS[v]}. Нажми «Старт».`;
     },
   );
+
+  function setModeEnabled(on: boolean): void {
+    for (const b of modeSeg.root.querySelectorAll('button')) (b as HTMLButtonElement).disabled = !on;
+  }
 
   const difficultyHint = el('p', { class: 'hint' }, [DIFFICULTIES[difficulty].hint]);
   const difficultySeg = segmented<Difficulty>(
@@ -508,12 +584,38 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     },
   );
 
-  /** Пока идёт сессия, сложность не меняем — см. sessionDifficulty. */
+  /** Пока идёт сессия, сложность и режим не меняем — половина попыток
+   * оказалась бы в других условиях, чем вторая. */
   function setDifficultyEnabled(on: boolean): void {
     for (const b of difficultySeg.root.querySelectorAll('button')) {
       (b as HTMLButtonElement).disabled = !on;
     }
   }
+
+  // --- Кнопки по режимам. ---
+
+  const fcCancelBtn = el('button', { class: 'btn', type: 'button' }, ['Отменить свой premove']);
+  fcCancelBtn.addEventListener('click', handleCancelGesture);
+  const fcControls = el('div', { class: 'row' }, [fcCancelBtn]);
+
+  const suSetBtn = el('button', { class: 'btn primary', type: 'button' }, ['Поставить']);
+  const suSkipBtn = el('button', { class: 'btn', type: 'button' }, ['Не ставить']);
+  suSetBtn.addEventListener('click', () => decideSafeUnsafe(true));
+  suSkipBtn.addEventListener('click', () => decideSafeUnsafe(false));
+  const suControls = el('div', { class: 'row' }, [suSetBtn, suSkipBtn]);
+
+  const cxKeepBtn = el('button', { class: 'btn primary', type: 'button' }, ['Оставить']);
+  const cxRemoveBtn = el('button', { class: 'btn danger', type: 'button' }, ['Снять']);
+  cxKeepBtn.addEventListener('click', () => lockCancelDecision('keep'));
+  cxRemoveBtn.addEventListener('click', () => lockCancelDecision('remove'));
+  const cxControls = el('div', { class: 'row' }, [
+    cxKeepBtn,
+    cxRemoveBtn,
+    el('p', { class: 'hint' }, ['Снять: кнопка, пробел, Esc или правая кнопка мыши.']),
+  ]);
+  fcControls.style.display = 'none';
+  suControls.style.display = 'none';
+  cxControls.style.display = 'none';
 
   const startBtn = el('button', { class: 'btn primary', type: 'button' }, ['Старт']);
   const stopBtn = el('button', { class: 'btn', type: 'button' }, ['Прервать']);
@@ -535,6 +637,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
     startBtn.disabled = true;
     stopBtn.disabled = false;
     setDifficultyEnabled(false);
+    setModeEnabled(false);
     renderLive();
     nextTask();
   });
@@ -553,11 +656,12 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
           promptEl,
           verdictEl,
           liveStats,
-          el('div', { class: 'row' }, [startBtn, stopBtn, cancelBtn]),
+          el('div', { class: 'row' }, [startBtn, stopBtn]),
+          fcControls,
+          suControls,
+          cxControls,
           commentEl,
-          el('p', { class: 'hint' }, [
-            'Снять премув: кнопка, пробел, Esc или правая кнопка мыши.',
-          ]),
+          sourceEl,
           planNextHost,
         ]),
       ]),
@@ -577,7 +681,7 @@ export function mountPremove(root: HTMLElement, ctx: AppContext): Unmount {
 }
 
 /** Используется тестами: сторона, которая ходит в позиции задания. */
-export function opponentColorOf(p: PremovePosition): 'white' | 'black' {
+export function opponentColorOf(p: PremoveTask): 'white' | 'black' {
   return opposite(p.userColor);
 }
 

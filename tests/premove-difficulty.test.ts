@@ -7,10 +7,9 @@ import { DIFFICULTIES, type Difficulty } from '../src/modules/premove';
  * оборвём сравнимость со всеми ранее записанными сессиями премувов.
  */
 describe('Премувы: режимы сложности', () => {
-  it('«Профи» — прежние 1,2–2,2 с на ход и 3 с на снятие', () => {
+  it('«Профи» — прежние 1,2–2,2 с на ход', () => {
     expect(DIFFICULTIES.pro.thinkMinMs).toBe(1200);
     expect(DIFFICULTIES.pro.thinkMinMs + DIFFICULTIES.pro.thinkJitterMs).toBe(2200);
-    expect(DIFFICULTIES.pro.cancelMs).toBe(3000);
   });
 
   it('«Любитель» даёт около 5 секунд на решение', () => {
@@ -27,11 +26,6 @@ describe('Премувы: режимы сложности', () => {
     const top = (d: Difficulty) => DIFFICULTIES[d].thinkMinMs + DIFFICULTIES[d].thinkJitterMs;
     expect(top('extreme')).toBeLessThan(DIFFICULTIES.pro.thinkMinMs);
     expect(DIFFICULTIES.amateur.thinkMinMs).toBeGreaterThan(top('pro'));
-  });
-
-  it('время на снятие premove идёт в ту же сторону, что и на ход', () => {
-    expect(DIFFICULTIES.extreme.cancelMs).toBeLessThan(DIFFICULTIES.pro.cancelMs);
-    expect(DIFFICULTIES.amateur.cancelMs).toBeGreaterThan(DIFFICULTIES.pro.cancelMs);
   });
 
   it('у каждого режима есть название и пояснение', () => {
